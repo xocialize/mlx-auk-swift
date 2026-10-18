@@ -175,7 +175,7 @@ def write_variant(variant: str, out_root: str, dtype: str) -> None:
             target_sample_rate=cfg["vae"]["target_sample_rate"],
             **{k: v for k, v in vae_kwargs.items() if k != "latent_dim"},
         ),
-        text_encoder=dict(repo="mlx-community/Qwen2.5-Omni-3B-Thinker", num_hidden_layers=36, hidden_size=2048),
+        text_encoder=dict(repo="mlx-community/Qwen2.5-Omni-3B-Thinker-bf16", num_hidden_layers=36, hidden_size=2048),
         sampling=(
             dict(nfe=4, cfg_strength=0.0, sway_sampling_coef=None, t_grid=[0.0, 0.07612049579620361, 0.2928932309150696, 0.6173166036605835, 1.0])
             if cfg["name"] == "AuK-Flash"

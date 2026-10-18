@@ -45,7 +45,10 @@ public final class QwenOmniConditionEncoder: AukConditionEncoder {
     public init(directory: URL, dtype: DType) async throws {
         let config = try ConfigIO.load(QwenOmniThinkerConfig.self, from: directory.appendingPathComponent("config.json"))
         let thinker = Qwen2_5OmniThinker(config)
-        let weights = try WeightIO.load(directory.appendingPathComponent("encoder.safetensors"), dtype: dtype)
+        if let q = config.quantization { thinker.quantizeLayers(groupSize: q.group_size, bits: q.bits) }
+        // quantised scales/biases keep their stored dtype; packed uint32 weights are not floating and pass through
+        let weights = try WeightIO.load(directory.appendingPathComponent("encoder.safetensors"), dtype: dtype,
+                                        keepFP32: { $0.hasSuffix(".scales") || $0.hasSuffix(".biases") })
         try WeightIO.apply(WeightIO.scoped(weights, prefix: "thinker."), to: thinker, component: "thinker")
         self.thinker = thinker
         self.tokenizer = try await AutoTokenizer.from(modelFolder: directory)

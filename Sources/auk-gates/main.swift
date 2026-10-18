@@ -10,7 +10,11 @@
 // --enc-dtype float32|bfloat16|… (encoder only).
 
 import AuKCore
+import Darwin
 import Foundation
+import MLXAuK
+import MLXServeCore
+import MLXToolKit
 import MLX
 import MLXNN
 
@@ -20,6 +24,9 @@ var args = Array(CommandLine.arguments.dropFirst())
 var useCPU = false
 var dtype: DType = .float32
 var encDType: DType? = nil
+var ditBits: Int? = nil
+var encBits: Int? = nil
+var seeds: [UInt64] = [0, 1, 2]
 func parseDType(_ s: String) -> DType {
     switch s { case "bfloat16", "bf16": return .bfloat16; case "float16", "fp16": return .float16; default: return .float32 }
 }
@@ -29,6 +36,9 @@ while let a = args.first, a.hasPrefix("--") {
     case "--cpu": useCPU = true
     case "--dtype": dtype = parseDType(args.removeFirst())
     case "--enc-dtype": encDType = parseDType(args.removeFirst())
+    case "--dit-bits": ditBits = Int(args.removeFirst())
+    case "--enc-bits": encBits = Int(args.removeFirst())
+    case "--seeds": seeds = args.removeFirst().split(separator: ",").compactMap { UInt64($0) }
     default: fatalError("unknown option \(a)")
     }
 }
@@ -209,6 +219,166 @@ func render(_ modelDir: URL, _ encDir: URL, _ instruction: String, _ input: Stri
                  Double(Memory.peakMemory) / 1e9))
 }
 
+/// V2b: every golden task × seeds through the production path (own noise, own resampling, own features).
+func matrix(_ goldenVariant: URL, _ assets: URL, _ modelDir: URL, _ encDir: URL, _ outDir: URL) async throws {
+    let q = AukQuantization(ditBits: ditBits, encoderBits: encBits)
+    let pipe = try await AukPipeline.load(modelDir: modelDir, encoderDir: encDir, dtype: dtype, encoderDType: encDType,
+                                          quantization: q)
+    try FileManager.default.createDirectory(at: outDir, withIntermediateDirectories: true)
+    let log = outDir.appendingPathComponent("renders.jsonl")
+    if !FileManager.default.fileExists(atPath: log.path) { FileManager.default.createFile(atPath: log.path, contents: nil) }
+    let fh = try FileHandle(forWritingTo: log); fh.seekToEndOfFile()
+    let tasks = try FileManager.default.contentsOfDirectory(atPath: goldenVariant.path).filter {
+        FileManager.default.fileExists(atPath: goldenVariant.appendingPathComponent("\($0)/meta.json").path)
+    }.sorted()
+    for task in tasks {
+        let meta = try loadMeta(goldenVariant.appendingPathComponent(task))
+        var audio: [Float]? = nil
+        var rate = 24000
+        if let a = meta.audio { (audio, rate) = try WAV.read(assets.appendingPathComponent(a)) }
+        let instruction = meta.instruction.replacingOccurrences(of: "|<no_prompt_audio>|", with: "")
+        for seed in seeds {
+            let out = outDir.appendingPathComponent("\(task)-s\(seed).wav")
+            if FileManager.default.fileExists(atPath: out.path) { continue }
+            Memory.peakMemory = 0
+            let t0 = Date()
+            let wave = try pipe.generate(AukRequest(instruction: instruction, audio: audio, sampleRate: rate,
+                                                    genSeconds: meta.gen_seconds, seed: seed))
+            let wall = Date().timeIntervalSince(t0)
+            try WAV.write(wave, sampleRate: 24000, to: out)
+            let rec: [String: Any] = ["task": task, "seed": seed, "path": out.path, "wall_s": wall,
+                                      "audio_s": Double(wave.count) / 24000, "peak_gb": Double(Memory.peakMemory) / 1e9]
+            fh.write(try JSONSerialization.data(withJSONObject: rec)); fh.write("\n".data(using: .utf8)!)
+            print(String(format: "  %@ s%d  %.2f s (RTF %.3f) peak %.2f GB", task as NSString, Int(seed), wall,
+                         wall / (Double(wave.count) / 24000), Double(Memory.peakMemory) / 1e9))
+        }
+    }
+    try fh.close()
+}
+
+/// Writes a pre-quantised encoder bundle from the bf16 one: layer Linears → affine `bits` (group 64), everything else
+/// as stored; config.json gains `quantization`; tokenizer / processor files copied verbatim.
+func quantizeEncoder(_ src: URL, _ dst: URL, bits: Int) throws {
+    let fm = FileManager.default
+    try fm.createDirectory(at: dst, withIntermediateDirectories: true)
+    var cfg = try JSONSerialization.jsonObject(with: Data(contentsOf: src.appendingPathComponent("config.json"))) as! [String: Any]
+    let config = try ConfigIO.load(QwenOmniThinkerConfig.self, from: src.appendingPathComponent("config.json"))
+    let thinker = Qwen2_5OmniThinker(config)
+    let w = try WeightIO.load(src.appendingPathComponent("encoder.safetensors"), dtype: .bfloat16)
+    try WeightIO.apply(WeightIO.scoped(w, prefix: "thinker."), to: thinker, component: "thinker")
+    thinker.quantizeLayers(groupSize: 64, bits: bits)
+    var out = [String: MLXArray]()
+    for (k, v) in thinker.parameters().flattened() { out["thinker." + k] = v }
+    eval(Array(out.values))
+    try save(arrays: out, metadata: ["format": "mlx"], url: dst.appendingPathComponent("encoder.safetensors"))
+    cfg["quantization"] = ["group_size": 64, "bits": bits]
+    cfg["dtype"] = "bfloat16"
+    try JSONSerialization.data(withJSONObject: cfg, options: [.prettyPrinted, .sortedKeys])
+        .write(to: dst.appendingPathComponent("config.json"))
+    for f in try fm.contentsOfDirectory(atPath: src.path) where f != "encoder.safetensors" && f != "config.json" {
+        let to = dst.appendingPathComponent(f)
+        if fm.fileExists(atPath: to.path) { try fm.removeItem(at: to) }
+        try fm.copyItem(at: src.appendingPathComponent(f), to: to)
+    }
+    let bytes = (try? fm.attributesOfItem(atPath: dst.appendingPathComponent("encoder.safetensors").path)[.size] as? Int) ?? 0
+    print(String(format: "wrote %@ — %d tensors, %.2f GB", dst.path, out.count, Double(bytes) / 1e9))
+}
+
+func physFootprintGB() -> Double {
+    var info = task_vm_info_data_t()
+    var count = mach_msg_type_number_t(MemoryLayout<task_vm_info_data_t>.size / MemoryLayout<natural_t>.size)
+    let kr = withUnsafeMutablePointer(to: &info) {
+        $0.withMemoryRebound(to: integer_t.self, capacity: Int(count)) { task_info(mach_task_self_, task_flavor_t(TASK_VM_INFO), $0, &count) }
+    }
+    return kr == KERN_SUCCESS ? Double(info.phys_footprint) / 1e9 : .nan
+}
+
+/// The consumer path: MLXServeEngine register → prepare → run → evict, phys_footprint at each step (the manifest's
+/// C-memory numbers). The default .permissiveOnly engine must REFUSE the package; the .any engine (the operator's
+/// --allow-research acceptance) admits it.
+func validate(variant: String, quant q: String, _ modelDir: URL, _ encDir: URL, _ assets: URL, _ outDir: URL) async throws {
+    let quant: Quant = q == "int8" ? .int8 : q == "int4" ? .int4 : .bf16
+    let v: AuKVariant = variant == "base" ? .base : .flash
+    let config = AuKConfiguration(variant: v, quant: quant, modelDirectory: modelDir, encoderDirectory: encDir)
+    let registration: PackageRegistration = v == .base ? AuKPackage.registration : AuKFlashPackage.registration
+    try FileManager.default.createDirectory(at: outDir, withIntermediateDirectories: true)
+
+    let strict = MLXServeEngine()
+    do {
+        _ = try await strict.register(registration, configuration: config, id: PackageID("auk-strict"))
+        let advisories = await strict.licenseAdvisories
+        print("  [LIC] .permissiveOnly registered with \(advisories.count) advisories — \(advisories.isEmpty ? "NOT REFUSED (FAIL)" : "advisory only")")
+    } catch {
+        print("  [LIC] .permissiveOnly refused registration: \(String(describing: error).prefix(160))")
+    }
+
+    let engine = MLXServeEngine(policy: .any)
+    let id = try await engine.register(registration, configuration: config, id: PackageID(v == .base ? "auk" : "auk-flash"))
+    let before = physFootprintGB()
+    let t0 = Date()
+    try await engine.prepare(.tts, package: id)
+    let afterLoad = physFootprintGB()
+    print(String(format: "  [VAL] %@ %@ prepared in %.1fs (warm-up incl.); phys %.2f → %.2f GB (resident +%.2f)",
+                 variant, q, Date().timeIntervalSince(t0), before, afterLoad, afterLoad - before))
+    var peak = afterLoad
+    func wav(_ rel: String) throws -> Audio {
+        let (s, r) = try WAV.read(assets.appendingPathComponent(rel))
+        var d = Data(); func u32(_ x: UInt32) { withUnsafeBytes(of: x.littleEndian) { d.append(contentsOf: $0) } }
+        func u16(_ x: UInt16) { withUnsafeBytes(of: x.littleEndian) { d.append(contentsOf: $0) } }
+        d.append(contentsOf: Array("RIFF".utf8)); u32(UInt32(36 + s.count * 2)); d.append(contentsOf: Array("WAVE".utf8))
+        d.append(contentsOf: Array("fmt ".utf8)); u32(16); u16(1); u16(1); u32(UInt32(r)); u32(UInt32(r * 2)); u16(2); u16(16)
+        d.append(contentsOf: Array("data".utf8)); u32(UInt32(s.count * 2))
+        for x in s { withUnsafeBytes(of: Int16(max(-1, min(1, x)) * 32767).littleEndian) { d.append(contentsOf: $0) } }
+        return Audio(format: .wav, data: d, sampleRate: r, channels: 1)
+    }
+    let cases: [(String, Capability, any CapabilityRequest)] = [
+        ("tts-clone", .tts, TTSRequest(text: "Ladies and gentlemen, it's an honor to address such a distinguished audience.",
+                                       voice: VoiceSelector(.referenceAudio(try wav("zero-shot-tts/ref.wav"))), targetDuration: 5.5,
+                                       metaData: ["seed": .int(7)])),
+        ("tts-design", .tts, TTSRequest(text: "Welcome home, how was work today?",
+                                        emotion: .textDescription("A young woman, warm and gentle, speaking softly."),
+                                        metaData: ["seed": .int(7)])),
+        ("edit-happy", .speechEdit, SpeechEditRequest(audio: try wav("emotion-edit/en-1-input.wav"), transcript: "", edit: .emotion("happy"), seed: 7)),
+        ("edit-whisper", .speechEdit, SpeechEditRequest(audio: try wav("emotion-edit/en-1-input.wav"), transcript: "", edit: .style("whisper"), seed: 7)),
+        ("edit-denoise", .speechEdit, SpeechEditRequest(audio: try wav("se/se-zh-1-input.wav"), transcript: "", edit: .denoise, seed: 7)),
+    ]
+    for (name, cap, req) in cases {
+        if cap == .speechEdit { try await engine.prepare(.speechEdit, package: id) }
+        let t = Date()
+        let resp = try await engine.run(req, package: id)
+        let audio = (resp as? TTSResponse)?.audio ?? (resp as! SpeechEditResponse).audio
+        let samples = audio.data.dropFirst(44).withUnsafeBytes { raw -> [Float] in raw.bindMemory(to: Int16.self).map { Float($0) / 32768 } }
+        let secs = Double(samples.count) / 24000
+        let rms = 20 * log10(max(sqrt(samples.map { $0 * $0 }.reduce(0, +) / Float(max(samples.count, 1))), 1e-9))
+        let foot = physFootprintGB(); peak = max(peak, foot)
+        let wall = Date().timeIntervalSince(t)
+        try audio.data.write(to: outDir.appendingPathComponent("\(variant)-\(q)-\(name).wav"))
+        print(String(format: "  [RUN] %@: %.2fs audio, %.1f dBFS, %.2fs wall (RTF %.2f), phys %.2f GB", name, secs, rms, wall, wall / max(secs, 0.01), foot))
+    }
+    do {
+        _ = try await engine.run(SpeechEditRequest(audio: Audio(format: .wav, data: Data([1, 2, 3]), sampleRate: 24000, channels: 1),
+                                                   transcript: "", edit: .emotion("furious")), package: id)
+        print("  [REQ] FAIL: undeclared emotion admitted")
+    } catch { print("  [REQ] undeclared emotion refused: \(String(describing: error).prefix(100))") }
+    await engine.evict(package: id)
+    var afterEvict = physFootprintGB()
+    let relieved = malloc_zone_pressure_relief(nil, 0)
+    let afterRelief = physFootprintGB()
+    print(String(format: "  [VAL] after evict %.2f GB; malloc pressure relief released %.2f GB → %.2f GB", afterEvict,
+                 Double(relieved) / 1e9, afterRelief))
+    afterEvict = afterRelief
+    // a second residency cycle: residue that is reused keeps the second peak near the first; a leak stacks
+    try await engine.prepare(.tts, package: id)
+    let reload = physFootprintGB()
+    _ = try await engine.run(cases[1].2, package: id)
+    await engine.evict(package: id)
+    print(String(format: "  [VAL] second cycle: phys after re-prepare %.2f GB (first %.2f), after second evict %.2f GB",
+                 reload, afterLoad, physFootprintGB()))
+    print(String(format: "  [VAL] %@ %@: resident %.2f GB, peak phys %.2f GB (activation %.2f GB), after evict %.2f GB (MLX active %.2f, cache %.2f GB)",
+                 variant, q, afterLoad - before, peak, peak - afterLoad, afterEvict,
+                 Double(Memory.activeMemory) / 1e9, Double(Memory.cacheMemory) / 1e9))
+}
+
 // MARK: - dispatch
 
 func run() async throws {
@@ -223,18 +393,21 @@ func run() async throws {
     case "render":
         try await render(URL(fileURLWithPath: rest[0]), URL(fileURLWithPath: rest[1]), rest[2], rest[3], rest[4],
                          URL(fileURLWithPath: rest[5]), seed: rest.count > 6 ? UInt64(rest[6]) ?? 0 : 0)
+    case "quantize-encoder":
+        try quantizeEncoder(URL(fileURLWithPath: rest[0]), URL(fileURLWithPath: rest[1]), bits: Int(rest.count > 2 ? rest[2] : "8") ?? 8)
+    case "validate":
+        try await validate(variant: rest[0], quant: rest[1], URL(fileURLWithPath: rest[2]), URL(fileURLWithPath: rest[3]),
+                           URL(fileURLWithPath: rest[4]), URL(fileURLWithPath: rest[5]))
+    case "matrix":
+        try await matrix(URL(fileURLWithPath: rest[0]), URL(fileURLWithPath: rest[1]), URL(fileURLWithPath: rest[2]),
+                         URL(fileURLWithPath: rest[3]), URL(fileURLWithPath: rest[4]))
     default: print("unknown command \(cmd)"); exit(2)
     }
 }
 
-let sema = DispatchSemaphore(value: 0)
-Task {
-    do {
-        if useCPU { try await Device.withDefaultDevice(.cpu) { try await run() } } else { try await run() }
-    } catch {
-        print("ERROR: \(error)")
-        exit(1)
-    }
-    sema.signal()
+do {
+    if useCPU { try await Device.withDefaultDevice(.cpu) { try await run() } } else { try await run() }
+} catch {
+    print("ERROR: \(error)")
+    exit(1)
 }
-sema.wait()

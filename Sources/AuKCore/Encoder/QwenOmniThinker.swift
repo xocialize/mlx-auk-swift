@@ -37,12 +37,20 @@ public struct QwenOmniAudioConfig: Codable, Sendable {
     public var output_dim: Int
 }
 
+public struct QuantizationConfig: Codable, Sendable, Equatable {
+    public var group_size: Int
+    public var bits: Int
+    public init(group_size: Int, bits: Int) { self.group_size = group_size; self.bits = bits }
+}
+
 public struct QwenOmniThinkerConfig: Codable, Sendable {
     public var text_config: QwenOmniTextConfig
     public var audio_config: QwenOmniAudioConfig
     public var audio_token_index: Int
     public var audio_start_token_id: Int
     public var audio_end_token_id: Int
+    /// Present on a pre-quantised bundle (mlx-community `-8bit`): the layer Linears are stored as weight/scales/biases.
+    public var quantization: QuantizationConfig?
 }
 
 // MARK: - Qwen2 text model
@@ -273,6 +281,16 @@ public final class Qwen2_5OmniThinker: Module {
         config = c
         _model.wrappedValue = Qwen2_5OmniThinkerTextModel(c.text_config)
         _audioTower.wrappedValue = Qwen2_5OmniAudioEncoder(c.audio_config)
+    }
+
+    /// The Linears a quantised tier replaces: every Linear inside the LLM and audio-tower layers (PORTING-SPEC §6).
+    public static func isQuantizedLayer(_ path: String, _ m: Module) -> Bool {
+        m is Linear && (path.hasPrefix("model.layers.") || path.hasPrefix("audio_tower.layers."))
+    }
+
+    /// Swap the layer Linears for QuantizedLinear (structure only — weights come after).
+    public func quantizeLayers(groupSize: Int, bits: Int) {
+        quantize(model: self, groupSize: groupSize, bits: bits) { Self.isQuantizedLayer($0, $1) }
     }
 
     /// Token embeddings with the audio tower's output scattered into the <|AUDIO|> positions (B = 1).

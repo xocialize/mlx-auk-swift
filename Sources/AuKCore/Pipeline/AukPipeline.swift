@@ -49,6 +49,34 @@ public struct AukInjectedNoise {
     }
 }
 
+/// Runtime quantization tiers (PORTING-SPEC §6): affine, per-group, applied after the bf16 weights load.
+public struct AukQuantization: Sendable {
+    public var ditBits: Int?
+    public var encoderBits: Int?
+    public var groupSize: Int
+
+    public static let none = AukQuantization(ditBits: nil, encoderBits: nil, groupSize: 64)
+
+    public init(ditBits: Int?, encoderBits: Int?, groupSize: Int = 64) {
+        self.ditBits = ditBits; self.encoderBits = encoderBits; self.groupSize = groupSize
+    }
+
+    /// DiT: the Linears inside the 30 transformer blocks (attention, AdaLN modulation, SwiGLU). Encoder: every Linear
+    /// inside the 36 LLM layers and the 32 audio-tower layers. Embeddings, projections, norms and the VAE stay as loaded.
+    public func apply(dit: CFMEdit, thinker: Qwen2_5OmniThinker) {
+        if let b = ditBits {
+            quantize(model: dit.transformer, groupSize: groupSize, bits: b) { path, m in
+                m is Linear && (path.hasPrefix("transformer_blocks.") || path.hasPrefix("single_transformer_blocks."))
+            }
+            eval(dit.parameters())
+        }
+        if let b = encoderBits, thinker.config.quantization == nil {
+            thinker.quantizeLayers(groupSize: groupSize, bits: b)
+            eval(thinker.parameters())
+        }
+    }
+}
+
 public final class AukPipeline {
     public let config: AukModelConfig
     public let model: CFMEdit
@@ -74,9 +102,11 @@ public final class AukPipeline {
         return (config, model, vae)
     }
 
-    public static func load(modelDir: URL, encoderDir: URL, dtype: DType, encoderDType: DType? = nil) async throws -> AukPipeline {
+    public static func load(modelDir: URL, encoderDir: URL, dtype: DType, encoderDType: DType? = nil,
+                            quantization: AukQuantization = .none) async throws -> AukPipeline {
         let (config, model, vae) = try loadModel(modelDir, dtype: dtype)
         let encoder = try await QwenOmniConditionEncoder(directory: encoderDir, dtype: encoderDType ?? dtype)
+        quantization.apply(dit: model, thinker: encoder.thinker)
         return AukPipeline(config: config, model: model, vae: vae, encoder: encoder, dtype: dtype)
     }
 

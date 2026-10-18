@@ -16,6 +16,7 @@
 //   • DiT      — Flux2Edit: 10 MMDiT + 20 single-stream blocks, dim 1536, conv-pos audio embedding, ref prepended.
 //   • Sampler  — Euler flow: Base 32 steps × CFG 2 + sway −1; Flash 4 fixed steps, no CFG.
 //   • VAE      — BigVGAN-Flow: 24 kHz, hop 480, 64-dim latents; causal anti-aliased SnakeBeta decoder.
+//   • MLXAuK   — the engine packages (AuKPackage, AuKFlashPackage) on `tts` + `speechEdit`, restricted licence.
 //   • auk-gates — parity gates against the fp32 torch oracle (WIP/auk-port/oracle) + a render lane.
 import PackageDescription
 
@@ -26,11 +27,13 @@ let package = Package(
     ],
     products: [
         .library(name: "AuKCore", targets: ["AuKCore"]),
+        .library(name: "MLXAuK", targets: ["MLXAuK"]),
         .executable(name: "auk-gates", targets: ["auk-gates"]),
     ],
     dependencies: [
         .package(url: "https://github.com/ml-explore/mlx-swift", from: "0.32.3"),
         .package(url: "https://github.com/huggingface/swift-transformers", from: "1.1.6"),
+        .package(url: "https://github.com/xocialize/mlx-engine-swift", from: "0.67.0"),
     ],
     targets: [
         .target(
@@ -46,10 +49,32 @@ let package = Package(
             path: "Sources/AuKCore",
             swiftSettings: [.swiftLanguageMode(.v5)]
         ),
+        .target(
+            name: "MLXAuK",
+            dependencies: [
+                "AuKCore",
+                .product(name: "MLXToolKit", package: "mlx-engine-swift"),
+                .product(name: "MLX", package: "mlx-swift"),
+                .product(name: "MLXNN", package: "mlx-swift"),
+            ],
+            path: "Sources/MLXAuK",
+            swiftSettings: [.swiftLanguageMode(.v5)]
+        ),
+        .testTarget(
+            name: "MLXAuKTests",
+            dependencies: [
+                "AuKCore", "MLXAuK",
+                .product(name: "MLXServeConformance", package: "mlx-engine-swift"),
+                .product(name: "MLXServeCore", package: "mlx-engine-swift"),
+            ],
+            path: "Tests/MLXAuKTests"
+        ),
         .executableTarget(
             name: "auk-gates",
             dependencies: [
-                "AuKCore",
+                "AuKCore", "MLXAuK",
+                .product(name: "MLXToolKit", package: "mlx-engine-swift"),
+                .product(name: "MLXServeCore", package: "mlx-engine-swift"),
                 .product(name: "MLX", package: "mlx-swift"),
                 .product(name: "MLXNN", package: "mlx-swift"),
             ],
