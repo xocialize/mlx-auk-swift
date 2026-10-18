@@ -12,7 +12,8 @@ plus out.wav and meta.json (instruction, seconds, sampling knobs, formatted Chat
 Noise is made reproducible, not injected: the sampler seeds torch.manual_seed(seed) before randn(dur, 64), and the
 VAE reference noise is drawn after torch.manual_seed(VAE_SEED). Both are saved, so a port loads them.
 
-    .venv/bin/python dump_goldens.py --variant base|flash [--tasks zs,itts,content,speed,emotion,se]
+    python dump_goldens.py --variant base|flash --assets <AuK clone>/assets/demo-input-audio --out <goldens>
+                           [--tasks zs,itts,content,speed,emotion,se]
 """
 
 from __future__ import annotations
@@ -30,8 +31,6 @@ import qwen_omni_utils
 from auk.infer.infer_auk import AukInfer, save_audio
 
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-ASSETS = os.path.join(HERE, "..", "ref", "AuK", "assets", "demo-input-audio")
 HF = os.path.expanduser("~/.cache/huggingface/hub")
 SNAP = {
     "base": f"{HF}/models--tencent--AuK/snapshots/790742b71a4430120daf2b2099192abae449eb9f",
@@ -79,7 +78,7 @@ def npy(d: str, name: str, t) -> None:
     if isinstance(t, torch.Tensor):
         t = t.detach().to("cpu")
         t = t.float().numpy() if t.is_floating_point() else t.numpy()
-    np.save(os.path.join(d, f"{name}.npy"), np.ascontiguousarray(t))
+    np.save(os.path.join(d, f"{name}.npy"), np.asarray(t, order="C"))  # C order, 0-d kept 0-d
 
 
 def instrument(engine: AukInfer, cap: dict) -> None:
@@ -210,6 +209,8 @@ def main():
     ap.add_argument("--variant", choices=("base", "flash"), required=True)
     ap.add_argument("--tasks", default=",".join(TASKS))
     ap.add_argument("--threads", type=int, default=0)
+    ap.add_argument("--assets", required=True, help="the upstream clone's assets/demo-input-audio")
+    ap.add_argument("--out", required=True, help="goldens root; writes <out>/<variant>/<task>/")
     args = ap.parse_args()
     if args.threads:
         torch.set_num_threads(args.threads)
@@ -222,22 +223,22 @@ def main():
     engine.model.text_encoder.to(torch.float32)  # upstream loads the thinker in bf16; the oracle is fp32 end to end
     print(f"loaded in {time.time() - t0:.1f}s")
 
-    os.makedirs(os.path.join(HERE, "goldens", args.variant), exist_ok=True)
-    npy(os.path.join(HERE, "goldens", args.variant), "layer_weights", engine.model.layer_weights)
-    npy(os.path.join(HERE, "goldens", args.variant), "layer_scale", engine.model.layer_scale)
+    os.makedirs(os.path.join(args.out, args.variant), exist_ok=True)
+    npy(os.path.join(args.out, args.variant), "layer_weights", engine.model.layer_weights)
+    npy(os.path.join(args.out, args.variant), "layer_scale", engine.model.layer_scale)
 
     cap: dict = {}
     instrument(engine, cap)
 
     for name in args.tasks.split(","):
         spec = TASKS[name]
-        out_dir = os.path.join(HERE, "goldens", args.variant, name)
+        out_dir = os.path.join(args.out, args.variant, name)
         os.makedirs(out_dir, exist_ok=True)
         cap.clear()
 
         content = [{"type": "text", "text": spec["instruction"]}]
         if spec["audio"]:
-            content.append({"type": "audio", "audio": os.path.join(ASSETS, spec["audio"])})
+            content.append({"type": "audio", "audio": os.path.join(args.assets, spec["audio"])})
         messages = [{"role": "user", "content": content}]
 
         t1 = time.time()

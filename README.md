@@ -63,4 +63,4 @@ admits research weights; the default `.permissiveOnly` flags it.
 
 Build with the Xcode build system so MLX's metallib ships:
 `swift build -c release --build-system swiftbuild` and `swift test --build-system swiftbuild`.
-`Tools/` holds the Python oracle, the converter and the scorers.
+`Tools/` holds the Python oracle, the converter, the scorers, the run matrices and the publish staging (see `Tools/README.md`); `receipts/` holds the raw outputs behind `MEASUREMENTS.md`.

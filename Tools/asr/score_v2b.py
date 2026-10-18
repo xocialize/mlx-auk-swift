@@ -4,7 +4,8 @@
   dnsmos      DNSMOS OVRL
 Normalisers, CAM++ front end and DNSMOS call follow mlxengine-audio/WIP/speech-edit-eval/harness/score.py.
 
-    python score_v2b.py <v2b-dir> <goldens-dir> <assets-dir> <out.csv>
+    AUK_FUNASR_DETACH_ROOT=<Step-Audio-EditX clone> python score_v2b.py <v2b-dir> <goldens-dir> <assets-dir> <out.csv>
+needs: mlx-whisper, jiwer, openai-whisper (normalisers), zhconv, speechmos, onnxruntime, funasr, pandas, librosa, torch
 """
 
 import functools
@@ -25,7 +26,10 @@ import torchaudio.compliance.kaldi as kaldi
 from whisper.normalizers import BasicTextNormalizer, EnglishTextNormalizer
 from zhconv import convert as zh_simp
 
-EDITX_REF = "/Volumes/Satechi/Development/mlxengine-audio/WIP/speech-edit-eval/ref/Step-Audio-EditX"
+# CAM++ comes from Step-Audio-EditX's vendored funasr_detach (a clone of stepfun-ai/Step-Audio-EditX); point
+# AUK_FUNASR_DETACH_ROOT at that clone. The default is the fleet's checkout.
+EDITX_REF = os.environ.get("AUK_FUNASR_DETACH_ROOT",
+                           "/Volumes/Satechi/Development/mlxengine-audio/WIP/speech-edit-eval/ref/Step-Audio-EditX")
 sys.path.insert(0, EDITX_REF)
 from funasr_detach.models.campplus.model import CAMPPlus  # noqa: E402
 

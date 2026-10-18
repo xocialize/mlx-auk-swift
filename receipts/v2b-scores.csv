@@ -1,0 +1,181 @@
+tier,variant,task,seed,hyp,err,sim_src,dnsmos,wall_s,audio_s,peak_gb
+A,base,content,0,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8635584712028503,3.3824805043674373,5.887472987174988,7.0,12.379363701
+A,base,content,1,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8795589208602905,3.313826330736224,5.858569025993347,7.0,12.379363125
+A,base,content,2,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8839136362075806,3.3440132577585517,5.890330076217651,7.0,12.379362545
+A,base,emotion,0,"Every day we were asked to the social occasion, and this was a very, very pleasant for us.",0.11764705882352941,0.5734070539474487,3.5382060516868408,4.912235975265503,6.32,12.496801894
+A,base,emotion,1,"Every day we were asked to the social occasion, and this was a very, very pleasant force.",0.23529411764705882,0.5703729391098022,3.5269329124569073,5.04203999042511,6.32,12.496766054
+A,base,emotion,2,"Every day we were asked to the social occasion, and this was a very, very pleasant force.",0.23529411764705882,0.6208349466323853,3.5635518027389383,4.854599952697754,6.32,12.496782438
+A,base,itts,0,Welcome home. How was work today?,0.0,,2.796707384632325,1.9218909740447998,1.7,12.356430445
+A,base,itts,1,Welcome home. How was work today?,0.0,,3.0622166060416136,1.8956820964813232,1.7,12.356378399
+A,base,itts,2,Welcome home. How was work today?,0.0,,3.237900445088893,2.0024420022964478,1.7,12.356378399
+A,base,se,0,大学生利用漏洞免费吃肯德西获取,0.06666666666666667,0.5372540950775146,3.291698526600393,4.2668880224227905,4.98,12.371229216
+A,base,se,1,大学生利用漏洞免费吃肯德基或许,0.13333333333333333,0.5033525228500366,3.217812121557252,4.235599040985107,4.98,12.3548616
+A,base,se,2,大学生利用漏洞免费吃肯德基获取,0.0,0.506940484046936,3.308120677268085,4.118842959403992,4.98,12.3548616
+A,base,speed,0,"And so, my fellow, ask not what your country can do for you, ask what you can do for your country.",0.0,0.8486973643302917,2.463404243488574,6.35780394077301,6.86,12.648914912
+A,base,speed,1,"And so, my fellow, ask not what your country can do for you, ask what you can do for your country.",0.0,0.8575197458267212,2.3084606650663977,6.3115140199661255,6.86,12.648931052
+A,base,speed,2,"And so, my fellow, ask not what your country can do for you, ask what you can do for your country.",0.0,0.8386878967285156,2.320186359040696,6.337103962898254,6.86,12.648914668
+A,base,zs,0,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.8907860517501831,3.507529556899925,5.876968026161194,6.0,12.542585508
+A,base,zs,1,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.8730431795120239,3.5023024235152795,5.9080599546432495,6.0,12.542585508
+A,base,zs,2,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.8378362655639648,3.5397047104869004,5.863142967224121,6.0,12.542585508
+A,flash,content,0,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.843977689743042,3.2965834506118243,7.473226070404053,7.0,12.385126481
+A,flash,content,1,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8622628450393677,3.2793878629680484,0.7577210664749146,7.0,12.385126481
+A,flash,content,2,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8684520721435547,3.3389990876901585,0.7111320495605469,7.0,12.385126481
+A,flash,emotion,0,Every day we were asked to the social vacation and this was a very very pleasant for us.,0.058823529411764705,0.7222357392311096,3.4931057501599363,0.810418963432312,6.32,12.302055705
+A,flash,emotion,1,"Every day we were asked to the social vacation, and this was very, very pleasant for us.",0.0,0.8038036823272705,3.5174544286975933,0.6727999448776245,6.32,12.302055705
+A,flash,emotion,2,Every day we were asked to the social vacation and this was very very pleasant for us.,0.0,0.8608706593513489,3.5532705099303024,0.8297319412231445,6.32,12.302055705
+A,flash,itts,0,Welcome home. How was work today?,0.0,,3.237209520526739,0.28126096725463867,1.7,12.185746051
+A,flash,itts,1,Welcome home. How was work today?,0.0,,3.2465672664651506,0.31005704402923584,1.7,12.180814611
+A,flash,itts,2,Welcome home. How was work today?,0.0,,3.0043961104086963,0.30692100524902344,1.7,12.180814611
+A,flash,se,0,大学生利用漏洞免费吃肯德基获取,0.13333333333333333,0.5555392503738403,3.3014588912342475,0.6276859045028687,4.98,12.20935757
+A,flash,se,1,大学生利用漏洞免费吃肯德基或许,0.2,0.6067344546318054,3.314277897105533,0.567620038986206,4.98,12.206512898
+A,flash,se,2,大学生利用漏洞免费吃肯德基或许,0.2,0.609039306640625,3.0949728802345553,0.6540989875793457,4.98,12.206512898
+A,flash,speed,0,"And so my Americans, ask not what your country can do for you, ask what you can do for your country.",0.045454545454545456,0.8634822964668274,2.3285353289635315,0.8631929159164429,6.86,12.282788988
+A,flash,speed,1,"And so, my little Americans, ask not what your country can do for you, ask what you can do for your country.",0.045454545454545456,0.869175910949707,2.5728491151015427,0.9076069593429565,6.86,12.282805372
+A,flash,speed,2,"And so my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",0.0,0.8438917398452759,2.4542499525014216,0.8072659969329834,6.86,12.282788988
+A,flash,zs,0,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.8226330876350403,3.593814301051676,0.8859939575195312,6.0,12.499357571
+A,flash,zs,1,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.8812224864959717,3.5909766211766083,0.9713400602340698,6.0,12.499357571
+A,flash,zs,2,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.864888608455658,3.569027611124667,0.7876219749450684,6.0,12.499357571
+B,base,content,0,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8663924336433411,3.3636106888403106,5.0513129234313965,7.0,9.193122193
+B,base,content,1,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8726060390472412,3.311299386988351,5.038108944892883,7.0,9.193121873
+B,base,content,2,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8829176425933838,3.33017748012492,5.041545033454895,7.0,9.193121873
+B,base,emotion,0,"Every day we were asked to the social occasion, and this was a very, very pleasant for us.",0.11764705882352941,0.5747690796852112,3.5798959607160885,4.568258047103882,6.32,9.310544742
+B,base,emotion,1,Every day we were asked to the social occasion and this was a very very pleasant force.,0.23529411764705882,0.5507708787918091,3.541129655245678,4.542939066886902,6.32,9.310544838
+B,base,emotion,2,"Every day we were asked to the social occasion, and this was a very, very pleasant force.",0.23529411764705882,0.6064357757568359,3.538435245807977,4.554718017578125,6.32,9.310561222
+B,base,itts,0,Welcome home. How was work today?,0.0,,2.8504432130337274,1.8307229280471802,1.7,9.170197105
+B,base,itts,1,Welcome home. How was work today?,0.0,,3.180572862926043,1.8315000534057617,1.7,9.170164429
+B,base,itts,2,Welcome home. How was work today?,0.0,,3.2454486368109174,1.831995964050293,1.7,9.170164429
+B,base,se,0,大学生利用漏洞免费吃肯德西获取,0.06666666666666667,0.5278213620185852,3.2663883237812747,3.865591049194336,4.98,9.184998784
+B,base,se,1,大学生利用漏洞免费吃肯德基获取,0.0,0.5047358870506287,3.2103381205277026,3.8678730726242065,4.98,9.168631168
+B,base,se,2,大学生利用漏洞免费吃肯德基获取,0.0,0.5124379992485046,3.3286700903968294,3.8428220748901367,4.98,9.168631168
+B,base,speed,0,"And so, my fellow, ask not what your country can do for you, ask what you can do for your country.",0.0,0.847037672996521,2.427865311570047,6.248438000679016,6.86,9.46268542
+B,base,speed,1,"And so, my fellow, ask not what your country can do for you, ask what you can do for your country.",0.0,0.8573590517044067,2.3329375609587863,6.247840046882629,6.86,9.462701804
+B,base,speed,2,"And so, my fellow, ask not what your country can do for you, ask what you can do for your country.",0.0,0.8412030339241028,2.2419565660896836,6.24107301235199,6.86,9.46268542
+B,base,zs,0,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.8853393793106079,3.5049651371582726,5.8352789878845215,6.0,9.356353188
+B,base,zs,1,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.8752763271331787,3.4963320313658866,5.8182090520858765,6.0,9.356336804
+B,base,zs,2,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.8336246013641357,3.547128441161849,5.819931983947754,6.0,9.356336804
+B,flash,content,0,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8433437347412109,3.298522127589635,1.3123259544372559,7.0,9.198894753
+B,flash,content,1,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8632063865661621,3.2849140041058726,0.8633619546890259,7.0,9.198894753
+B,flash,content,2,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8672047853469849,3.3265401909433843,0.868209958076477,7.0,9.198894753
+B,flash,emotion,0,Every day we were asked to the social vacation and this was a very very pleasant for us.,0.058823529411764705,0.7147822976112366,3.526365071813199,0.7423590421676636,6.32,9.115807593
+B,flash,emotion,1,"Every day we were asked to the social vacation, and this was very, very pleasant for us.",0.0,0.782407283782959,3.461898312558168,0.7783240079879761,6.32,9.115823977
+B,flash,emotion,2,Every day we were asked to the social vacation and this was very very pleasant for us.,0.0,0.852104663848877,3.5360637642266552,0.7234019041061401,6.32,9.115823977
+B,flash,itts,0,Welcome home. How was work today?,0.0,,3.2371642865277375,0.30590808391571045,1.7,8.999746179
+B,flash,itts,1,Welcome home. How was work today?,0.0,,3.2576955193634642,0.31419897079467773,1.7,8.994798355
+B,flash,itts,2,Welcome home. How was work today?,0.0,,2.715858970468166,0.29514896869659424,1.7,8.994798355
+B,flash,se,0,大学生利用漏洞免费吃肯德基获喜,0.13333333333333333,0.5414751768112183,3.3193287299718333,0.6210960149765015,4.98,9.022398186
+B,flash,se,1,大学生利用漏洞免费吃肯德基或许,0.2,0.5997389554977417,3.306206052152669,0.5879240036010742,4.98,9.022398186
+B,flash,se,2,大学生利用漏洞免费吃肯德基或许,0.2,0.609078049659729,3.142991655257805,0.6904630661010742,4.98,9.022398186
+B,flash,speed,0,"And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",0.0,0.8669145107269287,2.3013940063945553,0.9084089994430542,6.86,9.09655974
+B,flash,speed,1,"And so, my little Americans, ask not what your country can do for you, ask what you can do for your country.",0.045454545454545456,0.8724446892738342,2.5903493967062836,0.8255571126937866,6.86,9.096576124
+B,flash,speed,2,"And so my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",0.0,0.8409728407859802,2.467920904934753,0.8934309482574463,6.86,9.09655974
+B,flash,zs,0,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.8355759382247925,3.5800985708462334,0.8722429275512695,6.0,9.313126567
+B,flash,zs,1,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.8942168951034546,3.6134773045486157,0.8336650133132935,6.0,9.313126567
+B,flash,zs,2,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.8663986921310425,3.5427796620702083,0.8210129737854004,6.0,9.313126567
+C,base,content,0,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8608412146568298,3.385714592031296,5.268934011459351,7.0,7.491283345
+C,base,content,1,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8867563605308533,3.3119580493841037,4.979709029197693,7.0,7.491283025
+C,base,content,2,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8827468156814575,3.3692996239877386,4.977797031402588,7.0,7.491283025
+C,base,emotion,0,"Every day we were asked to the social vacation, and this was a very, very pleasant for us.",0.058823529411764705,0.6245453357696533,3.6170087520087093,4.547567009925842,6.32,7.608705894
+C,base,emotion,1,Every day we were asked to the social vacation and this was a very very pleasant for us.,0.058823529411764705,0.5821449160575867,3.4485254430602517,4.506420969963074,6.32,7.608722374
+C,base,emotion,2,"Every day we were asked to the social vacation, and this was a very, very pleasant force.",0.17647058823529413,0.6284881830215454,3.577251146076423,4.500211954116821,6.32,7.60870599
+C,base,itts,0,Welcome home. How was work today?,0.0,,2.8590723900408985,1.807561993598938,1.7,7.468377457
+C,base,itts,1,"Welcome home, how was work today?",0.0,,3.170637735544868,1.8016929626464844,1.7,7.468341873
+C,base,itts,2,Welcome home. How was work today?,0.0,,3.213288956246359,1.804839015007019,1.7,7.468341873
+C,base,se,0,大学生利用漏洞免费吃肯德西获取,0.06666666666666667,0.5075567364692688,3.2490273708929007,3.8060120344161987,4.98,7.483159936
+C,base,se,1,大学生利用漏洞免费吃肯德基获取,0.0,0.5143296122550964,3.192748991077595,3.800516963005066,4.98,7.46679232
+C,base,se,2,大学生利用漏洞免费吃肯德西或许,0.2,0.5164740681648254,3.3492033622325525,3.798339009284973,4.98,7.46679232
+C,base,speed,0,"And so, my fellow, ask not what your country can do for you, ask what you can do for your country.",0.0,0.8456324934959412,2.2162927654443045,6.2328280210494995,6.86,7.760846572
+C,base,speed,1,"And so, my fellow, ask not what your country can do for you, ask what you can do for your country.",0.0,0.8602215647697449,2.30962207320541,6.207503914833069,6.86,7.760862956
+C,base,speed,2,"And so, my fellow, ask not what your country can do for you, ask what you can do for your country.",0.0,0.8400309085845947,2.075418151213271,6.1979429721832275,6.86,7.760846572
+C,base,zs,0,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.8815838694572449,3.5206276373973573,5.793243050575256,6.0,7.65451434
+C,base,zs,1,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.8825187087059021,3.5137415387418223,5.786062002182007,6.0,7.654497956
+C,base,zs,2,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.8352581262588501,3.53067832307307,5.801979899406433,6.0,7.654497956
+C,flash,content,0,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8633225560188293,3.3036531243793483,1.1214370727539062,7.0,7.497055905
+C,flash,content,1,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.85288405418396,3.2792225481295625,0.7618899345397949,7.0,7.497055905
+C,flash,content,2,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8738193511962891,3.350469037646505,0.7473560571670532,7.0,7.497055905
+C,flash,emotion,0,Every day we were asked to the social vacation and this was very very pleasant for us.,0.0,0.7074909210205078,3.5444138459359755,0.8452959060668945,6.32,7.413968745
+C,flash,emotion,1,"Every day we were asked to the social vacation, and this was very, very pleasant for us.",0.0,0.7878003716468811,3.4545685445342187,0.7228329181671143,6.32,7.413968745
+C,flash,emotion,2,Every day we were asked to the social vacation and this was very very pleasant for us.,0.0,0.8276140093803406,3.49682925441029,0.6740829944610596,6.32,7.413968745
+C,flash,itts,0,Welcome home. How was work today?,0.0,,3.0604786527289933,0.2911630868911743,1.7,7.297907331
+C,flash,itts,1,Welcome home. How was work today?,0.0,,3.2600851780589712,0.4803650379180908,1.7,7.292975891
+C,flash,itts,2,Welcome home. How was work today?,0.0,,2.7199609153079662,0.32656192779541016,1.7,7.292959507
+C,flash,se,0,大学生利用漏洞免费吃肯德基获取,0.13333333333333333,0.5480667948722839,3.3198720110591053,0.5824370384216309,4.98,7.323387626
+C,flash,se,1,大学生利用漏洞免费吃肯德基或许,0.2,0.6014469861984253,3.314425604193894,0.5773630142211914,4.98,7.320559338
+C,flash,se,2,大学生利用漏洞免费吃肯德基获取,0.13333333333333333,0.6048117876052856,3.141026282685113,0.5713310241699219,4.98,7.320559338
+C,flash,speed,0,"And so, my Americans, ask not what your country can do for you, ask what you can do for your country.",0.045454545454545456,0.8613425493240356,2.380123106306096,0.8592240810394287,6.86,7.394688124
+C,flash,speed,1,"And so will Americans. Ask not what your country can do for you, ask what you can do for your country.",0.09090909090909091,0.8768927454948425,2.590698186982127,0.7965749502182007,6.86,7.394704508
+C,flash,speed,2,"And so my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",0.0,0.8464592099189758,2.4835548048145886,0.815356969833374,6.86,7.394688124
+C,flash,zs,0,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.8755522966384888,3.572371942205122,0.7685110569000244,6.0,7.611287719
+C,flash,zs,1,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.8495727777481079,3.533141383575174,0.7798339128494263,6.0,7.611287719
+C,flash,zs,2,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.8821916580200195,3.5574672548395125,0.7959680557250977,6.0,7.611287719
+D,base,content,0,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8750267028808594,3.3516704840037193,5.316935896873474,7.0,7.693564299
+D,base,content,1,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.872775673866272,3.2998560512739523,5.136217951774597,7.0,7.693531745
+D,base,content,2,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8836750984191895,3.3543731980863627,5.19324803352356,7.0,7.693531745
+D,base,emotion,0,"Every day we were asked to the social occasion, and this was a very, very pleasant for us.",0.11764705882352941,0.5801641345024109,3.5592677565779915,4.419121980667114,6.32,7.73527733
+D,base,emotion,1,Every day we were asked to the social occasion and this was a very very pleasant force.,0.23529411764705882,0.5448706150054932,3.5522817537733378,4.404960989952087,6.32,7.735260946
+D,base,emotion,2,"Every day we were asked to the social occasion, and this was a very, very pleasant force.",0.23529411764705882,0.6099096536636353,3.554662867909357,4.358341932296753,6.32,7.735260946
+D,base,itts,0,Welcome home. How was work today?,0.0,,2.711014629214715,1.2815749645233154,1.7,7.001692692
+D,base,itts,1,Welcome home. How was work today?,0.0,,3.145222646373311,1.3000439405441284,1.7,7.039146512
+D,base,itts,2,Welcome home. How was work today?,0.0,,2.9943993095423176,1.3196760416030884,1.7,7.003626074
+D,base,se,0,大学生利用漏洞免费吃肯德西获取,0.06666666666666667,0.5319668054580688,3.3154613249793665,4.072555065155029,4.98,7.835256484
+D,base,se,1,大学生利用漏洞免费吃肯德基或许,0.13333333333333333,0.5087630748748779,3.1868639015319857,3.7681069374084473,4.98,7.827027809
+D,base,se,2,大学生利用漏洞免费吃肯德基获取,0.0,0.5095064640045166,3.300193199681489,3.905848979949951,4.98,7.827027715
+D,base,speed,0,"And so, my fellow, ask not what your country can do for you, ask what you can do for your country.",0.0,0.847254753112793,2.418213764816696,6.554366946220398,6.86,8.066186696
+D,base,speed,1,"And so, my fellow, ask not what your country can do for you, ask what you can do for your country.",0.0,0.8582037687301636,2.3414670164571247,6.736088037490845,6.86,8.06620308
+D,base,speed,2,"And so, my fellow, ask not what your country can do for you, ask what you can do for your country.",0.0,0.8393384218215942,2.266572568797475,6.560715079307556,6.86,8.066186696
+D,base,zs,0,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.8931363821029663,3.5117881227905428,6.044487953186035,6.0,7.910366084
+D,base,zs,1,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.8656779527664185,3.5069332349485176,6.068684935569763,6.0,7.910366084
+D,base,zs,2,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.8474382162094116,3.547020637081689,5.971442937850952,6.0,7.910366084
+D,flash,content,0,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8441463708877563,3.3143885093937455,1.0416890382766724,7.0,7.608940451
+D,flash,content,1,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8590033054351807,3.263877321361317,0.6861820220947266,7.0,7.608825699
+D,flash,content,2,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8635032176971436,3.338802793289304,0.7170220613479614,7.0,7.608825699
+D,flash,emotion,0,Every day we were asked to the social vacation and this was a very very pleasant for us.,0.058823529411764705,0.7261338233947754,3.523209745244204,0.6211650371551514,6.32,7.490995411
+D,flash,emotion,1,"Every day we were asked to the social vacation, and this was very, very pleasant for us.",0.0,0.7922137975692749,3.48657893518582,0.6070849895477295,6.32,7.490995411
+D,flash,emotion,2,Every day we were asked to the social vacation and this was very very pleasant for us.,0.0,0.8575409054756165,3.521819603362682,0.6709339618682861,6.32,7.490995411
+D,flash,itts,0,Welcome home. How was work today?,0.0,,3.2148768033342625,0.3199080228805542,1.7,7.035068551
+D,flash,itts,1,Welcome home. How was work today?,0.0,,3.230566837411624,0.2586491107940674,1.7,6.999662947
+D,flash,itts,2,Welcome home. How was work today?,0.0,,2.684741307962901,0.21824300289154053,1.7,6.995714405
+D,flash,se,0,大学生利用漏洞免费吃肯德基获取,0.13333333333333333,0.5500863194465637,3.299352572811434,0.5236680507659912,4.98,7.2794975
+D,flash,se,1,大学生利用漏洞免费吃肯德基或许,0.2,0.6028355360031128,3.283782537479275,0.4917060136795044,4.98,7.283527972
+D,flash,se,2,大学生利用漏洞免费吃肯德基或许,0.2,0.6062488555908203,3.1955280529470786,0.49319708347320557,4.98,7.254806812
+D,flash,speed,0,"And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",0.0,0.8646434545516968,2.3583831376615523,0.7523070573806763,6.86,8.024154652
+D,flash,speed,1,"And so, my Americans, ask not what your country can do for you, ask what you can do for your country.",0.045454545454545456,0.8714083433151245,2.5986410173778887,0.7352650165557861,6.86,8.024171036
+D,flash,speed,2,"And so my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",0.0,0.8367767333984375,2.4650361297125842,0.761834979057312,6.86,8.024154652
+D,flash,zs,0,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.8309855461120605,3.57562171796787,0.7679619789123535,6.0,7.691270111
+D,flash,zs,1,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.8689011335372925,3.5685364483328024,0.6826950311660767,6.0,7.671052319
+D,flash,zs,2,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.862951397895813,3.555229806170854,0.7061549425125122,6.0,7.671052319
+R,base,content,0,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.876110315322876,3.3947636498602862,9.341745018959045,7.0,23.708951324
+R,base,content,1,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8972447514533997,3.279542653815227,9.330654978752136,7.0,23.617069852
+R,base,content,2,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8821860551834106,3.398854908910542,9.324298977851868,7.0,23.617069852
+R,base,emotion,0,"Every day we were asked to the social occasion, and this was a very, very pleasant force.",0.23529411764705882,0.6808983087539673,3.572574131998138,8.251507997512817,6.32,23.557620504
+R,base,emotion,1,"Every day we were asked to a social occasion, and this was a very, very pleasant force.",0.29411764705882354,0.6142345666885376,3.570985613534201,8.394963026046753,6.32,23.606379288
+R,base,emotion,2,"Every day we were asked to the social occasion, and this was a very, very pleasant for us.",0.11764705882352941,0.6794970035552979,3.551831195890408,8.369112968444824,6.32,23.606379288
+R,base,itts,0,Welcome home. How was work today?,0.0,,2.9633087463838184,2.479530930519104,1.7,23.530599502
+R,base,itts,1,Welcome home. How was work today?,0.0,,3.2020003677649207,2.4676759243011475,1.7,23.467784378
+R,base,itts,2,Welcome home. How was work today?,0.0,,3.170120370505917,2.489470958709717,1.7,23.440325222
+R,base,se,0,大学生利用漏洞免费吃肯德西或许,0.2,0.49084728956222534,3.1928313022466472,6.917122960090637,4.98,23.632762388
+R,base,se,1,大学生利用漏洞免费吃肯德基或许,0.13333333333333333,0.459164559841156,3.2776812666406436,6.858973979949951,4.98,23.628846612
+R,base,se,2,大学生利用漏洞免费吃肯德基获取,0.0,0.49138620495796204,3.3651408834660566,6.879032015800476,4.98,23.628846612
+R,base,speed,0,"And so, my fellow, ask not what your country can do for you, ask what you can do for your country.",0.0,0.8546367883682251,2.2480542247760806,12.25426197052002,6.86,23.664363095
+R,base,speed,1,"And so, my fellow, ask not what your country can do for you, ask what you can do for your country.",0.0,0.8709158897399902,2.287340055449704,12.24683392047882,6.86,23.643209807
+R,base,speed,2,"And so, my fellow, ask not what your country can do for you, ask what you can do for your country.",0.0,0.8642122745513916,2.156126923274737,12.482990980148315,6.86,23.643209807
+R,base,zs,0,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.9548186659812927,3.5131842632525263,12.352277040481567,6.0,23.582905649
+R,base,zs,1,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.930878221988678,3.5176683481252695,12.072214961051941,6.0,23.581377331
+R,base,zs,2,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.9215648770332336,3.554916098089864,12.129217982292175,6.0,23.645946175
+R,flash,content,0,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8717052936553955,3.3562861120930156,1.9223240613937378,7.0,23.644263236
+R,flash,content,1,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8720511198043823,3.37320904734731,1.2344880104064941,7.0,23.62804426
+R,flash,content,2,Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?,0.0,0.8759254217147827,3.380627031776002,1.3318020105361938,7.0,23.62804426
+R,flash,emotion,0,Every day we were asked to the social vacation and this was a very very pleasant for us.,0.058823529411764705,0.7926326990127563,3.4927910506438145,1.143442988395691,6.32,23.557573528
+R,flash,emotion,1,Every day we were asked to the social vacation and this was a very very pleasant for us.,0.058823529411764705,0.819305419921875,3.4712928935856464,1.1195870637893677,6.32,23.606266776
+R,flash,emotion,2,Every day we were asked to the social occasion and this was very very pleasant for us.,0.058823529411764705,0.8915613889694214,3.563650036830205,1.1260889768600464,6.32,23.606315928
+R,flash,itts,0,Welcome home. How was work today?,0.0,,3.2049766128844084,0.34905195236206055,1.7,23.530579176
+R,flash,itts,1,Welcome home. How was work today?,0.0,,3.2759801007371787,0.3662649393081665,1.7,23.416728552
+R,flash,itts,2,Welcome home. How was work today?,0.0,,2.803474710995683,0.37629997730255127,1.7,23.416728356
+R,flash,se,0,大学生利用漏洞免费吃肯德基或,0.2,0.5836846232414246,3.319970894203591,1.0167039632797241,4.98,23.625360584
+R,flash,se,1,大学生利用漏洞免费吃肯德基或,0.2,0.5233362913131714,3.3331284762626723,0.8898869752883911,4.98,23.674639092
+R,flash,se,2,大学生利用漏洞免费吃肯德基或许多,0.26666666666666666,0.5371853113174438,3.2153557157164765,0.9390580654144287,4.98,23.674704628
+R,flash,speed,0,"And so, my fellow, ask not what your country can do for you, ask what you can do for your country.",0.045454545454545456,0.8883804082870483,2.4217822614589224,1.7150599956512451,6.86,23.643106895
+R,flash,speed,1,"And so, my Americans, ask not what your country can do for you, ask what you can do for your country.",0.045454545454545456,0.8956946730613708,2.628713831074165,1.6175529956817627,6.86,23.717295423
+R,flash,speed,2,"And so my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",0.0,0.8532630205154419,2.4745635242064488,1.5438270568847656,6.86,23.690854607
+R,flash,zs,0,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.9174249768257141,3.57035583021176,1.6989829540252686,6.0,23.638298723
+R,flash,zs,1,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.932456374168396,3.6055284965030086,1.5767219066619873,6.0,23.645946175
+R,flash,zs,2,"Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.",0.0,0.9353646039962769,3.562514173696677,1.452232003211975,6.0,23.645962559

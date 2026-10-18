@@ -1,0 +1,82 @@
+== flash/zs
+  ref_latents max|Δ| 4.220e-05   relL2 3.766e-06   cos 1.0000000   [1, 498, 64]
+  fused max|Δ| 4.601e-03   relL2 9.078e-06   cos 1.0000000   [1, 299, 2048]
+  call0_out max|Δ| 1.191e-03   relL2 7.760e-05   cos 1.0000000   [1, 300, 64]
+  gen_latent max|Δ| 4.576e-03   relL2 1.600e-04   cos 0.9999999   [1, 300, 64]
+  audio_out max|Δ| 3.349e-04   relL2 2.442e-04   cos 1.0000000   [1, 144000, 1]
+  wall 5.40 s for 6.00 s of audio (RTF 0.900)
+== flash/itts
+  fused max|Δ| 1.299e-03   relL2 6.578e-06   cos 0.9999999   [1, 118, 2048]
+  call0_out max|Δ| 2.366e-05   relL2 2.157e-06   cos 0.9999999   [1, 85, 64]
+  gen_latent max|Δ| 1.333e-04   relL2 6.889e-06   cos 1.0000000   [1, 85, 64]
+  audio_out max|Δ| 6.313e-05   relL2 1.376e-05   cos 1.0000001   [1, 40800, 1]
+  wall 0.49 s for 1.70 s of audio (RTF 0.289)
+== flash/content
+  ref_latents max|Δ| 3.735e-04   relL2 1.688e-05   cos 1.0000001   [1, 351, 64]
+  fused max|Δ| 1.442e-03   relL2 5.784e-06   cos 0.9999999   [1, 215, 2048]
+  call0_out max|Δ| 9.394e-04   relL2 4.970e-05   cos 1.0000000   [1, 350, 64]
+  gen_latent max|Δ| 5.031e-03   relL2 9.734e-05   cos 1.0000000   [1, 350, 64]
+  audio_out max|Δ| 6.408e-04   relL2 2.634e-04   cos 1.0000001   [1, 168000, 1]
+  wall 1.30 s for 7.00 s of audio (RTF 0.185)
+== flash/speed
+  ref_latents max|Δ| 5.860e-04   relL2 7.908e-06   cos 1.0000001   [1, 550, 64]
+  fused max|Δ| 3.875e-02   relL2 5.319e-05   cos 1.0000000   [1, 307, 2048]
+  call0_out max|Δ| 1.109e-03   relL2 4.222e-05   cos 0.9999999   [1, 343, 64]
+  gen_latent max|Δ| 1.344e-03   relL2 5.142e-05   cos 1.0000001   [1, 343, 64]
+  audio_out max|Δ| 5.009e-04   relL2 1.237e-04   cos 1.0000001   [1, 164640, 1]
+  wall 1.53 s for 6.86 s of audio (RTF 0.224)
+== flash/emotion
+  ref_latents max|Δ| 1.591e-04   relL2 1.183e-05   cos 1.0000000   [1, 316, 64]
+  fused max|Δ| 2.140e-03   relL2 1.339e-05   cos 1.0000000   [1, 185, 2048]
+  call0_out max|Δ| 9.801e-04   relL2 3.875e-05   cos 1.0000000   [1, 316, 64]
+  gen_latent max|Δ| 4.780e-03   relL2 1.398e-04   cos 1.0000001   [1, 316, 64]
+  audio_out max|Δ| 1.904e-02   relL2 7.450e-03   cos 0.9999722   [1, 151680, 1]
+  wall 1.35 s for 6.32 s of audio (RTF 0.214)
+== flash/se
+  ref_latents max|Δ| 8.729e-05   relL2 1.035e-05   cos 1.0000001   [1, 250, 64]
+  fused max|Δ| 3.201e-03   relL2 1.379e-05   cos 1.0000000   [1, 167, 2048]
+  call0_out max|Δ| 9.575e-05   relL2 1.300e-05   cos 0.9999999   [1, 249, 64]
+  gen_latent max|Δ| 6.659e-03   relL2 6.562e-04   cos 0.9999999   [1, 249, 64]
+  audio_out max|Δ| 1.153e-04   relL2 1.650e-04   cos 1.0000000   [1, 119520, 1]
+  wall 1.04 s for 4.98 s of audio (RTF 0.208)
+== base/zs
+  ref_latents max|Δ| 4.220e-05   relL2 3.766e-06   cos 1.0000000   [1, 498, 64]
+  fused max|Δ| 3.036e-03   relL2 9.050e-06   cos 0.9999999   [1, 299, 2048]
+  call0_out max|Δ| 1.073e-05   relL2 1.094e-06   cos 0.9999999   [2, 300, 64]
+  gen_latent max|Δ| 9.765e-03   relL2 4.210e-04   cos 1.0000000   [1, 300, 64]
+  audio_out max|Δ| 2.828e-03   relL2 1.189e-03   cos 0.9999993   [1, 144000, 1]
+  wall 12.37 s for 6.00 s of audio (RTF 2.062)
+== base/itts
+  fused max|Δ| 8.488e-04   relL2 6.529e-06   cos 0.9999999   [1, 118, 2048]
+  call0_out max|Δ| 6.676e-06   relL2 1.022e-06   cos 1.0000001   [2, 85, 64]
+  gen_latent max|Δ| 1.304e-03   relL2 3.840e-05   cos 1.0000000   [1, 85, 64]
+  audio_out max|Δ| 9.715e-05   relL2 5.783e-05   cos 0.9999999   [1, 40800, 1]
+  wall 2.50 s for 1.70 s of audio (RTF 1.473)
+== base/content
+  ref_latents max|Δ| 3.735e-04   relL2 1.688e-05   cos 1.0000001   [1, 351, 64]
+  fused max|Δ| 1.005e-03   relL2 5.775e-06   cos 1.0000001   [1, 215, 2048]
+  call0_out max|Δ| 2.630e-04   relL2 4.352e-06   cos 0.9999999   [2, 350, 64]
+  gen_latent max|Δ| 1.014e-03   relL2 2.998e-05   cos 1.0000000   [1, 350, 64]
+  audio_out max|Δ| 4.384e-05   relL2 4.806e-05   cos 1.0000000   [1, 168000, 1]
+  wall 10.26 s for 7.00 s of audio (RTF 1.465)
+== base/speed
+  ref_latents max|Δ| 5.860e-04   relL2 7.908e-06   cos 1.0000001   [1, 550, 64]
+  fused max|Δ| 2.540e-02   relL2 5.308e-05   cos 0.9999999   [1, 307, 2048]
+  call0_out max|Δ| 9.477e-05   relL2 5.743e-06   cos 1.0000000   [2, 343, 64]
+  gen_latent max|Δ| 4.413e-04   relL2 2.630e-05   cos 1.0000000   [1, 343, 64]
+  audio_out max|Δ| 8.929e-04   relL2 2.043e-04   cos 0.9999999   [1, 164640, 1]
+  wall 12.72 s for 6.86 s of audio (RTF 1.854)
+== base/emotion
+  ref_latents max|Δ| 1.591e-04   relL2 1.183e-05   cos 1.0000000   [1, 316, 64]
+  fused max|Δ| 1.453e-03   relL2 1.336e-05   cos 0.9999998   [1, 185, 2048]
+  call0_out max|Δ| 5.886e-05   relL2 2.967e-06   cos 0.9999999   [2, 316, 64]
+  gen_latent max|Δ| 4.499e-03   relL2 1.014e-04   cos 0.9999999   [1, 316, 64]
+  audio_out max|Δ| 3.084e-04   relL2 3.078e-04   cos 0.9999999   [1, 151680, 1]
+  wall 8.61 s for 6.32 s of audio (RTF 1.363)
+== base/se
+  ref_latents max|Δ| 8.729e-05   relL2 1.035e-05   cos 1.0000001   [1, 250, 64]
+  fused max|Δ| 2.122e-03   relL2 1.376e-05   cos 0.9999999   [1, 167, 2048]
+  call0_out max|Δ| 1.119e-04   relL2 8.452e-06   cos 1.0000001   [2, 249, 64]
+  gen_latent max|Δ| 1.184e-04   relL2 1.079e-05   cos 1.0000000   [1, 249, 64]
+  audio_out max|Δ| 1.051e-05   relL2 2.083e-05   cos 1.0000001   [1, 119520, 1]
+  wall 7.39 s for 4.98 s of audio (RTF 1.484)

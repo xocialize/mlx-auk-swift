@@ -1,0 +1,66 @@
+== flash bf16
+  [VAL] flash bf16 prepared in 1.3s (warm-up incl.); phys 0.01 → 12.76 GB (resident +12.76)
+  [RUN] tts-clone: 5.50s audio, -24.7 dBFS, 0.76s wall (RTF 0.14), phys 13.29 GB
+  [RUN] tts-design: 2.36s audio, -23.3 dBFS, 0.30s wall (RTF 0.13), phys 13.51 GB
+  [RUN] edit-happy: 6.32s audio, -25.2 dBFS, 0.68s wall (RTF 0.11), phys 13.51 GB
+  [RUN] edit-whisper: 6.32s audio, -25.7 dBFS, 0.68s wall (RTF 0.11), phys 13.56 GB
+  [RUN] edit-denoise: 4.98s audio, -28.4 dBFS, 0.58s wall (RTF 0.12), phys 13.38 GB
+  [REQ] undeclared emotion refused: unsupportedRequestFeature("edit(.emotion(\"furious\")) — not one of the emotion labels auk-flash dec
+  [VAL] after evict 9.62 GB; malloc pressure relief released 0.00 GB → 9.62 GB
+  [VAL] second cycle: phys after re-prepare 12.63 GB (first 12.76), after second evict 7.79 GB
+  [VAL] flash bf16: resident 12.76 GB, peak phys 13.56 GB (activation 0.80 GB), after evict 9.62 GB (MLX active 0.00, cache 0.00 GB)
+== flash int8
+  [VAL] flash int8 prepared in 1.6s (warm-up incl.); phys 0.01 → 9.50 GB (resident +9.49)
+  [RUN] tts-clone: 5.50s audio, -24.6 dBFS, 0.77s wall (RTF 0.14), phys 10.06 GB
+  [RUN] tts-design: 2.36s audio, -23.7 dBFS, 0.31s wall (RTF 0.13), phys 10.05 GB
+  [RUN] edit-happy: 6.32s audio, -25.2 dBFS, 0.69s wall (RTF 0.11), phys 10.13 GB
+  [RUN] edit-whisper: 6.32s audio, -25.7 dBFS, 0.71s wall (RTF 0.11), phys 10.46 GB
+  [RUN] edit-denoise: 4.98s audio, -28.4 dBFS, 0.59s wall (RTF 0.12), phys 10.22 GB
+  [REQ] undeclared emotion refused: unsupportedRequestFeature("edit(.emotion(\"furious\")) — not one of the emotion labels auk-flash dec
+  [VAL] after evict 5.22 GB; malloc pressure relief released 0.00 GB → 5.22 GB
+  [VAL] second cycle: phys after re-prepare 9.53 GB (first 9.50), after second evict 6.07 GB
+  [VAL] flash int8: resident 9.49 GB, peak phys 10.46 GB (activation 0.96 GB), after evict 5.22 GB (MLX active 0.00, cache 0.00 GB)
+== flash int4
+  [VAL] flash int4 prepared in 1.3s (warm-up incl.); phys 0.01 → 7.90 GB (resident +7.90)
+  [RUN] tts-clone: 5.50s audio, -25.0 dBFS, 0.76s wall (RTF 0.14), phys 8.41 GB
+  [RUN] tts-design: 2.36s audio, -23.6 dBFS, 0.31s wall (RTF 0.13), phys 8.46 GB
+  [RUN] edit-happy: 6.32s audio, -25.5 dBFS, 0.75s wall (RTF 0.12), phys 8.78 GB
+  [RUN] edit-whisper: 6.32s audio, -25.8 dBFS, 0.70s wall (RTF 0.11), phys 8.56 GB
+  [RUN] edit-denoise: 4.98s audio, -28.4 dBFS, 0.58s wall (RTF 0.12), phys 8.67 GB
+  [REQ] undeclared emotion refused: unsupportedRequestFeature("edit(.emotion(\"furious\")) — not one of the emotion labels auk-flash dec
+  [VAL] after evict 4.15 GB; malloc pressure relief released 0.00 GB → 4.15 GB
+  [VAL] second cycle: phys after re-prepare 7.56 GB (first 7.90), after second evict 4.02 GB
+  [VAL] flash int4: resident 7.90 GB, peak phys 8.78 GB (activation 0.88 GB), after evict 4.15 GB (MLX active 0.00, cache 0.00 GB)
+== base bf16
+  [VAL] base bf16 prepared in 2.7s (warm-up incl.); phys 0.01 → 12.76 GB (resident +12.75)
+  [RUN] tts-clone: 5.50s audio, -25.5 dBFS, 5.97s wall (RTF 1.08), phys 13.51 GB
+  [RUN] tts-design: 2.36s audio, -24.9 dBFS, 1.82s wall (RTF 0.77), phys 13.28 GB
+  [RUN] edit-happy: 6.32s audio, -25.9 dBFS, 4.59s wall (RTF 0.73), phys 13.64 GB
+  [RUN] edit-whisper: 6.32s audio, -25.0 dBFS, 4.62s wall (RTF 0.73), phys 13.67 GB
+  [RUN] edit-denoise: 4.98s audio, -28.5 dBFS, 3.86s wall (RTF 0.77), phys 13.79 GB
+  [REQ] undeclared emotion refused: unsupportedRequestFeature("edit(.emotion(\"furious\")) — not one of the emotion labels auk declares 
+  [VAL] after evict 8.73 GB; malloc pressure relief released 0.00 GB → 8.73 GB
+  [VAL] second cycle: phys after re-prepare 12.52 GB (first 12.76), after second evict 9.81 GB
+  [VAL] base bf16: resident 12.75 GB, peak phys 13.79 GB (activation 1.03 GB), after evict 8.73 GB (MLX active 0.00, cache 0.00 GB)
+== base int8
+  [VAL] base int8 prepared in 2.3s (warm-up incl.); phys 0.01 → 9.47 GB (resident +9.46)
+  [RUN] tts-clone: 5.50s audio, -25.6 dBFS, 5.81s wall (RTF 1.06), phys 10.05 GB
+  [RUN] tts-design: 2.36s audio, -24.6 dBFS, 1.90s wall (RTF 0.81), phys 10.11 GB
+  [RUN] edit-happy: 6.32s audio, -25.9 dBFS, 4.73s wall (RTF 0.75), phys 10.39 GB
+  [RUN] edit-whisper: 6.32s audio, -25.0 dBFS, 4.70s wall (RTF 0.74), phys 10.32 GB
+  [RUN] edit-denoise: 4.98s audio, -28.5 dBFS, 4.13s wall (RTF 0.83), phys 10.25 GB
+  [REQ] undeclared emotion refused: unsupportedRequestFeature("edit(.emotion(\"furious\")) — not one of the emotion labels auk declares 
+  [VAL] after evict 5.07 GB; malloc pressure relief released 0.00 GB → 5.07 GB
+  [VAL] second cycle: phys after re-prepare 9.63 GB (first 9.47), after second evict 7.27 GB
+  [VAL] base int8: resident 9.46 GB, peak phys 10.39 GB (activation 0.92 GB), after evict 5.07 GB (MLX active 0.00, cache 0.00 GB)
+== base int4
+  [VAL] base int4 prepared in 2.2s (warm-up incl.); phys 0.01 → 7.63 GB (resident +7.63)
+  [RUN] tts-clone: 5.50s audio, -25.5 dBFS, 5.84s wall (RTF 1.06), phys 8.61 GB
+  [RUN] tts-design: 2.36s audio, -24.3 dBFS, 1.87s wall (RTF 0.79), phys 8.44 GB
+  [RUN] edit-happy: 6.32s audio, -26.1 dBFS, 5.91s wall (RTF 0.94), phys 8.42 GB
+  [RUN] edit-whisper: 6.32s audio, -25.1 dBFS, 5.38s wall (RTF 0.85), phys 8.48 GB
+  [RUN] edit-denoise: 4.98s audio, -28.5 dBFS, 4.44s wall (RTF 0.89), phys 8.62 GB
+  [REQ] undeclared emotion refused: unsupportedRequestFeature("edit(.emotion(\"furious\")) — not one of the emotion labels auk declares 
+  [VAL] after evict 2.56 GB; malloc pressure relief released 0.00 GB → 2.56 GB
+  [VAL] second cycle: phys after re-prepare 7.69 GB (first 7.63), after second evict 3.77 GB
+  [VAL] base int4: resident 7.63 GB, peak phys 8.62 GB (activation 0.98 GB), after evict 2.56 GB (MLX active 0.00, cache 0.00 GB)

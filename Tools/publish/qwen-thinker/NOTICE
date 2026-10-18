@@ -1,0 +1,5 @@
+Qwen is licensed under the Qwen RESEARCH LICENSE AGREEMENT, Copyright (c) Alibaba Cloud. All Rights Reserved.
+
+This repository contains MODIFIED files: the thinker of Qwen/Qwen2.5-Omni-3B (the Qwen2 language model and the audio tower; the vision tower, LM head, talker and token2wav removed), converted to MLX safetensors (bfloat16, and for -8bit repos affine 8-bit quantisation of the layer Linears, group size 64) by xocialize for mlx-auk-swift.
+
+Built with Qwen.

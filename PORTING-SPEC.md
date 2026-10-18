@@ -6,18 +6,38 @@ named-only engine model that is not a product asset. This is a full port from Te
 original weights. No third-party MLX conversion is used, including vanch007/AuK-*-MLX, smcleod/AuK-MLX-8bit and
 audio-cpp GGUF, because other authors' recent ports have had problems.
 
-Upstream is pinned at `Tencent-Hunyuan/AuK@9481474` (2026-10-14), cloned to `ref/AuK/`. The weights are
-`tencent/AuK@790742b7` and `tencent/AuK-Flash@575b92f0`, plus `Qwen/Qwen2.5-Omni-3B`, all in the HF cache on the
-internal disk. The Satechi volume has only 60 GB free.
+Upstream is pinned at `Tencent-Hunyuan/AuK@9481474` (2026-10-14). The weights are `tencent/AuK@790742b7`,
+`tencent/AuK-Flash@575b92f0` and `Qwen/Qwen2.5-Omni-3B@f75b40e3`. The scratch side of the port (the upstream clone,
+the fp32 goldens and the venvs) lives in `mlxengine-audio/WIP/auk-port/`. Everything needed to rebuild it is in
+`Tools/`:
+- `oracle-capture/dump_goldens.py --assets <clone>/assets/demo-input-audio --out <goldens>` regenerates the goldens
+  bit for bit in about 30 minutes;
+- `convert/convert.py --out <weights>` writes the bundles.
 
-## 0. Where we left off
+## 0. Status (2026-10-18): V0–V4 done, v0.1.0 published
 
-| item | state |
+| rung | outcome |
 |---|---|
-| E18 evaluation: architecture, budget, licence | done 2026-09-12 (`mlxengine-audio/Docs/ENHANCEMENTS.md` E18) |
-| Upstream outreach | [AuK#13](https://github.com/Tencent-Hunyuan/AuK/issues/13): the team (ZhikangNiu) replied that the DiT and VAE are MIT, and that it *"plans to replace the current encoder with an alternative encoder under a permissive license in a future release"*. Nothing has shipped as of 2026-10-18. |
-| Upstream changes since E18 | Distillation training pipeline (2026-10-14). Inference code is unchanged in substance. The HF weights are unchanged since 2026-09-10. |
-| Code, weights, parity | **none.** No oracle, no MLX code, no conversions. mlx-community has no AuK and no Qwen2.5-Omni-3B. No Python-MLX `qwen2_5_omni` exists in mlx-vlm or mlx-audio. |
+| V0 oracle | fp32 CPU goldens for 6 tasks × Base/Flash; outputs ASR-checked |
+| V1 converter | bit-exact against upstream's folded weights (1,249 tensors, max \|Δ\| 0) |
+| V2 Swift core | fp32 parity on 12/12 lanes: generated latent relL2 ≤ 6.6e-4, waveform ≤ 7.5e-3 |
+| V2b tiers | bf16 / 8-bit / 4-bit encoder (and 8-bit DiT) all pass the pre-registered gate (§6–7) |
+| V3 engine | `MLXAuK` on `tts` + `speechEdit`; 16/16 conformance; footprints from phys_footprint through MLXServeEngine |
+| V4 publish | xocialize/mlx-auk-swift; mlx-community `AuK-bf16`, `AuK-Flash-bf16`, `Qwen2.5-Omni-3B-Thinker-{bf16,8bit,4bit}` plus a collection; hub smoke passed |
+
+Numbers are in `MEASUREMENTS.md`; raw logs are in `receipts/`. Records: AB-D-0153, AB-T-0325, receipt AB-R-0586,
+lesson AB-L-0297.
+
+**Open.**
+- AuK's content / speed / pitch / volume / timbre / de-accent edits need new `speechEdit` operations: ask AB-A-0188 to
+  mlx-engine.
+- Upstream's promised permissive encoder ([AuK#13](https://github.com/Tencent-Hunyuan/AuK/issues/13), team reply:
+  *"plans to replace the current encoder with an alternative encoder under a permissive license"*). When it ships, port
+  the new encoder and the DiT trained against it behind `AukConditionEncoder`; the package then becomes MIT.
+
+Before the port (2026-09-12): E18 evaluated the model and passed on the encoder licence (`Docs/ENHANCEMENTS.md` E18).
+No MLX code, conversion, or Python-MLX `qwen2_5_omni` existed anywhere. Third-party MLX copies (vanch007, smcleod,
+audio-cpp GGUF) were deliberately not used.
 
 ## 1. Licence posture (decided by the operator; follows AB-D-0085 and AB-D-0151)
 
@@ -124,14 +144,9 @@ for structure only.
   `instruction` followed by `<|audio_bos|><|AUDIO|><|audio_eos|>`, and the prompt ends with
   `<|im_start|>assistant\n` (add_generation_prompt). The processor expands `<|AUDIO|>` to N tokens.
 
-Earlier draft notes on the thinker (superseded where they disagree with the notes above):
-- LLM: Qwen2, 36 × 2048, GQA 16/2, SwiGLU 11008, RoPE θ 1e6, with **M-RoPE** sections. Audio-only position ids need
-  to be read from `get_rope_index`.
-- Audio tower: Whisper-shaped, 32 × 1280, 128 mel, chunked windowed attention (`n_window`), then avg-pool, `ln_post`
-  and a projection to 2048 (~25 tok/s).
-- The audio embeddings are scattered into the audio-token positions.
-
 ## 3. Rungs
+
+The plan as written before the work. Where the shipped result differs, the outcome line under the table says how.
 
 | rung | what | gate |
 |---|---|---|
@@ -144,6 +159,12 @@ Earlier draft notes on the thinker (superseded where they disagree with the note
 
 The MES Audio Engine does not exist yet, so V3 targets MLXEngine `Capability.speechEdit` next to Step-Audio-EditX.
 That is what a future audio engine would wrap, the same way the Image Engine wraps the image packages.
+
+**As shipped.**
+- **V3** serves two surfaces, `tts` (clone + voice design via `textDescription`) and `speechEdit`, in two packages,
+  `auk` and `auk-flash`.
+- **V4** publishes only bf16 DiT + VAE bundles. The quantised tiers are on the encoder (8- and 4-bit), because V2b
+  showed DiT quantisation buys little (D vs B: −1.4 GB). So there is no `AuK-8bit`, and a 4-bit encoder was added.
 
 ## 4. Parity gates (fp32 CPU oracle; thresholds per the mlx-porting skill)
 
@@ -165,6 +186,10 @@ That is what a future audio engine would wrap, the same way the Image Engine wra
 
 The speed estimate is RTF ≈ 1 for Base and ≈ 0.1 for Flash on an M5 Max. Declared footprints come only from
 measurement.
+
+**Measured** (phys_footprint through the engine): bf16 12.75 GB, 8-bit 9.46 GB, 4-bit 7.63–7.90 GB resident;
+activation ≤ 1.03 GB; RTF Base ≈ 0.9, Flash ≈ 0.12. The estimate held for bf16 and was 1.1–1.5 GB low for the
+quantised tiers: the embeddings and the audio-tower convs stay bf16.
 
 ## 6. V2b protocol (pre-registered 2026-10-18, before any tier was measured)
 
@@ -195,3 +220,17 @@ its own 24 kHz / 16 kHz sinc resampling and its own mel features.
    points** worse.
 2. Pooled mean SIM to source is within **−0.03**.
 3. Pooled mean DNSMOS OVRL is within **−0.15**.
+
+## 7. Results
+
+V2 parity and V2b tiers are in `MEASUREMENTS.md`. In short:
+- Tier R (fp32, TF32 off) equals the oracle, since the end-to-end matrix holds at fp32.
+- Against R, every tier passes §6:
+  - A bf16: Δerr −1.2 points, ΔSIM −0.023;
+  - B 8-bit encoder: −1.7, −0.026;
+  - C 4-bit encoder: −2.1, −0.022 (worst cell +1.5);
+  - D 8-bit DiT + encoder: −1.4, −0.025.
+- DNSMOS is within 0.03 in every tier.
+- The named risk (quantised-thinker drift through the 36-layer fusion) did not materialise: the 4-bit thinker costs
+  no more SIM than bf16.
+- Scores: `receipts/v2b-scores.csv`.

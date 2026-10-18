@@ -1,0 +1,211 @@
+2026-10-18 15:10:51,563 [INFO] new registry table has been added: preprocessor_classes
+If you want to use the speaker diarization, please `pip install hdbscan`
+A base/content s0: err 0.000 sim 0.864 dnsmos 3.38 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+A base/content s1: err 0.000 sim 0.880 dnsmos 3.31 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+A base/content s2: err 0.000 sim 0.884 dnsmos 3.34 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+A base/emotion s0: err 0.118 sim 0.573 dnsmos 3.54 | Every day we were asked to the social occasion, and this was a very, very pleasant for us.
+A base/emotion s1: err 0.235 sim 0.570 dnsmos 3.53 | Every day we were asked to the social occasion, and this was a very, very pleasant force.
+A base/emotion s2: err 0.235 sim 0.621 dnsmos 3.56 | Every day we were asked to the social occasion, and this was a very, very pleasant force.
+A base/itts s0: err 0.000 sim nan dnsmos 2.80 | Welcome home. How was work today?
+A base/itts s1: err 0.000 sim nan dnsmos 3.06 | Welcome home. How was work today?
+A base/itts s2: err 0.000 sim nan dnsmos 3.24 | Welcome home. How was work today?
+A base/se s0: err 0.067 sim 0.537 dnsmos 3.29 | 大学生利用漏洞免费吃肯德西获取
+A base/se s1: err 0.133 sim 0.503 dnsmos 3.22 | 大学生利用漏洞免费吃肯德基或许
+A base/se s2: err 0.000 sim 0.507 dnsmos 3.31 | 大学生利用漏洞免费吃肯德基获取
+A base/speed s0: err 0.000 sim 0.849 dnsmos 2.46 | And so, my fellow, ask not what your country can do for you, ask what you can do for your country.
+A base/speed s1: err 0.000 sim 0.858 dnsmos 2.31 | And so, my fellow, ask not what your country can do for you, ask what you can do for your country.
+A base/speed s2: err 0.000 sim 0.839 dnsmos 2.32 | And so, my fellow, ask not what your country can do for you, ask what you can do for your country.
+A base/zs s0: err 0.000 sim 0.891 dnsmos 3.51 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+A base/zs s1: err 0.000 sim 0.873 dnsmos 3.50 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+A base/zs s2: err 0.000 sim 0.838 dnsmos 3.54 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+A flash/content s0: err 0.000 sim 0.844 dnsmos 3.30 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+A flash/content s1: err 0.000 sim 0.862 dnsmos 3.28 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+A flash/content s2: err 0.000 sim 0.868 dnsmos 3.34 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+A flash/emotion s0: err 0.059 sim 0.722 dnsmos 3.49 | Every day we were asked to the social vacation and this was a very very pleasant for us.
+A flash/emotion s1: err 0.000 sim 0.804 dnsmos 3.52 | Every day we were asked to the social vacation, and this was very, very pleasant for us.
+A flash/emotion s2: err 0.000 sim 0.861 dnsmos 3.55 | Every day we were asked to the social vacation and this was very very pleasant for us.
+A flash/itts s0: err 0.000 sim nan dnsmos 3.24 | Welcome home. How was work today?
+A flash/itts s1: err 0.000 sim nan dnsmos 3.25 | Welcome home. How was work today?
+A flash/itts s2: err 0.000 sim nan dnsmos 3.00 | Welcome home. How was work today?
+A flash/se s0: err 0.133 sim 0.556 dnsmos 3.30 | 大学生利用漏洞免费吃肯德基获取
+A flash/se s1: err 0.200 sim 0.607 dnsmos 3.31 | 大学生利用漏洞免费吃肯德基或许
+A flash/se s2: err 0.200 sim 0.609 dnsmos 3.09 | 大学生利用漏洞免费吃肯德基或许
+A flash/speed s0: err 0.045 sim 0.863 dnsmos 2.33 | And so my Americans, ask not what your country can do for you, ask what you can do for your country.
+A flash/speed s1: err 0.045 sim 0.869 dnsmos 2.57 | And so, my little Americans, ask not what your country can do for you, ask what you can do for your country.
+A flash/speed s2: err 0.000 sim 0.844 dnsmos 2.45 | And so my fellow Americans, ask not what your country can do for you, ask what you can do for your country.
+A flash/zs s0: err 0.000 sim 0.823 dnsmos 3.59 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+A flash/zs s1: err 0.000 sim 0.881 dnsmos 3.59 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+A flash/zs s2: err 0.000 sim 0.865 dnsmos 3.57 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+B base/content s0: err 0.000 sim 0.866 dnsmos 3.36 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+B base/content s1: err 0.000 sim 0.873 dnsmos 3.31 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+B base/content s2: err 0.000 sim 0.883 dnsmos 3.33 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+B base/emotion s0: err 0.118 sim 0.575 dnsmos 3.58 | Every day we were asked to the social occasion, and this was a very, very pleasant for us.
+B base/emotion s1: err 0.235 sim 0.551 dnsmos 3.54 | Every day we were asked to the social occasion and this was a very very pleasant force.
+B base/emotion s2: err 0.235 sim 0.606 dnsmos 3.54 | Every day we were asked to the social occasion, and this was a very, very pleasant force.
+B base/itts s0: err 0.000 sim nan dnsmos 2.85 | Welcome home. How was work today?
+B base/itts s1: err 0.000 sim nan dnsmos 3.18 | Welcome home. How was work today?
+B base/itts s2: err 0.000 sim nan dnsmos 3.25 | Welcome home. How was work today?
+B base/se s0: err 0.067 sim 0.528 dnsmos 3.27 | 大学生利用漏洞免费吃肯德西获取
+B base/se s1: err 0.000 sim 0.505 dnsmos 3.21 | 大学生利用漏洞免费吃肯德基获取
+B base/se s2: err 0.000 sim 0.512 dnsmos 3.33 | 大学生利用漏洞免费吃肯德基获取
+B base/speed s0: err 0.000 sim 0.847 dnsmos 2.43 | And so, my fellow, ask not what your country can do for you, ask what you can do for your country.
+B base/speed s1: err 0.000 sim 0.857 dnsmos 2.33 | And so, my fellow, ask not what your country can do for you, ask what you can do for your country.
+B base/speed s2: err 0.000 sim 0.841 dnsmos 2.24 | And so, my fellow, ask not what your country can do for you, ask what you can do for your country.
+B base/zs s0: err 0.000 sim 0.885 dnsmos 3.50 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+B base/zs s1: err 0.000 sim 0.875 dnsmos 3.50 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+B base/zs s2: err 0.000 sim 0.834 dnsmos 3.55 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+B flash/content s0: err 0.000 sim 0.843 dnsmos 3.30 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+B flash/content s1: err 0.000 sim 0.863 dnsmos 3.28 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+B flash/content s2: err 0.000 sim 0.867 dnsmos 3.33 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+B flash/emotion s0: err 0.059 sim 0.715 dnsmos 3.53 | Every day we were asked to the social vacation and this was a very very pleasant for us.
+B flash/emotion s1: err 0.000 sim 0.782 dnsmos 3.46 | Every day we were asked to the social vacation, and this was very, very pleasant for us.
+B flash/emotion s2: err 0.000 sim 0.852 dnsmos 3.54 | Every day we were asked to the social vacation and this was very very pleasant for us.
+B flash/itts s0: err 0.000 sim nan dnsmos 3.24 | Welcome home. How was work today?
+B flash/itts s1: err 0.000 sim nan dnsmos 3.26 | Welcome home. How was work today?
+B flash/itts s2: err 0.000 sim nan dnsmos 2.72 | Welcome home. How was work today?
+B flash/se s0: err 0.133 sim 0.541 dnsmos 3.32 | 大学生利用漏洞免费吃肯德基获喜
+B flash/se s1: err 0.200 sim 0.600 dnsmos 3.31 | 大学生利用漏洞免费吃肯德基或许
+B flash/se s2: err 0.200 sim 0.609 dnsmos 3.14 | 大学生利用漏洞免费吃肯德基或许
+B flash/speed s0: err 0.000 sim 0.867 dnsmos 2.30 | And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.
+B flash/speed s1: err 0.045 sim 0.872 dnsmos 2.59 | And so, my little Americans, ask not what your country can do for you, ask what you can do for your country.
+B flash/speed s2: err 0.000 sim 0.841 dnsmos 2.47 | And so my fellow Americans, ask not what your country can do for you, ask what you can do for your country.
+B flash/zs s0: err 0.000 sim 0.836 dnsmos 3.58 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+B flash/zs s1: err 0.000 sim 0.894 dnsmos 3.61 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+B flash/zs s2: err 0.000 sim 0.866 dnsmos 3.54 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+C base/content s0: err 0.000 sim 0.861 dnsmos 3.39 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+C base/content s1: err 0.000 sim 0.887 dnsmos 3.31 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+C base/content s2: err 0.000 sim 0.883 dnsmos 3.37 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+C base/emotion s0: err 0.059 sim 0.625 dnsmos 3.62 | Every day we were asked to the social vacation, and this was a very, very pleasant for us.
+C base/emotion s1: err 0.059 sim 0.582 dnsmos 3.45 | Every day we were asked to the social vacation and this was a very very pleasant for us.
+C base/emotion s2: err 0.176 sim 0.628 dnsmos 3.58 | Every day we were asked to the social vacation, and this was a very, very pleasant force.
+C base/itts s0: err 0.000 sim nan dnsmos 2.86 | Welcome home. How was work today?
+C base/itts s1: err 0.000 sim nan dnsmos 3.17 | Welcome home, how was work today?
+C base/itts s2: err 0.000 sim nan dnsmos 3.21 | Welcome home. How was work today?
+C base/se s0: err 0.067 sim 0.508 dnsmos 3.25 | 大学生利用漏洞免费吃肯德西获取
+C base/se s1: err 0.000 sim 0.514 dnsmos 3.19 | 大学生利用漏洞免费吃肯德基获取
+C base/se s2: err 0.200 sim 0.516 dnsmos 3.35 | 大学生利用漏洞免费吃肯德西或许
+C base/speed s0: err 0.000 sim 0.846 dnsmos 2.22 | And so, my fellow, ask not what your country can do for you, ask what you can do for your country.
+C base/speed s1: err 0.000 sim 0.860 dnsmos 2.31 | And so, my fellow, ask not what your country can do for you, ask what you can do for your country.
+C base/speed s2: err 0.000 sim 0.840 dnsmos 2.08 | And so, my fellow, ask not what your country can do for you, ask what you can do for your country.
+C base/zs s0: err 0.000 sim 0.882 dnsmos 3.52 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+C base/zs s1: err 0.000 sim 0.883 dnsmos 3.51 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+C base/zs s2: err 0.000 sim 0.835 dnsmos 3.53 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+C flash/content s0: err 0.000 sim 0.863 dnsmos 3.30 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+C flash/content s1: err 0.000 sim 0.853 dnsmos 3.28 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+C flash/content s2: err 0.000 sim 0.874 dnsmos 3.35 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+C flash/emotion s0: err 0.000 sim 0.707 dnsmos 3.54 | Every day we were asked to the social vacation and this was very very pleasant for us.
+C flash/emotion s1: err 0.000 sim 0.788 dnsmos 3.45 | Every day we were asked to the social vacation, and this was very, very pleasant for us.
+C flash/emotion s2: err 0.000 sim 0.828 dnsmos 3.50 | Every day we were asked to the social vacation and this was very very pleasant for us.
+C flash/itts s0: err 0.000 sim nan dnsmos 3.06 | Welcome home. How was work today?
+C flash/itts s1: err 0.000 sim nan dnsmos 3.26 | Welcome home. How was work today?
+C flash/itts s2: err 0.000 sim nan dnsmos 2.72 | Welcome home. How was work today?
+C flash/se s0: err 0.133 sim 0.548 dnsmos 3.32 | 大学生利用漏洞免费吃肯德基获取
+C flash/se s1: err 0.200 sim 0.601 dnsmos 3.31 | 大学生利用漏洞免费吃肯德基或许
+C flash/se s2: err 0.133 sim 0.605 dnsmos 3.14 | 大学生利用漏洞免费吃肯德基获取
+C flash/speed s0: err 0.045 sim 0.861 dnsmos 2.38 | And so, my Americans, ask not what your country can do for you, ask what you can do for your country.
+C flash/speed s1: err 0.091 sim 0.877 dnsmos 2.59 | And so will Americans. Ask not what your country can do for you, ask what you can do for your country.
+C flash/speed s2: err 0.000 sim 0.846 dnsmos 2.48 | And so my fellow Americans, ask not what your country can do for you, ask what you can do for your country.
+C flash/zs s0: err 0.000 sim 0.876 dnsmos 3.57 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+C flash/zs s1: err 0.000 sim 0.850 dnsmos 3.53 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+C flash/zs s2: err 0.000 sim 0.882 dnsmos 3.56 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+D base/content s0: err 0.000 sim 0.875 dnsmos 3.35 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+D base/content s1: err 0.000 sim 0.873 dnsmos 3.30 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+D base/content s2: err 0.000 sim 0.884 dnsmos 3.35 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+D base/emotion s0: err 0.118 sim 0.580 dnsmos 3.56 | Every day we were asked to the social occasion, and this was a very, very pleasant for us.
+D base/emotion s1: err 0.235 sim 0.545 dnsmos 3.55 | Every day we were asked to the social occasion and this was a very very pleasant force.
+D base/emotion s2: err 0.235 sim 0.610 dnsmos 3.55 | Every day we were asked to the social occasion, and this was a very, very pleasant force.
+D base/itts s0: err 0.000 sim nan dnsmos 2.71 | Welcome home. How was work today?
+D base/itts s1: err 0.000 sim nan dnsmos 3.15 | Welcome home. How was work today?
+D base/itts s2: err 0.000 sim nan dnsmos 2.99 | Welcome home. How was work today?
+D base/se s0: err 0.067 sim 0.532 dnsmos 3.32 | 大学生利用漏洞免费吃肯德西获取
+D base/se s1: err 0.133 sim 0.509 dnsmos 3.19 | 大学生利用漏洞免费吃肯德基或许
+D base/se s2: err 0.000 sim 0.510 dnsmos 3.30 | 大学生利用漏洞免费吃肯德基获取
+D base/speed s0: err 0.000 sim 0.847 dnsmos 2.42 | And so, my fellow, ask not what your country can do for you, ask what you can do for your country.
+D base/speed s1: err 0.000 sim 0.858 dnsmos 2.34 | And so, my fellow, ask not what your country can do for you, ask what you can do for your country.
+D base/speed s2: err 0.000 sim 0.839 dnsmos 2.27 | And so, my fellow, ask not what your country can do for you, ask what you can do for your country.
+D base/zs s0: err 0.000 sim 0.893 dnsmos 3.51 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+D base/zs s1: err 0.000 sim 0.866 dnsmos 3.51 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+D base/zs s2: err 0.000 sim 0.847 dnsmos 3.55 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+D flash/content s0: err 0.000 sim 0.844 dnsmos 3.31 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+D flash/content s1: err 0.000 sim 0.859 dnsmos 3.26 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+D flash/content s2: err 0.000 sim 0.864 dnsmos 3.34 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+D flash/emotion s0: err 0.059 sim 0.726 dnsmos 3.52 | Every day we were asked to the social vacation and this was a very very pleasant for us.
+D flash/emotion s1: err 0.000 sim 0.792 dnsmos 3.49 | Every day we were asked to the social vacation, and this was very, very pleasant for us.
+D flash/emotion s2: err 0.000 sim 0.858 dnsmos 3.52 | Every day we were asked to the social vacation and this was very very pleasant for us.
+D flash/itts s0: err 0.000 sim nan dnsmos 3.21 | Welcome home. How was work today?
+D flash/itts s1: err 0.000 sim nan dnsmos 3.23 | Welcome home. How was work today?
+D flash/itts s2: err 0.000 sim nan dnsmos 2.68 | Welcome home. How was work today?
+D flash/se s0: err 0.133 sim 0.550 dnsmos 3.30 | 大学生利用漏洞免费吃肯德基获取
+D flash/se s1: err 0.200 sim 0.603 dnsmos 3.28 | 大学生利用漏洞免费吃肯德基或许
+D flash/se s2: err 0.200 sim 0.606 dnsmos 3.20 | 大学生利用漏洞免费吃肯德基或许
+D flash/speed s0: err 0.000 sim 0.865 dnsmos 2.36 | And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.
+D flash/speed s1: err 0.045 sim 0.871 dnsmos 2.60 | And so, my Americans, ask not what your country can do for you, ask what you can do for your country.
+D flash/speed s2: err 0.000 sim 0.837 dnsmos 2.47 | And so my fellow Americans, ask not what your country can do for you, ask what you can do for your country.
+D flash/zs s0: err 0.000 sim 0.831 dnsmos 3.58 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+D flash/zs s1: err 0.000 sim 0.869 dnsmos 3.57 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+D flash/zs s2: err 0.000 sim 0.863 dnsmos 3.56 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+R base/content s0: err 0.000 sim 0.876 dnsmos 3.39 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+R base/content s1: err 0.000 sim 0.897 dnsmos 3.28 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+R base/content s2: err 0.000 sim 0.882 dnsmos 3.40 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+R base/emotion s0: err 0.235 sim 0.681 dnsmos 3.57 | Every day we were asked to the social occasion, and this was a very, very pleasant force.
+R base/emotion s1: err 0.294 sim 0.614 dnsmos 3.57 | Every day we were asked to a social occasion, and this was a very, very pleasant force.
+R base/emotion s2: err 0.118 sim 0.679 dnsmos 3.55 | Every day we were asked to the social occasion, and this was a very, very pleasant for us.
+R base/itts s0: err 0.000 sim nan dnsmos 2.96 | Welcome home. How was work today?
+R base/itts s1: err 0.000 sim nan dnsmos 3.20 | Welcome home. How was work today?
+R base/itts s2: err 0.000 sim nan dnsmos 3.17 | Welcome home. How was work today?
+R base/se s0: err 0.200 sim 0.491 dnsmos 3.19 | 大学生利用漏洞免费吃肯德西或许
+R base/se s1: err 0.133 sim 0.459 dnsmos 3.28 | 大学生利用漏洞免费吃肯德基或许
+R base/se s2: err 0.000 sim 0.491 dnsmos 3.37 | 大学生利用漏洞免费吃肯德基获取
+R base/speed s0: err 0.000 sim 0.855 dnsmos 2.25 | And so, my fellow, ask not what your country can do for you, ask what you can do for your country.
+R base/speed s1: err 0.000 sim 0.871 dnsmos 2.29 | And so, my fellow, ask not what your country can do for you, ask what you can do for your country.
+R base/speed s2: err 0.000 sim 0.864 dnsmos 2.16 | And so, my fellow, ask not what your country can do for you, ask what you can do for your country.
+R base/zs s0: err 0.000 sim 0.955 dnsmos 3.51 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+R base/zs s1: err 0.000 sim 0.931 dnsmos 3.52 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+R base/zs s2: err 0.000 sim 0.922 dnsmos 3.55 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+R flash/content s0: err 0.000 sim 0.872 dnsmos 3.36 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+R flash/content s1: err 0.000 sim 0.872 dnsmos 3.37 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+R flash/content s2: err 0.000 sim 0.876 dnsmos 3.38 | Do you think the biggest victory is not fighting for what we want and living well with dreams unmet?
+R flash/emotion s0: err 0.059 sim 0.793 dnsmos 3.49 | Every day we were asked to the social vacation and this was a very very pleasant for us.
+R flash/emotion s1: err 0.059 sim 0.819 dnsmos 3.47 | Every day we were asked to the social vacation and this was a very very pleasant for us.
+R flash/emotion s2: err 0.059 sim 0.892 dnsmos 3.56 | Every day we were asked to the social occasion and this was very very pleasant for us.
+R flash/itts s0: err 0.000 sim nan dnsmos 3.20 | Welcome home. How was work today?
+R flash/itts s1: err 0.000 sim nan dnsmos 3.28 | Welcome home. How was work today?
+R flash/itts s2: err 0.000 sim nan dnsmos 2.80 | Welcome home. How was work today?
+R flash/se s0: err 0.200 sim 0.584 dnsmos 3.32 | 大学生利用漏洞免费吃肯德基或
+R flash/se s1: err 0.200 sim 0.523 dnsmos 3.33 | 大学生利用漏洞免费吃肯德基或
+R flash/se s2: err 0.267 sim 0.537 dnsmos 3.22 | 大学生利用漏洞免费吃肯德基或许多
+R flash/speed s0: err 0.045 sim 0.888 dnsmos 2.42 | And so, my fellow, ask not what your country can do for you, ask what you can do for your country.
+R flash/speed s1: err 0.045 sim 0.896 dnsmos 2.63 | And so, my Americans, ask not what your country can do for you, ask what you can do for your country.
+R flash/speed s2: err 0.000 sim 0.853 dnsmos 2.47 | And so my fellow Americans, ask not what your country can do for you, ask what you can do for your country.
+R flash/zs s0: err 0.000 sim 0.917 dnsmos 3.57 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+R flash/zs s1: err 0.000 sim 0.932 dnsmos 3.61 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+R flash/zs s2: err 0.000 sim 0.935 dnsmos 3.56 | Ladies and gentlemen, it's an honor to have the opportunity to address such a distinguished audience.
+
+== pooled means
+          err  sim_src  dnsmos
+tier                         
+A     0.0409   0.7655  3.1948
+B     0.0359   0.7630  3.1891
+C     0.0323   0.7669  3.1742
+D     0.0396   0.7635  3.1777
+R     0.0532   0.7886  3.2020
+
+== error rate per (variant, task)
+ tier                 A      B      C      D      R
+variant task                                      
+base    content  0.000  0.000  0.000  0.000  0.000
+        emotion  0.196  0.196  0.098  0.196  0.216
+        itts     0.000  0.000  0.000  0.000  0.000
+        se       0.067  0.022  0.089  0.067  0.111
+        speed    0.000  0.000  0.000  0.000  0.000
+        zs       0.000  0.000  0.000  0.000  0.000
+flash   content  0.000  0.000  0.000  0.000  0.000
+        emotion  0.020  0.020  0.000  0.020  0.059
+        itts     0.000  0.000  0.000  0.000  0.000
+        se       0.178  0.178  0.156  0.178  0.222
+        speed    0.030  0.015  0.045  0.015  0.030
+        zs       0.000  0.000  0.000  0.000  0.000
+tier A: Δerr -1.23 pts (worst cell +0.0), Δsim -0.0232, Δdnsmos -0.007 → PASS
+tier B: Δerr -1.73 pts (worst cell +0.0), Δsim -0.0257, Δdnsmos -0.013 → PASS
+tier C: Δerr -2.09 pts (worst cell +1.5), Δsim -0.0217, Δdnsmos -0.028 → PASS
+tier D: Δerr -1.36 pts (worst cell +0.0), Δsim -0.0251, Δdnsmos -0.024 → PASS
