@@ -31,7 +31,12 @@ final class ManifestConformanceTests: XCTestCase {
     /// C1 — both packages serve tts + speechEdit, with declared controls.
     func testCapabilitiesAndDeclarations() {
         for m in [AuKPackage.manifest, AuKFlashPackage.manifest] {
-            XCTAssertEqual(Set(m.capabilities), [.tts, .speechEdit])
+            XCTAssertEqual(Set(m.capabilities), [.tts, .speechEdit, .audioSeparation])
+            let sep = m.surfaces.first { $0.capability == .audioSeparation }
+            XCTAssertEqual(sep?.audioSeparationControls?.stems,
+                           m.provenance.sourceRepo == "tencent/AuK-Flash" ? [.speaker, .singing] : [.speaker, .singing, .voices])
+            XCTAssertEqual(sep?.audioSeparationControls?.speakerSelection, [.ordinal, .saying])
+            XCTAssertNotNil(sep?.parameters.first { $0.name == "speaker" })
             let edit = m.surfaces.first { $0.capability == .speechEdit }?.speechEditControls
             XCTAssertEqual(edit?.operations, [.emotion, .style, .denoise, .dereverberate, .replaceWords, .insertWords,
                                               .removeWords, .speed, .pitch, .volume, .timbre, .deAccent, .addNonverbal,
@@ -286,6 +291,33 @@ final class RequestPlaneTests: XCTestCase {
         XCTAssertEqual(AuKSurfaces.language(for: .emotion("happy")), .en)
     }
 
+    /// audioSeparation: one AuK run per stem, the speaker stem only with a pick, nothing derived by subtraction.
+    func testSeparationPlans() throws {
+        func plan(_ stems: [Stem] = [], _ speaker: SpeakerSelection? = nil,
+                  variant: AuKVariant = .base) throws -> [(Stem, AukInstruction, AukLanguage)] {
+            try AuKSurfaces.separationPlan(AudioSeparationRequest(audio: clip, stems: stems, speaker: speaker), variant: variant)
+                .map { ($0.stem, $0.instruction, $0.language) }
+        }
+        XCTAssertEqual(try plan().map(\.0), [.singing, .voices])                       // no stems: all Base produces
+        XCTAssertEqual(try plan(variant: .flash).map(\.0), [.singing])                 // Flash offers no voices stem
+        XCTAssertThrowsError(try plan([.voices], variant: .flash))
+        XCTAssertEqual(try plan([], .ordinal(2)).map(\.1), [.keepSpeaker(ordinal: 2)])  // a pick alone: the speaker
+        XCTAssertEqual(try plan([.singing], .saying("get what")).map(\.0), [.singing, .speaker])
+        XCTAssertEqual(try plan([.voices, .voices]).count, 1)
+        XCTAssertEqual(try plan([], .saying("你好")).first?.2, .zh)
+        XCTAssertEqual(try plan([], .saying("get what")).first?.1, .keepSpeakerSaying("get what"))
+        XCTAssertThrowsError(try plan([.speaker]))                                      // speaker stem without a pick
+        XCTAssertThrowsError(try plan([.instrumental]))                                 // would need subtraction
+        XCTAssertThrowsError(try plan([.vocals]))
+    }
+
+    func testSeparationRefusals() {
+        let controls = AuKSurfaces.separationControls(.base)
+        XCTAssertNil(controls.refusal(for: AudioSeparationRequest(audio: clip, speaker: .ordinal(1))))
+        XCTAssertNotNil(controls.refusal(for: AudioSeparationRequest(audio: clip, speaker: .ordinal(0))))
+        XCTAssertNotNil(controls.refusal(for: AudioSeparationRequest(audio: clip, speaker: .saying("  "))))
+    }
+
     func testTTSPlanning() throws {
         let clone = try AuKSurfaces.plan(TTSRequest(text: "Hello there.", voice: VoiceSelector(.referenceAudio(clip)),
                                                     targetDuration: 2))
@@ -315,6 +347,11 @@ final class RequestPlaneTests: XCTestCase {
         XCTAssertEqual(AukInstruction.enhance.text(),
                        "Preserve all speakers, remove noise and reverberation, and output clean speech of the same length.")
         XCTAssertEqual(AukInstruction.removeNonverbal("breaths").text(), "Remove all breaths from the audio.")
+        XCTAssertEqual(AukInstruction.keepSpeaker(ordinal: 2).text(),
+                       "Keep only the second speaker to start talking and remove all other speakers.")
+        XCTAssertEqual(AukInstruction.keepSpeakerSaying("get what").text(),
+                       "Keep only the speaker who says \"get what\" and remove all other speakers.")
+        XCTAssertEqual(AukInstruction.singingOnly.text(), "Keep the clean singing voice, drop all other audio.")
         XCTAssertEqual(AukInstruction.addNonverbal(sound: "laugh", atEnd: true).text(), "Add a laugh at the end of the speech.")
         XCTAssertEqual(AukInstruction.addNonverbal(sound: "humming", atEnd: false).text(),
                        "Add humming at the beginning of the speech.")

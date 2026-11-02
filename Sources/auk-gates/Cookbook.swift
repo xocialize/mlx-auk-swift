@@ -3,10 +3,11 @@
 //   auk-gates cookbook <base|flash> <bf16|int8|int4> <model> <encoder> <assets> <out-dir> [seed]
 //
 // The case list follows upstream's scripts/run_cookbook_mlx.py (Tencent-Hunyuan/AuK feat/mlx-apple-silicon @ 6943a1e),
-// one row per cookbook example, with the request each example becomes on the `tts` / `speechEdit` surfaces. Examples
-// no surface can express are written to the manifest as `unexpressible` with the reason and are not run. Rows marked
-// `supplementary` cover declared edit kinds the cookbook has no example for; Tools/cookbook/verify_cookbook.py reports
-// them apart from the cookbook count. Writes <out-dir>/<id>.wav and <out-dir>/cases.jsonl.
+// one row per cookbook example, with the request each example becomes on the `tts` / `speechEdit` / `audioSeparation`
+// surfaces. Examples no surface can express are written to the manifest as `unexpressible` with the reason and are not
+// run. Rows marked `supplementary` cover declared kinds the cookbook has no example for;
+// Tools/cookbook/verify_cookbook.py reports them apart from the cookbook count.
+// Writes <out-dir>/<id>.wav and <out-dir>/cases.jsonl.
 
 import AuKCore
 import Foundation
@@ -96,12 +97,19 @@ func cookbook(variant: String, quant q: String, _ modelDir: URL, _ encDir: URL, 
                      note: "approximated: the cookbook's combined enhance (noise + reverb) has no single kind; .denoise carries the noise-floor check") {
             SpeechEditRequest(audio: try wav("se/se-zh-1-input.wav"), edit: .denoise, seed: seed)
         },
-        CookbookCase(id: "5.2-separation", section: "Speech Separation", kind: "unexpressible", request: "—",
-                     note: "no audioSeparation surface (keep the second speaker to start talking)", make: nil),
-        CookbookCase(id: "5.3-music-sep", section: "Music Separation", kind: "unexpressible", request: "—",
-                     note: "no audioSeparation surface (keep the singing voice)", make: nil),
-        CookbookCase(id: "5.4-tse", section: "Target Speaker Extraction", kind: "unexpressible", request: "—",
-                     note: "no audioSeparation surface (keep the speaker who says \"get what\")", make: nil),
+        CookbookCase(id: "5.2-separation", section: "Speech Separation", kind: "cookbook",
+                     request: "audioSeparation speaker=.ordinal(2) → .speaker", note: "") {
+            AudioSeparationRequest(audio: try wav("ss/zh-1-input.wav"), speaker: .ordinal(2), metaData: ["seed": .int(Int(tts))])
+        },
+        CookbookCase(id: "5.3-music-sep", section: "Music Separation", kind: "cookbook",
+                     request: "audioSeparation stems=[.singing]", note: "") {
+            AudioSeparationRequest(audio: try wav("vocal-extraction/vocal-1-input.wav"), stems: [.singing],
+                                   metaData: ["seed": .int(Int(tts))])
+        },
+        CookbookCase(id: "5.4-tse", section: "Target Speaker Extraction", kind: "cookbook",
+                     request: "audioSeparation speaker=.saying(\"get what\") → .speaker", note: "") {
+            AudioSeparationRequest(audio: try wav("ss/en-1-input.wav"), speaker: .saying("get what"), metaData: ["seed": .int(Int(tts))])
+        },
         // declared kinds the cookbook has no example for, on the cookbook's own inputs
         CookbookCase(id: "S-insert", section: "Content insert", kind: "supplementary",
                      request: "speechEdit .insertWords(\"quietly\", anchor: \"accepting\", before: true)", note: "length from the package's estimate") {
@@ -121,6 +129,22 @@ func cookbook(variant: String, quant q: String, _ modelDir: URL, _ encDir: URL, 
         CookbookCase(id: "S-dereverb", section: "Dereverberate", kind: "supplementary", request: "speechEdit .dereverberate", note: "") {
             SpeechEditRequest(audio: try wav("se/se-zh-1-input.wav"), edit: .dereverberate, seed: seed)
         },
+        CookbookCase(id: "S-speaker1-en", section: "Separation, first speaker", kind: "supplementary",
+                     request: "audioSeparation speaker=.ordinal(1) on ss/en-1", note: "the dialogue's first speaker asks the questions") {
+            AudioSeparationRequest(audio: try wav("ss/en-1-input.wav"), speaker: .ordinal(1), metaData: ["seed": .int(Int(tts))])
+        },
+        CookbookCase(id: "S-speaker2-en", section: "Separation, second speaker", kind: "supplementary",
+                     request: "audioSeparation speaker=.ordinal(2) on ss/en-1", note: "the second speaker answers (\"get what\", \"banking and finance\")") {
+            AudioSeparationRequest(audio: try wav("ss/en-1-input.wav"), speaker: .ordinal(2), metaData: ["seed": .int(Int(tts))])
+        },
+        v == .flash
+            ? CookbookCase(id: "S-voices", section: "All voices", kind: "unexpressible", request: "—",
+                           note: "AuK-Flash declares no voices stem (it invented lyrics on 2 of 3 seeds)", make: nil)
+            : CookbookCase(id: "S-voices", section: "All voices", kind: "supplementary", request: "audioSeparation stems=[.voices]",
+                           note: "on the music-separation input") {
+                AudioSeparationRequest(audio: try wav("vocal-extraction/vocal-1-input.wav"), stems: [.voices],
+                                       metaData: ["seed": .int(Int(tts))])
+            },
         CookbookCase(id: "S-from-whisper", section: "Whisper → normal", kind: "supplementary", request: "speechEdit .style(\"normal\")",
                      note: "the input is the cookbook's whisper→normal sample") {
             SpeechEditRequest(audio: try wav("whisper/wh-w2n-zh-input.wav"), edit: .style("normal"), seed: seed)
@@ -132,6 +156,7 @@ func cookbook(variant: String, quant q: String, _ modelDir: URL, _ encDir: URL, 
     let t0 = Date()
     try await engine.prepare(.tts, package: id)
     try await engine.prepare(.speechEdit, package: id)
+    try await engine.prepare(.audioSeparation, package: id)
     print(String(format: "# cookbook %@ %@ seed %llu — prepared in %.1fs", variant, q, seed, Date().timeIntervalSince(t0)))
 
     var manifest = ""
@@ -145,7 +170,9 @@ func cookbook(variant: String, quant q: String, _ modelDir: URL, _ encDir: URL, 
                 let t = Date()
                 let resp = try await engine.run(req, package: id)
                 let wall = Date().timeIntervalSince(t); total += wall
-                let audio = (resp as? TTSResponse)?.audio ?? (resp as! SpeechEditResponse).audio
+                // a separation case asks for one stem (or one speaker), so it carries exactly one
+                let audio = (resp as? TTSResponse)?.audio ?? (resp as? SpeechEditResponse)?.audio
+                    ?? (resp as! AudioSeparationResponse).stems.values.first!
                 try audio.data.write(to: outDir.appendingPathComponent("\(c.id).wav"))
                 let (s, r) = try WAV.read(outDir.appendingPathComponent("\(c.id).wav"))
                 let secs = Double(s.count) / Double(r)

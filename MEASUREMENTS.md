@@ -531,3 +531,48 @@ Flash to-whisper is still weak on an English take (3/5).
   transcribes as "…伦文婷告发给倒死…", and both edits as "…任文婷告发给倒死…". The garbled 论文 / 导师 come from the
   ASR on this speaker, not from the edit. So this lane can't show whether the accent moved.
 - Render time for the whole set: Flash 13 s and Base 95 s for 17 renders, about 7× apart.
+
+## audioSeparation — the third surface (2026-11-01)
+
+`MLXAuK` now serves `audioSeparation` (contract 1.59.0). Stems: `.speaker`, with a speaker pick `.ordinal` (the n-th
+to start talking) or `.saying` (the one who says given words); `.singing`; and `.voices` on Base only. Each stem is one
+AuK run that regenerates that source at the mixture's length. So no stem is derived by subtraction, and `.instrumental`
+or `.music` are refused. Raw outputs: `receipts/separation.txt`.
+
+**Checks.** `ss/en-1` is a two-person dialogue whose lines are known: speaker A opens and asks, speaker B answers
+("get what", "banking and finance"). So a kept speaker is judged by WHICH lines whisper hears in it. It passes with at
+least 2 of the right speaker's lines and none of the other's; the mixture itself hears A 5/5 and B 4/4. The cookbook's
+`zh-1` (Cantonese, many speakers) keeps upstream's check, the drop in voiced frames. Singing must keep the lyric and
+lose the backing below 200 Hz.
+
+**Phrasing sweep** (`auk-gates render`, bf16, seeds 0–2; passes out of 3). "tpl" is the cookbook's template line;
+"example" is its CLI example's phrasing:
+
+| ask | Flash, tpl | Flash, example | Base, tpl | Base, example |
+|---|---|---|---|---|
+| first speaker (`.ordinal(1)`) | 2 | **3** | 2 | **3** |
+| second speaker (`.ordinal(2)`) | **1** | 0, invented speech | **3** | 1 |
+| who says "get what" (`.saying`) | 3 | — | 2 (seed 1 kept both) | — |
+| singing only | 3 | 3 | 2 (seed 1 kept the bass) | **3** |
+| all voices | 1, invented lyrics on 2 | — | 3 | — |
+
+Choices made from it:
+- **Speaker picks keep the template.** The example's phrasing helps the first speaker, but it makes Flash invent speech
+  for the second, and that is the worse failure.
+- **Singing takes the example's phrasing** ("Keep the clean singing voice, drop all other audio.").
+- **Flash does not declare `.voices`.** It refuses the stem and points to `.singing` or Base.
+- **Flash's surface summary warns that a later speaker by order is unreliable,** and steers to `.saying`.
+
+**Cookbook through MLXServeEngine** (seed 0, `Tools/cookbook/run_cookbook.sh`):
+- **Flash and Base each pass 15/15 expressible examples**, up from 12/12, now that 5.2–5.4 run. 2.2 is excluded and
+  4.4-add is still unexpressible.
+- Supplementary rows: Flash 6/6 (`S-voices` not offered), Base 7/7.
+- 5.4 keeps B (A 0/5, B 3/4) on both variants.
+- The first-speaker row keeps A 5/5 with no B line; the second-speaker row keeps B (2/4) with no A line.
+- Every earlier row still passes.
+
+**Not measured:**
+- the int8 and int4 tiers on separation;
+- seeds beyond 0–2;
+- whether the kept Cantonese speaker in `zh-1` is the right one: no ground truth, only fewer voiced frames;
+- speaker order beyond the second.

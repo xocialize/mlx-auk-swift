@@ -1,0 +1,208 @@
+# audioSeparation for MLXAuK — receipts (2026-11-01, M5 Max, mlx-swift 0.32.3, bf16, mlx-auk-swift main after v0.2.1)
+
+## 1. Phrasing sweep — auk-gates render (the pipeline, no engine), seeds 0–2, Flash and Base
+## inputs: ss/en-1-input.wav (ord*, say*), vocal-extraction/vocal-1-input.wav (sing*, voices*)
+## keys: tpl = the cookbook template line, cb = the cookbook CLI example's phrasing
+I[ord1-tpl]="Keep only the first speaker to start talking and remove all other speakers."
+I[ord1-cb]="Please keep the first speaker to start talking and remove the other speakers, outputting a single clean speech track."
+I[ord2-tpl]="Keep only the second speaker to start talking and remove all other speakers."
+I[ord2-cb]="Please keep the second speaker to start talking and remove the other speakers, outputting a single clean speech track."
+I[say-tpl]='Keep only the speaker who says "get what" and remove all other speakers.'
+I[sing-tpl]="Keep only the singing voice and remove everything else."
+I[sing-cb]="Keep the clean singing voice, drop all other audio."
+I[voices-tpl]="Keep all human voices, including speech and singing, and remove everything else."
+
+## A/B = speaker A's / B's lines heard by whisper large-v3-turbo (A asks, B answers); lyric = 'time stands still'
+flash ord1-cb-s0     A 5/5 B 0/4  voiced 0.51  oh excuse me where did you get that like a beautiful smile what's her 
+flash ord1-cb-s1     A 5/5 B 0/4  voiced 0.56  oh excuse me where did you get that like a beautiful smile what's her 
+flash ord1-cb-s2     A 5/5 B 0/4  voiced 0.43  oh excuse me where did you get that like a beautiful smile what's her 
+flash ord1-tpl-s0    A 5/5 B 0/4  voiced 0.52  oh excuse me where did you get that like a beautiful smile what's her 
+flash ord1-tpl-s1    A 5/5 B 0/4  voiced 0.61  oh excuse me where did you get that like a beautiful smile what's her 
+flash ord1-tpl-s2    A 0/5 B 0/4  voiced 0.03  is it
+flash ord2-cb-s0     A 0/5 B 0/4  voiced 0.16  the opera house where elphipic pico adoption transcendent and tiffin c
+flash ord2-cb-s1     A 0/5 B 0/4  voiced 0.24  i won't be over half where else you can get a dog around with your hus
+flash ord2-cb-s2     A 0/5 B 0/4  voiced 0.08  i'm not going to do it
+flash ord2-tpl-s0    A 0/5 B 2/4  voiced 0.38  yeah yeah yeah yeah yeah yeah yeah yeah we're actually on break at the
+flash ord2-tpl-s1    A 0/5 B 0/4  voiced 0.32  we are all we you know we are all friends with you we are all friends 
+flash ord2-tpl-s2    A 0/5 B 0/4  voiced 0.08  yeah what what what hey sorry did you not sound sorry did you yay good
+flash say-tpl-s0     A 0/5 B 3/4  voiced 0.32  get what wait sorry yeah yeah yeah yeah yeah uh you said yeah yeah uh 
+flash say-tpl-s1     A 0/5 B 2/4  voiced 0.53  thank you sophie nice to talk to you yeah yeah yeah yeah yeah yeah yea
+flash say-tpl-s2     A 0/5 B 3/4  voiced 0.35  get what hey sophie nice to have yeah yeah yeah yeah you said yeah we'
+flash sing-cb-s0     <200Hz 0.000  lyric=True  It always seems like time stands still when I'm wi
+flash sing-cb-s1     <200Hz 0.000  lyric=True  It always seems like time stands still when I'm wi
+flash sing-cb-s2     <200Hz 0.000  lyric=True  It always seems like time stands still when I'm wi
+flash sing-tpl-s0    <200Hz 0.000  lyric=True  It always seems like time stands still when I'm wi
+flash sing-tpl-s1    <200Hz 0.004  lyric=True  It always seems like time stands still when I'm wi
+flash sing-tpl-s2    <200Hz 0.000  lyric=True  It always seems like time stands still when I'm wi
+flash voices-tpl-s0  <200Hz 0.000  lyric=False  We will be right on. We will be right on.
+flash voices-tpl-s1  <200Hz 0.003  lyric=True  It always seems like time stands still when I'm wi
+flash voices-tpl-s2  <200Hz 0.000  lyric=False  It's a big one.
+base  ord1-cb-s0     A 5/5 B 0/4  voiced 0.55  hello excuse me where did you get that like a beautiful smile what's h
+base  ord1-cb-s1     A 5/5 B 0/4  voiced 0.55  hello excuse me where did you get that like a beautiful smile what's h
+base  ord1-cb-s2     A 5/5 B 0/4  voiced 0.55  hello excuse me where did you get that like a beautiful smile what's h
+base  ord1-tpl-s0    A 5/5 B 0/4  voiced 0.55  hello excuse me where did you get that like a beautiful smile what's h
+base  ord1-tpl-s1    A 5/5 B 0/4  voiced 0.55  hello excuse me where did you get that like a beautiful smile what's h
+base  ord1-tpl-s2    A 5/5 B 1/4  voiced 0.65  hello excuse me where did you get that get what like a beautiful smile
+base  ord2-cb-s0     A 0/5 B 3/4  voiced 0.52  i get what we're all tea we only don't have a tea we don't have tea we
+base  ord2-cb-s1     A 0/5 B 1/4  voiced 0.64  yeah yeah yeah yeah yeah yeah yeah ah you said yeah yeah are you actua
+base  ord2-cb-s2     A 0/5 B 0/4  voiced 0.52  yeah yeah yeah yeah yeah yeah yeah yeah yeah yeah yeah yeah yeah yeah 
+base  ord2-tpl-s0    A 0/5 B 2/4  voiced 0.46  what we're up we're up we're up nice to meet you yeah yeah yeah my nam
+base  ord2-tpl-s1    A 0/5 B 2/4  voiced 0.65  yeah yeah yeah yeah yeah ah you said yeah yeah we're actually on break
+base  ord2-tpl-s2    A 0/5 B 2/4  voiced 0.37  yeah what you made me so really nice to yeah yeah yeah yeah yeah yeah 
+base  say-tpl-s0     A 0/5 B 3/4  voiced 0.35  get what wavy so really nice to you yeah yeah yeah yeah it's junior ye
+base  say-tpl-s1     A 5/5 B 4/4  voiced 0.78  hello excuse me where did you get that get what like a beautiful smile
+base  say-tpl-s2     A 0/5 B 2/4  voiced 0.36  yeah what you made me so really nice to yeah yeah yeah yeah yeah yeah 
+base  sing-cb-s0     <200Hz 0.000  lyric=True  It always seems like time stands still when I'm wi
+base  sing-cb-s1     <200Hz 0.001  lyric=True  It always seems like time stands still when I'm wi
+base  sing-cb-s2     <200Hz 0.000  lyric=True  It always seems like time stands still when I'm wi
+base  sing-tpl-s0    <200Hz 0.000  lyric=True  It always seems like time stands still when I'm wi
+base  sing-tpl-s1    <200Hz 0.501  lyric=True  It always seems like time stands still when I'm wi
+base  sing-tpl-s2    <200Hz 0.000  lyric=True  It always seems like time stands still when I'm wi
+base  voices-tpl-s0  <200Hz 0.078  lyric=True  It always seems like time stands still when I'm wi
+base  voices-tpl-s1  <200Hz 0.000  lyric=True  It always seems like time stands still when I'm wi
+base  voices-tpl-s2  <200Hz 0.100  lyric=True  It always seems like time stands still when I'm wi
+
+## 2. Cookbook through MLXServeEngine (auk-gates cookbook, seed 0) + Tools/cookbook/verify_cookbook.py
+## Flash re-run after Flash stopped declaring the voices stem; Base from the first run
+# ASR: /Users/dustinnielson/.cache/huggingface/hub/models--mlx-community--whisper-large-v3-turbo/snapshots/a4aaeec0636e6fef84abdcbe3544cb2bf7e9f6fb/
+
+## flash bf16 seed 0 — /Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/flash-bf16
+  PASS cookbook      1.1-zeroshot-tts       word-acc=100%  “Ladies and gentlemen, it's an honor to have the opportunity to address”
+  PASS cookbook      1.2-instruct-tts       “Welcome home. How was work today?”
+  PASS cookbook      2.1-content-edit       new=True old_gone=True  “do you think the biggest victory is not fighting for what we want and ”
+  n/a  excluded      2.2-lyric-edit         known model limit: fails in the torch reference too at the same steps and seed (AB-T-0416)
+  PASS cookbook      3.1-pitch              190Hz -> 217Hz = +234 cents (target +200)
+  PASS cookbook      3.2-speed              dur 11.0s -> 6.9s = 1.60x (target 1.5x); syllable rate 4.74 -> 4.82/s
+  PASS cookbook      3.3-volume             -26.0 -> -19.1 dB = +6.9 dB (target +10)
+  PASS cookbook      4.1-emotion            content kept=91%  F0 126->146Hz (+264 cents)
+  PASS cookbook      4.2-timbre             F0 202 -> 119Hz = -907 cents (want lower)
+  PASS cookbook      4.3-deaccent           len ratio=1.00  “终于把任文婷告发给倒死了现在就等着他的反馈心里有点小紧张”
+  PASS cookbook      4.4-nonverbal-remove   23.9s -> 22.0s  rms 0.0190 -> 0.0194
+  n/a  unexpressible 4.4-nonverbal-add      inline position: the cookbook adds a cough BEFORE 'We tested'; .addNonverbal takes only the start or end of the take
+  PASS cookbook      4.5-whisper            HF/LF ratio 0.073 -> 0.092 (whisper raises it)
+  PASS cookbook      5.1-enhance            noise floor 0.02956 -> 0.00040 (-37.4 dB)
+  PASS cookbook      5.2-separation         voiced-frame share 0.42 -> 0.18 (fewer speakers kept)
+  PASS cookbook      5.3-music-sep          <200Hz share 0.558 -> 0.000 (backing removed); lyric kept=True
+  PASS cookbook      5.4-tse                voiced 1.00 -> 0.32; lines heard A 0/5, B 3/4 (want B)  “get what wait sorry yeah yeah yeah yeah yeah uh you said yea”
+  PASS supplementary S-insert               inserted=True anchor_kept=True  7.5s  “do you think the biggest victory is not fighting for what we want, but”
+  PASS supplementary S-remove               removed=True 7.0s -> 4.7s  “do you think the biggest victory is not fighting for what we want?”
+  PASS supplementary S-nonverbal-add-start  content kept=100%  14.3s (asked 14.3s)
+  PASS supplementary S-dereverb             len ratio=1.00  noise floor 0.02956 -> 0.00004  “大学生利用漏洞免费吃肯德基或许多”
+  PASS supplementary S-speaker1-en          voiced 1.00 -> 0.52; lines heard A 5/5, B 0/4 (want A)  “oh excuse me where did you get that like a beautiful smile w”
+  PASS supplementary S-speaker2-en          voiced 1.00 -> 0.38; lines heard A 0/5, B 2/4 (want B)  “yeah yeah yeah yeah yeah yeah yeah yeah we're actually on br”
+  n/a  unexpressible S-voices               AuK-Flash declares no voices stem (it invented lyrics on 2 of 3 seeds)
+  info supplementary S-from-whisper         HF/LF ratio 0.073 -> 0.062 (information only: no whispered input in the assets)
+
+  cookbook: 15/15 expressible examples pass (2 of 17 not run: 2.2-lyric-edit, 4.4-nonverbal-add); supplementary: 6/6
+
+## base bf16 seed 0 — /Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/base-bf16
+  PASS cookbook      1.1-zeroshot-tts       word-acc=100%  “Ladies and gentlemen, it's an honor to have the opportunity to address”
+  PASS cookbook      1.2-instruct-tts       “Welcome home. How was work today?”
+  PASS cookbook      2.1-content-edit       new=True old_gone=True  “do you think the biggest victory is not fighting for what we want and ”
+  n/a  excluded      2.2-lyric-edit         known model limit: fails in the torch reference too at the same steps and seed (AB-T-0416)
+  PASS cookbook      3.1-pitch              190Hz -> 220Hz = +258 cents (target +200)
+  PASS cookbook      3.2-speed              dur 11.0s -> 6.9s = 1.60x (target 1.5x); syllable rate 4.74 -> 4.82/s
+  PASS cookbook      3.3-volume             -26.0 -> -16.8 dB = +9.2 dB (target +10)
+  PASS cookbook      4.1-emotion            content kept=86%  F0 126->188Hz (+693 cents)
+  PASS cookbook      4.2-timbre             F0 202 -> 123Hz = -855 cents (want lower)
+  PASS cookbook      4.3-deaccent           len ratio=1.00  “终于把任文婷告发给倒死了现在就等着他的反馈心里有点小紧张”
+  PASS cookbook      4.4-nonverbal-remove   23.9s -> 22.0s  rms 0.0190 -> 0.0209
+  n/a  unexpressible 4.4-nonverbal-add      inline position: the cookbook adds a cough BEFORE 'We tested'; .addNonverbal takes only the start or end of the take
+  PASS cookbook      4.5-whisper            HF/LF ratio 0.073 -> 0.545 (whisper raises it)
+  PASS cookbook      5.1-enhance            noise floor 0.02956 -> 0.00055 (-34.6 dB)
+  PASS cookbook      5.2-separation         voiced-frame share 0.42 -> 0.22 (fewer speakers kept)
+  PASS cookbook      5.3-music-sep          <200Hz share 0.558 -> 0.000 (backing removed); lyric kept=True
+  PASS cookbook      5.4-tse                voiced 1.00 -> 0.35; lines heard A 0/5, B 3/4 (want B)  “get what wavy so really nice to you yeah yeah yeah yeah it's”
+  PASS supplementary S-insert               inserted=True anchor_kept=True  7.5s  “do you think the biggest victory is not fighting for what we want, but”
+  PASS supplementary S-remove               removed=True 7.0s -> 4.7s  “do you think the biggest victory is not fighting for what we want?”
+  PASS supplementary S-nonverbal-add-start  content kept=100%  14.3s (asked 14.3s)
+  PASS supplementary S-dereverb             len ratio=1.00  noise floor 0.02956 -> 0.00005  “大学生利用漏洞免费吃肯德基获取”
+  PASS supplementary S-speaker1-en          voiced 1.00 -> 0.55; lines heard A 5/5, B 0/4 (want A)  “hello excuse me where did you get that like a beautiful smil”
+  PASS supplementary S-speaker2-en          voiced 1.00 -> 0.46; lines heard A 0/5, B 2/4 (want B)  “what we're up we're up we're up nice to meet you yeah yeah y”
+  PASS supplementary S-voices               <200Hz share 0.558 -> 0.078 (backing removed); lyric kept=True
+  info supplementary S-from-whisper         HF/LF ratio 0.073 -> 0.077 (information only: no whispered input in the assets)
+
+  cookbook: 15/15 expressible examples pass (2 of 17 not run: 2.2-lyric-edit, 4.4-nonverbal-add); supplementary: 7/7
+
+## render logs
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:# cookbook flash bf16 seed 0 — prepared in 1.6s
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  ok   1.1-zeroshot-tts           0.8s wall   6.00s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  ok   1.2-instruct-tts           0.3s wall   1.70s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  ok   2.1-content-edit           0.7s wall   7.00s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  --   2.2-lyric-edit: excluded — known model limit: fails in the torch reference too at the same steps and seed (AB-T-0416)
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  ok   3.1-pitch                  0.6s wall   5.50s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  ok   3.2-speed                  0.8s wall   6.86s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  ok   3.3-volume                 0.6s wall   5.50s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  ok   4.1-emotion                0.7s wall   6.32s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  ok   4.2-timbre                 0.7s wall   6.60s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  ok   4.3-deaccent               0.9s wall   8.20s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  ok   4.4-nonverbal-remove       2.1s wall  22.00s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  --   4.4-nonverbal-add: unexpressible — inline position: the cookbook adds a cough BEFORE 'We tested'; .addNonverbal takes only the start or end of the take
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  ok   4.5-whisper                0.8s wall   8.58s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  ok   5.1-enhance                0.6s wall   4.98s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  ok   5.2-separation             1.8s wall  19.22s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  ok   5.3-music-sep              1.1s wall  10.88s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  ok   5.4-tse                    2.7s wall  28.00s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  ok   S-insert                   0.7s wall   7.52s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  ok   S-remove                   0.6s wall   4.66s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  ok   S-nonverbal-add-start      1.3s wall  14.30s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  ok   S-dereverb                 0.6s wall   4.98s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  ok   S-speaker1-en              2.7s wall  28.00s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  ok   S-speaker2-en              2.7s wall  28.00s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  ok   S-voices                   1.0s wall  10.88s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:  ok   S-from-whisper             0.8s wall   8.58s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-flash-bf16.log:# 26s total render wall → /Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-bf16
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:# cookbook base bf16 seed 0 — prepared in 2.9s
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  ok   1.1-zeroshot-tts           5.8s wall   6.00s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  ok   1.2-instruct-tts           1.8s wall   1.70s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  ok   2.1-content-edit           4.9s wall   7.00s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  --   2.2-lyric-edit: excluded — known model limit: fails in the torch reference too at the same steps and seed (AB-T-0416)
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  ok   3.1-pitch                  4.0s wall   5.50s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  ok   3.2-speed                  6.2s wall   6.86s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  ok   3.3-volume                 4.0s wall   5.50s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  ok   4.1-emotion                4.5s wall   6.32s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  ok   4.2-timbre                 4.7s wall   6.60s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  ok   4.3-deaccent               5.7s wall   8.20s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  ok   4.4-nonverbal-remove      16.1s wall  22.00s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  --   4.4-nonverbal-add: unexpressible — inline position: the cookbook adds a cough BEFORE 'We tested'; .addNonverbal takes only the start or end of the take
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  ok   4.5-whisper                5.8s wall   8.58s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  ok   5.1-enhance                3.7s wall   4.98s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  ok   5.2-separation            13.3s wall  19.22s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  ok   5.3-music-sep              7.3s wall  10.88s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  ok   5.4-tse                   20.6s wall  28.00s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  ok   S-insert                   5.1s wall   7.52s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  ok   S-remove                   4.3s wall   4.66s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  ok   S-nonverbal-add-start      9.4s wall  14.30s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  ok   S-dereverb                 4.2s wall   4.98s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  ok   S-speaker1-en             23.9s wall  28.00s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  ok   S-speaker2-en             24.8s wall  28.00s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  ok   S-voices                   9.0s wall  10.88s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:  ok   S-from-whisper             7.3s wall   8.58s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/render-base-bf16.log:# 196s total render wall → /Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/base-bf16
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:# cookbook flash bf16 seed 0 — prepared in 1.7s
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  ok   1.1-zeroshot-tts           0.8s wall   6.00s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  ok   1.2-instruct-tts           0.3s wall   1.70s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  ok   2.1-content-edit           0.7s wall   7.00s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  --   2.2-lyric-edit: excluded — known model limit: fails in the torch reference too at the same steps and seed (AB-T-0416)
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  ok   3.1-pitch                  0.6s wall   5.50s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  ok   3.2-speed                  0.8s wall   6.86s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  ok   3.3-volume                 0.6s wall   5.50s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  ok   4.1-emotion                0.7s wall   6.32s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  ok   4.2-timbre                 0.7s wall   6.60s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  ok   4.3-deaccent               0.8s wall   8.20s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  ok   4.4-nonverbal-remove       2.1s wall  22.00s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  --   4.4-nonverbal-add: unexpressible — inline position: the cookbook adds a cough BEFORE 'We tested'; .addNonverbal takes only the start or end of the take
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  ok   4.5-whisper                0.8s wall   8.58s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  ok   5.1-enhance                0.6s wall   4.98s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  ok   5.2-separation             1.8s wall  19.22s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  ok   5.3-music-sep              1.1s wall  10.88s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  ok   5.4-tse                    2.8s wall  28.00s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  ok   S-insert                   0.7s wall   7.52s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  ok   S-remove                   0.6s wall   4.66s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  ok   S-nonverbal-add-start      1.3s wall  14.30s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  ok   S-dereverb                 0.6s wall   4.98s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  ok   S-speaker1-en              2.8s wall  28.00s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  ok   S-speaker2-en              2.8s wall  28.00s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  --   S-voices: unexpressible — AuK-Flash declares no voices stem (it invented lyrics on 2 of 3 seeds)
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:  ok   S-from-whisper             0.8s wall   8.58s out
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/render-flash-bf16.log:# 24s total render wall → /Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook-sep/flash-recheck/flash-bf16

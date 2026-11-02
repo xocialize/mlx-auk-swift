@@ -6,14 +6,16 @@ Each <render-dir> is what `auk-gates cookbook` wrote: <id>.wav per case plus cas
 from upstream's scripts/verify_cookbook_mlx.py (Tencent-Hunyuan/AuK, branch feat/mlx-apple-silicon @ 6943a1e;
 MIT, Copyright (C) 2026 Tencent — notice in LICENSE-upstream-AuK next to this file), with the same thresholds:
 content edits are transcribed, pitch is measured in cents, volume in dB, speed by the duration hit, enhancement by
-the noise floor, whisper by the spectral tilt. Separation checks (drop in active frames) are kept for when a
-separation surface lands; today those cases come in as `unexpressible` and are listed, not counted.
+the noise floor, whisper by the spectral tilt, separation by the drop in active frames.
 
 Differences from upstream, all in the measuring, none in the thresholds:
   * ASR is mlx-whisper large-v3-turbo from the local HF cache (upstream: whisper-small[.en]), temperature 0;
   * audio is read with scipy and resampled with resample_poly (upstream: soundfile + soxr VHQ);
   * `supplementary` rows (declared edit kinds the cookbook has no example for) get their own checks and are
-    reported apart from the cookbook count.
+    reported apart from the cookbook count;
+  * 5.4 also checks WHICH speaker was kept: ss/en-1 is a two-person dialogue whose lines are known (A asks, B
+    answers), so the kept stem must carry B's lines and none of A's. The same check judges the supplementary
+    first- and second-speaker rows. 5.3 also checks that the lyric survives.
 """
 
 from __future__ import annotations
@@ -138,6 +140,19 @@ def word_acc(a: str, b: str) -> float:
     return difflib.SequenceMatcher(None, words(a), words(b)).ratio()
 
 
+# ss/en-1-input.wav (whisper large-v3-turbo segments): speaker A opens and asks, speaker B answers.
+# "Sophie" is left out: both of them may say it.
+EN1_A = ["where did you get that", "what's her name", "are you from sydney", "where do you study", "so what major"]
+EN1_B = ["get what", "yeah student", "on break", "banking and finance"]
+
+
+def speaker_lines(o: str) -> tuple[int, int, str]:
+    """(A lines heard, B lines heard, transcript) for a stem kept from ss/en-1."""
+    got = " ".join(words(asr(o)))
+    hit = lambda lines: sum(" ".join(words(line)) in got for line in lines)
+    return hit(EN1_A), hit(EN1_B), got
+
+
 # --- per-case checks: (passed, detail). `o` is the rendered wav, `A` the assets directory. -------------------------
 
 def check(cid: str, o: str, A: str) -> tuple[bool | None, str]:
@@ -206,13 +221,20 @@ def check(cid: str, o: str, A: str) -> tuple[bool | None, str]:
         src, dst = load(f"{A}/se/se-zh-1-input.wav"), load(o)
         ns, nd = noise_floor(src), noise_floor(dst)
         return nd < ns, f"noise floor {ns:.5f} -> {nd:.5f} ({20 * np.log10((nd + 1e-12) / (ns + 1e-12)):+.1f} dB)"
-    if cid in ("5.2-separation", "5.4-tse"):
-        srcp = f"{A}/ss/zh-1-input.wav" if cid == "5.2-separation" else f"{A}/ss/en-1-input.wav"
-        asrc, adst = active(load(srcp)), active(load(o))
+    if cid == "5.2-separation":
+        asrc, adst = active(load(f"{A}/ss/zh-1-input.wav")), active(load(o))
         return adst < asrc, f"voiced-frame share {asrc:.2f} -> {adst:.2f} (fewer speakers kept)"
-    if cid == "5.3-music-sep":
+    if cid in ("5.4-tse", "S-speaker1-en", "S-speaker2-en"):
+        asrc, adst = active(load(f"{A}/ss/en-1-input.wav")), active(load(o))
+        a, b, got = speaker_lines(o)
+        want_b = cid != "S-speaker1-en"
+        right = (b >= 2 and a == 0) if want_b else (a >= 2 and b == 0)
+        return adst < asrc and right, (f"voiced {asrc:.2f} -> {adst:.2f}; lines heard A {a}/{len(EN1_A)}, B {b}/{len(EN1_B)} "
+                                       f"(want {'B' if want_b else 'A'})  “{got[:60]}”")
+    if cid in ("5.3-music-sep", "S-voices"):
         ls, ld = low_share(load(f"{A}/vocal-extraction/vocal-1-input.wav")), low_share(load(o))
-        return ld < ls * 0.5, f"<200Hz share {ls:.3f} -> {ld:.3f} (backing bass/drums removed)"
+        lyric = "time stands still" in " ".join(words(asr(o)))
+        return ld < ls * 0.5 and lyric, f"<200Hz share {ls:.3f} -> {ld:.3f} (backing removed); lyric kept={lyric}"
     # --- supplementary: declared kinds with no cookbook example ---
     if cid == "S-insert":
         got = asr(o).lower()
@@ -275,7 +297,8 @@ def main() -> None:
             print(f"  {r['verdict']:4s} {r['kind']:13s} {r['id']:22s} {r['detail']}")
         cb = [r for r in rows if r["kind"] == "cookbook"]
         sup = [r for r in rows if r["kind"] == "supplementary" and r["verdict"] != "info"]
-        na = [r for r in rows if r["kind"] in ("unexpressible", "excluded")]
+        # supplementary rows are named S-…; an unexpressible one is not a cookbook example left out
+        na = [r for r in rows if r["kind"] in ("unexpressible", "excluded") and not r["id"].startswith("S-")]
         print(f"\n  cookbook: {sum(r['verdict'] == 'PASS' for r in cb)}/{len(cb)} expressible examples pass "
               f"({len(na)} of 17 not run: {', '.join(r['id'] for r in na)}); "
               f"supplementary: {sum(r['verdict'] == 'PASS' for r in sup)}/{len(sup)}")

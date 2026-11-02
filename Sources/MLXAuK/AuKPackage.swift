@@ -11,7 +11,7 @@ extension SPDXLicense {
     public static let qwenResearch: SPDXLicense = "LicenseRef-Qwen-Research"
 }
 
-/// AuK (Tencent Hunyuan) on two canonical surfaces — `tts` and `speechEdit` — as a RESTRICTED engine model
+/// AuK (Tencent Hunyuan) on three canonical surfaces — `tts`, `speechEdit` and `audioSeparation` — as a RESTRICTED engine model
 /// (AB-D-0153): the DiT and VAE are MIT, but the required Qwen2.5-Omni-3B encoder is Qwen-Research, so the package
 /// declares `LicenseRef-Qwen-Research` and is refused by `.permissiveOnly` / `.permissiveOrAcknowledged` by construction.
 ///
@@ -27,8 +27,13 @@ extension SPDXLicense {
 /// estimate. The output keeps the source's length unless the edit changes it: then `targetDuration`, else a speed
 /// edit scales the source by 1 / factor and a content edit estimates from the text (`AuKSurfaces.editSeconds`).
 ///
-/// `metaData` (package-specific, C5): `seed` (int) for TTS — speechEdit takes the request's `seed`; `nfe` and
-/// `cfgStrength` (Base only — Flash pins its distilled 4-step recipe).
+/// `audioSeparation` (contract 1.59.0): `.speaker` — one speaker kept, picked `.ordinal` (the n-th to start talking) or
+/// `.saying` (the one who says given words) — `.singing`, and `.voices` (Base only). Each stem is its own AuK run that
+/// REGENERATES that source at the mixture's length, so a stem is not phase-aligned with the mixture: no stem is
+/// derived by subtraction, and `.instrumental` or `.music` are refused rather than faked (`AuKSurfaces.separationPlan`).
+///
+/// `metaData` (package-specific, C5): `seed` (int) for TTS and separation — speechEdit takes the request's `seed`;
+/// `nfe` and `cfgStrength` (Base only — Flash pins its distilled 4-step recipe).
 @InferenceActor
 public final class AuKSession {
     let configuration: AuKConfiguration
@@ -123,6 +128,59 @@ public enum AuKSurfaces {
             transcript: .unused, supportsTargetDuration: true, maxInputSeconds: maxInputSeconds)
     }
 
+    /// The stems AuK's separation templates produce (COOKBOOK §5.2–5.4): one speaker, the singing, every voice. Flash
+    /// does not offer `.voices`: over seeds 0–2 on the cookbook's music input it invented lyrics on 2 of 3, where Base
+    /// kept them on all 3 (MEASUREMENTS "audioSeparation").
+    public nonisolated static func separationStems(_ variant: AuKVariant) -> [Stem] {
+        variant == .flash ? [.speaker, .singing] : [.speaker, .singing, .voices]
+    }
+
+    nonisolated static func separationControls(_ variant: AuKVariant) -> AudioSeparationControls {
+        AudioSeparationControls(stems: separationStems(variant), speakerSelection: [.ordinal, .saying])
+    }
+
+    /// One AuK run per stem: the instruction and template language for each stem a request asks for. No stems asks for
+    /// every stem the variant produces — the speaker when a pick is given, else the others. A pick with named stems
+    /// adds the speaker to them.
+    nonisolated static func separationPlan(_ req: AudioSeparationRequest, variant: AuKVariant) throws
+        -> [(stem: Stem, instruction: AukInstruction, language: AukLanguage)] {
+        let produced = separationStems(variant)
+        var stems = req.stems
+        if stems.isEmpty {
+            stems = req.speaker == nil ? produced.filter { $0 != .speaker } : [.speaker]
+        } else if req.speaker != nil, !stems.contains(.speaker) {
+            stems.append(.speaker)
+        }
+        var seen = Set<Stem>()
+        return try stems.filter { seen.insert($0).inserted }.map { stem in
+            switch stem {
+            case .speaker:
+                switch req.speaker {
+                case .ordinal(let n)?:
+                    return (stem, .keepSpeaker(ordinal: n), .en)
+                case .saying(let words)?:
+                    return (stem, .keepSpeakerSaying(words), words.unicodeScalars.contains(where: isCJK) ? .zh : .en)
+                case nil:
+                    throw PackageError.unsupportedRequestFeature(
+                        "stem 'speaker' needs a speaker pick: .ordinal (the n-th to start talking) or .saying (words they say)")
+                @unknown default:
+                    throw PackageError.unsupportedRequestFeature("speaker pick not known to this package")
+                }
+            case .singing:
+                return (stem, .singingOnly, .en)
+            case .voices where produced.contains(.voices):
+                return (stem, .allVoices, .en)
+            case .voices:
+                throw PackageError.unsupportedRequestFeature(
+                    "stem 'voices' — AuK-Flash invents words for it; take 'singing', or AuK (Base) for every voice")
+            default:
+                throw PackageError.unsupportedRequestFeature(
+                    "stem '\(stem.rawValue)' — AuK produces \(produced.map(\.rawValue).joined(separator: ", ")); "
+                    + "it regenerates each stem, so it cannot derive the rest of the mixture by subtraction")
+            }
+        }
+    }
+
     nonisolated static func manifest(variant: AuKVariant) -> PackageManifest {
         let name = variant == .flash ? "auk-flash" : "auk"
         let speed = variant == .flash ? "4 distilled steps, no CFG" : "32 steps × CFG 2"
@@ -164,6 +222,18 @@ public enum AuKSurfaces {
                         + "≤ 30 s. The int4 (4-bit encoder) tier loses words in Mandarin edits: use int8 for zh. "
                         + "RESEARCH LICENCE (Qwen2.5-Omni encoder): not for commercial use.",
                     controls: speechEditControls()),
+                AudioSeparationContract.descriptor(
+                    name: name + "-separate",
+                    summary: "AuK\(variant == .flash ? "-Flash" : "") (Tencent Hunyuan) separator (.wav, 24 kHz mono, same length; "
+                        + "en / zh): one speaker of a conversation kept — the n-th to start talking, or the one who says given "
+                        + "words — as the speaker stem; or the singing alone (singing)"
+                        + (variant == .flash
+                           ? ". Picking a later speaker by order is unreliable on Flash: name words they say instead. "
+                           : "; or every human voice, speech and singing (voices). ")
+                        + "Each stem is one regeneration, not a mask: it cannot be subtracted from the mixture, and no "
+                        + "instrumental or music stem is offered. ≤ 30 s. RESEARCH LICENCE (Qwen2.5-Omni encoder): not for "
+                        + "commercial use. metaData: seed.",
+                    controls: separationControls(variant)),
             ]
         )
     }
@@ -472,6 +542,26 @@ enum AuKRun {
             try Task.checkCancellation()
             return SpeechEditResponse(audio: Audio(format: .wav, data: wav, sampleRate: 24000, channels: 1),
                                       transcript: AuKSurfaces.editedTranscript(for: req.edit, transcript: req.transcript))
+        case .audioSeparation:
+            guard let req = request as? AudioSeparationRequest else { throw PackageError.unsupportedCapability(request.capability) }
+            let variant = session.configuration.variant
+            if let why = AuKSurfaces.separationControls(variant).refusal(for: req) {
+                throw PackageError.unsupportedRequestFeature(why)
+            }
+            let plan = try AuKSurfaces.separationPlan(req, variant: variant)
+            let decoded = try AuKAudioIO.decode(req.audio, what: "mixture")
+            try checkLength(decoded, what: "mixture")
+            let seed = req.metaData.intValue("seed").map { UInt64(bitPattern: Int64($0)) } ?? UInt64.random(in: 0 ... UInt64.max)
+            var stems: [Stem: Audio] = [:]
+            for step in plan {
+                try Task.checkCancellation()
+                let wav = try session.render(step.instruction, language: step.language,
+                                             audio: (decoded.samples, decoded.sampleRate), seconds: nil, seed: seed,
+                                             meta: req.metaData)
+                stems[step.stem] = Audio(format: .wav, data: wav, sampleRate: 24000, channels: 1)
+            }
+            try Task.checkCancellation()
+            return AudioSeparationResponse(stems: stems)
         default:
             throw PackageError.unsupportedCapability(request.capability)
         }

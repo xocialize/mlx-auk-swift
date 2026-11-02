@@ -114,7 +114,9 @@ public enum AukInstruction: Sendable, Equatable {
         case (.keepSpeaker(let n), .zh): return "只保留第\(n)个开始说话的人，去掉其余说话人。"
         case (.keepSpeakerSaying(let c), .en): return "Keep only the speaker who says \"\(c)\" and remove all other speakers."
         case (.keepSpeakerSaying(let c), .zh): return "请只保留说“\(c)”的人，去掉其他说话人。"
-        case (.singingOnly, .en): return "Keep only the singing voice and remove everything else."
+        // the cookbook example's phrasing, not its EN template line: over seeds 0–2 the template once kept the backing
+        // bass on Base, the example's phrasing never did (MEASUREMENTS "audioSeparation")
+        case (.singingOnly, .en): return "Keep the clean singing voice, drop all other audio."
         case (.singingOnly, .zh): return "请只保留歌声，其余声音都去掉。"
         case (.allVoices, .en): return "Keep all human voices, including speech and singing, and remove everything else."
         case (.allVoices, .zh): return "请保留所有人声，包括说话和歌唱，其余声音都去掉。"

@@ -18,7 +18,7 @@ unified speech generation and editing, ported to Swift-MLX for Apple Silicon. On
 | product | what |
 |---|---|
 | `AuKCore` | The model: Flux2Edit DiT, BigVGAN-Flow VAE, Qwen2.5-Omni thinker encoder with the 36-layer fusion, the Euler flow sampler, and typed cookbook instructions (`AukInstruction`). `AukPipeline` runs one request. |
-| `MLXAuK` | MLXEngine packages `AuKPackage` (`auk`) and `AuKFlashPackage` (`auk-flash`) on `tts` and `speechEdit` (contract 1.59.0: content, speed / pitch / volume, emotion, timbre, de-accent, whisper, denoise, dereverb and nonverbal edits; no transcript needed). |
+| `MLXAuK` | MLXEngine packages `AuKPackage` (`auk`) and `AuKFlashPackage` (`auk-flash`) on `tts`, `speechEdit` (contract 1.59.0: content, speed / pitch / volume, emotion, timbre, de-accent, whisper, denoise, dereverb and nonverbal edits; no transcript needed) and `audioSeparation` (one speaker by talking order or by what they say, the singing, or every voice; each stem is regenerated, not masked). |
 | `auk-gates` | Parity gates against the fp32 torch oracle, the precision-tier matrix, engine validation, and the encoder quantiser. |
 
 ## Weights
