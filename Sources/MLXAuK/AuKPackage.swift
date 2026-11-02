@@ -359,6 +359,21 @@ enum AuKFootprints {
     struct Tier { let bf16Resident: UInt64; let int8Resident: UInt64; let int4Resident: UInt64; let peakActivation: UInt64 }
     static let base = Tier(bf16Resident: 12_900_000_000, int8Resident: 9_600_000_000, int4Resident: 8_100_000_000, peakActivation: 2_800_000_000)
     static let flash = Tier(bf16Resident: 12_900_000_000, int8Resident: 9_600_000_000, int4Resident: 8_000_000_000, peakActivation: 2_800_000_000)
+
+    /// `.staged` (AB-T-0414), declared through `FootprintConfigured` as agreed in AB-A-0246: a persistent floor plus a
+    /// per-request transient that holds the encoder or the DiT, whichever stage is larger. Measured through the engine
+    /// at its default 2 GB MLX pool cap (receipts/staged-residency.txt, both variants): idle after prepare 2.28–2.82 GB;
+    /// peak bf16 10.79, int8 7.68, int4 7.34 GB (Base; Flash 6.39). Floor 3.0 GB; transient = peak − 3.0, rounded up.
+    /// The read is encoder.safetensors + dit.safetensors, re-read on every request. fp32 is unmeasured: nil.
+    struct Staged { let idle: UInt64; let peakTransient: UInt64; let readPerRequest: UInt64 }
+    static func staged(_ quant: Quant) -> Staged? {
+        switch quant {
+        case .bf16: return Staged(idle: 3_000_000_000, peakTransient: 8_000_000_000, readPerRequest: 10_510_000_000)
+        case .int8: return Staged(idle: 3_000_000_000, peakTransient: 5_000_000_000, readPerRequest: 7_320_000_000)
+        case .int4: return Staged(idle: 3_000_000_000, peakTransient: 4_600_000_000, readPerRequest: 5_620_000_000)
+        default: return nil
+        }
+    }
 }
 
 // MARK: - the two registrable packages

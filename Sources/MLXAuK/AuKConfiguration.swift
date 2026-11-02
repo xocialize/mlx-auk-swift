@@ -37,7 +37,7 @@ public struct AuKConfiguration: PackageConfiguration, ModelStorable, QuantConfig
     /// Run one short render at load so the first real request runs at the steady RTF (Metal kernel compile).
     public var warmUp: Bool
     /// How the models stay loaded between requests (`AuKResidency`). Staged trades a per-request re-read of the encoder
-    /// and DiT for a much lower peak.
+    /// and DiT for a much lower peak, and declares its own footprint (`FootprintConfigured`, below).
     public var residency: AuKResidency
 
     public init(variant: AuKVariant = .flash, quant: Quant = .bf16, revision: String? = nil, encoderRevision: String? = nil,
@@ -105,6 +105,18 @@ extension AuKConfiguration: WeightSourcing {
         if cfg.encoderDirectory == nil { cfg.encoderDirectory = store.directory(for: encoderRepo) }
         return cfg
     }
+}
+
+// MARK: - Staged footprint (FootprintConfigured, AB-A-0246)
+
+/// `.resident` returns no hints, so the engine charges the manifest's quant-keyed `QuantFootprint`. `.staged` charges
+/// a small persistent floor and reserves a transient for the stage in flight, so an idle staged AuK leaves room for
+/// other models; the read hint feeds the engine's projected-I/O advisory (it never refuses).
+extension AuKConfiguration: FootprintConfigured {
+    var stagedFootprint: AuKFootprints.Staged? { residency == .staged ? AuKFootprints.staged(quant) : nil }
+    public var residentBytesHint: UInt64? { stagedFootprint?.idle }
+    public var peakActivationBytesHint: UInt64? { stagedFootprint?.peakTransient }
+    public var expectedWeightReadBytesPerRunHint: UInt64? { stagedFootprint?.readPerRequest }
 }
 
 extension AuKConfiguration: WeightPrewarming {

@@ -262,12 +262,26 @@ Max with mlx-swift 0.32.3, under the AuK GPU lock.
   resident pass climbs 17 → 37 GB of buffer cache while the MLX peak stays flat. The engine caps the pool, and the
   validate runs show no such growth.
 
-**Declaration.** The ask is AB-A-0246 to mlx-engine, still open at commit time. The proposal is the existing
-`FootprintConfigured` hints with no contract change:
-- `residentBytesHint` = the staged idle (~3.0 GB);
-- `peakActivationBytesHint` = staged peak − idle (bf16 8.0, int8 5.0, int4 4.6 GB);
-- `expectedWeightReadBytesPerRunHint` = encoder + DiT bytes.
+**Declaration** (decided with mlx-engine in AB-A-0246, option (A), no contract change). `AuKConfiguration` adopts
+`FootprintConfigured`. A `.resident` configuration returns no hints, so the engine charges the manifest's quant-keyed
+footprint. A `.staged` one returns:
 
-Until mlx-engine answers, staged ships as **package configuration only**, without `FootprintConfigured`. The engine
-keeps charging the resident footprints (12.9 / 9.6 / 8.0–8.1 GB + 2.8 GB). This over-reserves a staged registration,
-which is safe. It also means the engine does not yet admit staged AuK on a budget that only the staged numbers fit.
+| | `residentBytesHint` (persistent) | `peakActivationBytesHint` (transient) | `expectedWeightReadBytesPerRunHint` |
+|---|---|---|---|
+| bf16 | 3.0 GB | 8.0 GB | 10.51 GB |
+| int8 | 3.0 GB | 5.0 GB | 7.32 GB |
+| int4 | 3.0 GB | 4.6 GB | 5.62 GB |
+
+- **Floor:** the measured idle (2.28–2.82 GB) rounded up.
+- **Transient:** the worst measured staged peak minus 3.0 GB, rounded up.
+- **Read:** encoder.safetensors plus dit.safetensors.
+- **At admission:** an idle staged AuK is charged 3.0 GB, so other models co-reside. Its transient joins the one
+  serialized reserve. The read hint drives the engine's projected-I/O advisory only, and never refuses.
+- **fp32** (parity only) is unmeasured, so it returns nil and falls through.
+- **Pool cap:** the floor and peaks were measured under the engine's default MLX pool cap: `.automatic`, min(2 GB, 5 %
+  of budget), so 2 GB here. A host with a larger pool would raise the idle floor.
+- **Tests:** `testStagedFootprintResolvesThroughHints` resolves each configuration with the engine's own `ResolvedLane`
+  and checks that the hints cover the measured idle and peaks. `testFootprintConformanceResidentAndStaged` runs the
+  FIT gate on every variant × tier × residency.
+- **mlx-engine side:** they rewrote the stale `residentBytesHint` doc comment to the persistent-half meaning
+  (mlx-engine-swift 404176e, doc only).

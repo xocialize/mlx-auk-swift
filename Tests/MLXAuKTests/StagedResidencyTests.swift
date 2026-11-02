@@ -3,6 +3,8 @@
 
 import Foundation
 import MLX
+import MLXServeConformance
+import MLXToolKit
 import XCTest
 
 @testable import AuKCore
@@ -50,6 +52,46 @@ final class StagedResidencyTests: XCTestCase {
         XCTAssertEqual(decoded.quant, .int8)
         let legacy = #"{"variant":"flash","quant":"bf16","warmUp":true}"#.data(using: .utf8)!
         XCTAssertEqual(try JSONDecoder().decode(AuKConfiguration.self, from: legacy).residency, .resident)
+    }
+
+    /// AB-A-0246 (A): resident declares no hints (the quant match applies); staged charges a 3.0 GB floor plus the
+    /// stage transient, and the pair covers the measured staged idle and peaks (receipts/staged-residency.txt).
+    func testStagedFootprintResolvesThroughHints() {
+        let measuredPeak: [Quant: UInt64] = [.bf16: 10_790_000_000, .int8: 7_680_000_000, .int4: 7_340_000_000]
+        let read: [Quant: UInt64] = [.bf16: 10_508_467_868, .int8: 7_317_628_825, .int4: 5_615_788_777]  // encoder + DiT files
+        for (manifest, variant) in [(AuKPackage.manifest, AuKVariant.base), (AuKFlashPackage.manifest, .flash)] {
+            for q in [Quant.bf16, .int8, .int4] {
+                let resident = ResolvedLane(manifest: manifest, configuration: AuKConfiguration(variant: variant, quant: q))
+                XCTAssertEqual(resident.persistentSource, .quantMatch)
+                XCTAssertEqual(resident.peakTransientSource, .quantMatch)
+                XCTAssertNil(resident.expectedWeightReadBytesPerRun)
+
+                let staged = ResolvedLane(manifest: manifest,
+                                          configuration: AuKConfiguration(variant: variant, quant: q, residency: .staged))
+                XCTAssertEqual(staged.persistentSource, .hint)
+                XCTAssertEqual(staged.peakTransientSource, .hint)
+                XCTAssertGreaterThanOrEqual(staged.persistentBytes, 2_820_000_000)
+                XCTAssertGreaterThanOrEqual(staged.persistentBytes + staged.peakTransientBytes, measuredPeak[q]!)
+                XCTAssertLessThan(staged.persistentBytes + staged.peakTransientBytes,
+                                  resident.persistentBytes + resident.peakTransientBytes)
+                XCTAssertGreaterThanOrEqual(staged.expectedWeightReadBytesPerRun ?? 0, read[q]!)
+            }
+        }
+        XCTAssertNil(AuKConfiguration(quant: .fp32, residency: .staged).residentBytesHint, "fp32 staged is unmeasured")
+    }
+
+    /// The FIT gate on the manifest alone and on every configuration the engine can register, staged included.
+    func testFootprintConformanceResidentAndStaged() {
+        for (manifest, variant) in [(AuKPackage.manifest, AuKVariant.base), (AuKFlashPackage.manifest, .flash)] {
+            XCTAssertTrue(FootprintConformance.check(manifest: manifest).passed)
+            for q in [Quant.bf16, .int8, .int4] {
+                for r in [AuKResidency.resident, .staged] {
+                    let report = FootprintConformance.check(
+                        manifest: manifest, configuration: AuKConfiguration(variant: variant, quant: q, residency: r))
+                    XCTAssertTrue(report.passed, "\(variant) \(q) \(r): \(report.summary)")
+                }
+            }
+        }
     }
 
     /// The staged pipeline's fusion head reads only `layer_weights` / `layer_scale` from dit.safetensors, at their
