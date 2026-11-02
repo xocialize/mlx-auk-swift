@@ -420,3 +420,111 @@ CER per cell (mean of 3 seeds):
   - The merged matrix is not the pre-registered one, so this is reported, not a re-verdict of A or B.
 - **Not changed here.** The package manifest, the model cards and the shipped tier list are untouched. A zh caveat
   on C, or withdrawing C, is the operator's call.
+
+## Cookbook — upstream's verifier as the edit-kind acceptance check (AB-T-0416, 2026-11-01)
+
+Upstream's `scripts/verify_cookbook_mlx.py` (Tencent-Hunyuan/AuK, branch `feat/mlx-apple-silicon` @ 6943a1e, MIT) is
+ported as `Tools/cookbook/verify_cookbook.py`. The thresholds are upstream's:
+- content edits are transcribed;
+- pitch is measured in cents (+80 to +330 for +2 semitones);
+- volume in dB (more than +3 dB for +10);
+- speed by the length it hits (1.35× to 1.7×);
+- enhancement by the noise floor, whisper by the spectral tilt;
+- separation by the drop in active frames.
+
+`auk-gates cookbook` sends each example as the request it becomes on `tts` / `speechEdit`, through
+`MLXServeEngine(policy: .any)`. The run is bf16 and seed 0, with Base at its default of 32 steps × CFG 2.
+
+Two measuring differences from upstream:
+- The ASR is mlx-whisper large-v3-turbo from the HF cache, at temperature 0. Upstream used whisper-small[.en].
+- Audio is read with scipy and resampled with `resample_poly`. Upstream used soxr VHQ.
+
+Receipt: `receipts/cookbook.txt`. Renders: `WIP/auk-port/cookbook/`.
+
+**Not run (5 of 17):**
+
+| example | why |
+|---|---|
+| 2.2 lyric edit | excluded, a known model limit: it fails in the torch reference too at the same steps and seed |
+| 4.4 add nonverbal | not expressible: it puts the cough before 'We tested', but `.addNonverbal` only adds at the start or end of the take |
+| 5.2 speech separation | not expressible: MLXAuK declares no `audioSeparation` surface |
+| 5.3 music separation | not expressible: no `audioSeparation` surface |
+| 5.4 target speaker extraction | not expressible: no `audioSeparation` surface |
+
+**The 12 expressible examples, after the two template fixes below:**
+
+| example | request | Flash, 4 steps | Base, 32 steps |
+|---|---|---|---|
+| 1.1 zero-shot TTS | tts, reference clip, 6.0 s | PASS: word accuracy 100% | PASS: 100% |
+| 1.2 instruct TTS | tts, `.textDescription` (Mandarin), 1.7 s | PASS: "Welcome home. How was work today?" | PASS: same |
+| 2.1 content edit | `.replaceWords`, 7.0 s | PASS: new phrase in, old phrase gone | PASS |
+| 3.1 pitch | `.pitch(+2)` | PASS: 190 → 217 Hz = +234 cents | PASS: +258 cents |
+| 3.2 speed | `.speed(1.5)`, 6.86 s | PASS: 11.0 → 6.9 s = 1.60× | PASS: 1.60× |
+| 3.3 volume | `.volume(+10)` | PASS: −26.0 → −19.1 dBFS = +6.9 dB | PASS: +9.2 dB |
+| 4.1 emotion | `.emotion("happy")` | PASS: 91% of words kept, F0 +264 cents | PASS: 86% kept, +693 cents |
+| 4.2 timbre | `.timbre("a deep, calm male voice")` | PASS: F0 −907 cents | PASS: −855 cents |
+| 4.3 de-accent | `.deAccent` (EN template) | PASS: same length, transcribes | PASS |
+| 4.4 remove nonverbal | `.removeNonverbal("humming")`, 22.0 s | PASS: 23.9 → 22.0 s | PASS |
+| 4.5 whisper | `.style("whisper")` (now the CN template) | PASS: HF/LF 0.073 → 0.092 | PASS: 0.073 → 0.545 |
+| 5.1 enhancement | `.denoise` (approximates the combined enhance) | PASS: noise floor −37.4 dB | PASS: −34.6 dB |
+| **cookbook total** | | **12/12** | **12/12** |
+
+**The int8 and int4 tiers.** These are the encoder tiers MLXAuK declares; the DiT and VAE stay bf16. Both pass
+12/12 on both variants, and the supplementary rows pass 4/4. The figures move a little:
+- Base whisper HF/LF is 0.587 at int8 and 0.396 at int4, against 0.545 at bf16.
+- Flash volume is +6.8 dB at int4, against +6.9 dB at bf16.
+- Pitch is unchanged: Flash +234 cents, Base +258.
+
+The Mandarin probe at 4 bits (upstream's "論文…導師" → "任務…倒死") is AB-T-0413's lane, not this one. This one
+can't see it: see the de-accent note below.
+
+**Against upstream** (Flash 15/17, Base＠32 16/17). Upstream fails only 2.2 on Base, and 2.2 plus one more on Flash.
+Upstream does not name Flash's second failure, but its write-up says Flash's whisper ratio opens an order of
+magnitude, so it isn't 4.5. Of the 12 examples both ports can run, we pass all 12 on both variants: no example fails
+here that passes upstream. The 4 examples we cannot express are separation and the inline nonverbal add; 2.2 is
+excluded.
+
+Upstream's volume figures are +7.4 dB on Flash and +9.7 dB on Base. Ours are +6.9 and +9.2 dB.
+
+**Supplementary rows: the declared kinds with no cookbook example.**
+
+These run on the cookbook's own inputs and are reported apart from the count.
+
+| row | request | Flash | Base |
+|---|---|---|---|
+| insert | `.insertWords("quietly", before: "accepting")`, length estimated by the package | PASS: the word is inserted and the anchor kept, 7.5 s | PASS |
+| remove | `.removeWords("but accepting what we cannot have")` | PASS: phrase gone, 7.0 → 4.7 s | PASS |
+| add nonverbal at the start | `.addNonverbal("cough", atEnd: false)`, 14.3 s | PASS: 100% of words kept, 14.3 s | PASS |
+| dereverb | `.dereverberate` | PASS: same length, still transcribes | PASS |
+| whisper → normal | `.style("normal")` | information only | information only |
+
+Whisper → normal isn't judged. The assets' only whisper sample, `wh-w2n-zh-input`, tilts like plain speech: its HF/LF
+is 0.073, and the EN take's is 0.057. So the assets hold no whispered input to bring back to a normal voice.
+
+**Two package bugs, found and fixed here.**
+
+At v0.2.0 (`01a88e2`), Flash passed 10/12 and Base passed 12/12. Both Flash failures came from the package's own
+templates, which the earlier lanes never ran. A seed sweep, seeds 0–4, through `auk-gates render`
+(`Tools/cookbook/sweep_phrasing.sh`), split the template effect from seed noise:
+
+| phrasing | Flash, seeds passing | Base, seeds passing |
+|---|---|---|
+| 1.2, v0.2.0 template ("Generate speech based on the following description: … The content to speak is: …") | 1/5 | 4/5 |
+| 1.2, the cookbook example's phrasing, which the V0 oracle also used | 5/5 | 5/5 |
+| 4.5 on the zh sample, EN template | 0/5: HF/LF falls, 0.062–0.067 | 5/5, but 0.080–0.082 is a 10% move |
+| 4.5 on the zh sample, CN template (the cookbook example) | 5/5: 0.080–0.097 | 5/5: 0.26–6.1 |
+| to-whisper on an EN take, EN template | 2/5: 0.054–0.058 against a source of 0.057 | 1/5 |
+| to-whisper on an EN take, CN template | 3/5: up to 0.096 | 5/5: 0.19–15 |
+
+The fixes:
+- `AukInstruction.instructTTS` EN text is now the cookbook example's phrasing.
+- `AuKSurfaces.language(for:)` sends `.style("whisper")` to the CN template, whatever the take's language.
+
+Both are pinned by assertions in the existing `testInstructionTemplates` and whisper tests. `swift test`: 21/21.
+Flash to-whisper is still weak on an English take (3/5).
+
+**Notes:**
+- 4.3 de-accent passes, but the check is shallow: same length, and the output transcribes. The Sichuan source itself
+  transcribes as "…伦文婷告发给倒死…", and both edits as "…任文婷告发给倒死…". The garbled 论文 / 导师 come from the
+  ASR on this speaker, not from the edit. So this lane can't show whether the accent moved.
+- Render time for the whole set: Flash 13 s and Base 95 s for 17 renders, about 7× apart.

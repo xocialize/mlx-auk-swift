@@ -184,6 +184,8 @@ final class RequestPlaneTests: XCTestCase {
         XCTAssertEqual(try AuKSurfaces.instruction(for: .emotion("happy")), .emotion("happy"))
         XCTAssertEqual(try AuKSurfaces.instruction(for: .style("whisper")), .toWhisper)
         XCTAssertEqual(try AuKSurfaces.instruction(for: .style("normal")), .fromWhisper)
+        XCTAssertEqual(AuKSurfaces.language(for: .style("whisper")), .zh)
+        XCTAssertEqual(AuKSurfaces.language(for: .style("normal")), .en)
         XCTAssertEqual(try AuKSurfaces.instruction(for: .denoise), .denoise)
         XCTAssertThrowsError(try AuKSurfaces.instruction(for: .emotion("remove")))
         XCTAssertThrowsError(try AuKSurfaces.instruction(for: .style("shout")))
@@ -300,6 +302,8 @@ final class RequestPlaneTests: XCTestCase {
     /// The canonical cookbook phrasings, verbatim.
     func testInstructionTemplates() {
         XCTAssertEqual(AukInstruction.zeroShotTTS(text: "Hi").text(), "Say the following with the same voice: \"Hi\"")
+        XCTAssertEqual(AukInstruction.instructTTS(voiceDescription: "A warm voice.", text: "Hi").text(),
+                       "Based on the following description: \"A warm voice.\", generate speech content \"Hi\".")
         XCTAssertEqual(AukInstruction.speed(factor: 1.5).text(), "Adjust the speech speed to 1.5x.")
         XCTAssertEqual(AukInstruction.speed(factor: 2.0).text(), "Adjust the speech speed to 2.0x.")
         XCTAssertEqual(AukInstruction.replace(original: "a", new: "b").text(), "Replace 'a' with 'b'.")

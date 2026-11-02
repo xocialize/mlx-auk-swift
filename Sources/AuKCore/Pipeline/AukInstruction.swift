@@ -72,7 +72,9 @@ public enum AukInstruction: Sendable, Equatable {
     public func text(_ lang: AukLanguage = .en) -> String {
         switch (self, lang) {
         case (.zeroShotTTS(let t), _): return "Say the following with the same voice: \"\(t)\""
-        case (.instructTTS(let d, let t), .en): return "Generate speech based on the following description: \"\(d)\". The content to speak is: \"\(t)\"."
+        // the cookbook example's phrasing (= the V0 oracle's), not its EN template line: on Flash the template line
+        // drops "welcome home" on 4 of 5 seeds, the example's phrasing on none (AB-T-0416, MEASUREMENTS "Cookbook")
+        case (.instructTTS(let d, let t), .en): return "Based on the following description: \"\(d)\", generate speech content \"\(t)\"."
         case (.instructTTS(let d, let t), .zh): return "请基于下面的描述: \"\(d)\",生成语音内容\"\(t)\"."
         case (.replace(let o, let n), .en): return "Replace '\(o)' with '\(n)'."
         case (.replace(let o, let n), .zh): return "把‘\(o)’改成‘\(n)’"

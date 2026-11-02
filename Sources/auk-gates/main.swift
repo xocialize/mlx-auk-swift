@@ -7,6 +7,7 @@
 //   auk-gates render  <model> <encoder> "<instruction>" <in.wav|-> <seconds|-> <out.wav> [seed]
 //   auk-gates profile <goldens/variant> <assets> <model> <encoder> <out.jsonl> [runs]   per-stage wall clock, warm
 //   auk-gates staged  <golden-variant> <assets> <model> <encoder> <out-dir>   resident vs staged: bit identity, reload cost
+//   auk-gates cookbook <base|flash> <bf16|int8|int4> <model> <encoder> <assets> <out-dir> [seed]   (Cookbook.swift)
 //
 // Options (before the subcommand): --cpu (fp32 reference lane on the CPU stream), --dtype float32|bfloat16,
 // --enc-dtype float32|bfloat16|… (encoder only), --residency resident|staged (render / matrix / validate),
@@ -653,6 +654,9 @@ func run() async throws {
     case "staged":
         try await stagedGate(URL(fileURLWithPath: rest[0]), URL(fileURLWithPath: rest[1]), URL(fileURLWithPath: rest[2]),
                              URL(fileURLWithPath: rest[3]), URL(fileURLWithPath: rest[4]))
+    case "cookbook":
+        try await cookbook(variant: rest[0], quant: rest[1], URL(fileURLWithPath: rest[2]), URL(fileURLWithPath: rest[3]),
+                           URL(fileURLWithPath: rest[4]), URL(fileURLWithPath: rest[5]), seed: rest.count > 6 ? UInt64(rest[6]) ?? 0 : 0)
     case "matrix":
         try await matrix(URL(fileURLWithPath: rest[0]), URL(fileURLWithPath: rest[1]), URL(fileURLWithPath: rest[2]),
                          URL(fileURLWithPath: rest[3]), URL(fileURLWithPath: rest[4]))
