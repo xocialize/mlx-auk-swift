@@ -5,6 +5,7 @@
 //   auk-gates encoder <golden> <model> <encoder>  token ids, mel features, audio tower, hidden states, fused condition
 //   auk-gates e2e     <golden> <model> <encoder> [out.wav]   whole request with the oracle's noise
 //   auk-gates render  <model> <encoder> "<instruction>" <in.wav|-> <seconds|-> <out.wav> [seed]
+//   auk-gates cookbook <base|flash> <bf16|int8|int4> <model> <encoder> <assets> <out-dir> [seed]   (Cookbook.swift)
 //
 // Options (before the subcommand): --cpu (fp32 reference lane on the CPU stream), --dtype float32|bfloat16,
 // --enc-dtype float32|bfloat16|… (encoder only).
@@ -412,6 +413,9 @@ func run() async throws {
     case "validate":
         try await validate(variant: rest[0], quant: rest[1], URL(fileURLWithPath: rest[2]), URL(fileURLWithPath: rest[3]),
                            URL(fileURLWithPath: rest[4]), URL(fileURLWithPath: rest[5]))
+    case "cookbook":
+        try await cookbook(variant: rest[0], quant: rest[1], URL(fileURLWithPath: rest[2]), URL(fileURLWithPath: rest[3]),
+                           URL(fileURLWithPath: rest[4]), URL(fileURLWithPath: rest[5]), seed: rest.count > 6 ? UInt64(rest[6]) ?? 0 : 0)
     case "matrix":
         try await matrix(URL(fileURLWithPath: rest[0]), URL(fileURLWithPath: rest[1]), URL(fileURLWithPath: rest[2]),
                          URL(fileURLWithPath: rest[3]), URL(fileURLWithPath: rest[4]))

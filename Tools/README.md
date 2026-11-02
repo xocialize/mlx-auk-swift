@@ -12,9 +12,12 @@ and the publish staging. Nothing here assumes a directory layout: every location
 | `run_v2b.sh` | **V2b matrix.** Tiers R / A / B / C / D × 6 tasks × 3 seeds through the production path. `run_v2b.sh <goldens> <weights> <assets> [out]` |
 | `asr/score_v2b.py` | **V2b scorer.** mlx-whisper WER/CER, CAM++ SIM and DNSMOS, plus the pre-registered pass rule. `AUK_FUNASR_DETACH_ROOT=<Step-Audio-EditX clone> score_v2b.py <v2b> <goldens> <assets> <out.csv>` |
 | `asr/transcribe.py` | Quick content check with mlx-whisper large-v3-turbo. |
+| `cookbook/run_cookbook.sh` | **Cookbook acceptance (AB-T-0416).** Every `docs/COOKBOOK.md` example MLXAuK's surfaces can express, through `MLXServeEngine` (`auk-gates cookbook`), on Base and Flash, then the verifier over both. `run_cookbook.sh <weights> <assets> <out> [quant] [seed] [variants]`; `AUK_LOCK` wraps each render and the scoring pass |
+| `cookbook/verify_cookbook.py` | **Cookbook verifier.** Upstream's `scripts/verify_cookbook_mlx.py` (feat/mlx-apple-silicon @ 6943a1e, MIT, notice in `cookbook/LICENSE-upstream-AuK`) ported to `auk-gates cookbook` output: content transcribed, pitch in cents, volume in dB, speed by duration, enhancement by noise floor, separation by active frames. Unexpressible examples are listed, not counted; `supplementary` rows cover declared kinds with no cookbook example |
+| `cookbook/sweep_phrasing.sh`, `cookbook/score_sweep.py` | Instruction phrasings × seeds 0–4 through `auk-gates render`, scored with the verifier's checks. They separate a template effect from seed noise, and are how the instruct-TTS and to-whisper template fixes were found |
 | `publish/stage.sh` | **V4.** Stages each bundle's LICENSE, NOTICE and model card (sources in `publish/auk`, `publish/qwen-thinker`) before `hf upload`. |
 
-Swift-side lanes are `auk-gates` subcommands: `vae`, `dit`, `encoder`, `e2e`, `matrix`, `validate`,
+Swift-side lanes are `auk-gates` subcommands: `vae`, `dit`, `encoder`, `e2e`, `matrix`, `validate`, `cookbook`,
 `quantize-encoder` and `render` (header of `Sources/auk-gates/main.swift`).
 
 **Environment.** The oracle was validated with torch 2.7.1, torchaudio 2.7.1, transformers 4.57.1, x_transformers

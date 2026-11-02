@@ -1,0 +1,497 @@
+# AB-T-0416 — cookbook acceptance through MLXServeEngine, bf16 + int8 + int4, seed 0 (M5 Max, mlx-swift 0.32.3, mlx-engine-swift 0.74.0, 2026-11-01)
+# Tools/cookbook/run_cookbook.sh <weights> <assets> <out> bf16 0  (auk-gates cookbook + verify_cookbook.py); renders in WIP/auk-port/cookbook/
+
+######## 1. after the fixes (instructTTS EN phrasing; to-whisper takes the CN template) — render logs
+[gpu-lock] cookbook-flash-bf16 acquired at 20:20:45
+[Prewarm] auk-flash: paged 3 file(s) / 10.8 GB into cache in 0.5s
+# cookbook flash bf16 seed 0 — prepared in 1.7s
+  ok   1.1-zeroshot-tts           0.8s wall   6.00s out
+  ok   1.2-instruct-tts           0.3s wall   1.70s out
+  ok   2.1-content-edit           0.7s wall   7.00s out
+  --   2.2-lyric-edit: excluded — known model limit: fails in the torch reference too at the same steps and seed (AB-T-0416)
+  ok   3.1-pitch                  0.6s wall   5.50s out
+  ok   3.2-speed                  0.8s wall   6.86s out
+  ok   3.3-volume                 0.6s wall   5.50s out
+  ok   4.1-emotion                0.7s wall   6.32s out
+  ok   4.2-timbre                 0.7s wall   6.60s out
+  ok   4.3-deaccent               0.8s wall   8.20s out
+  ok   4.4-nonverbal-remove       2.1s wall  22.00s out
+  --   4.4-nonverbal-add: unexpressible — inline position: the cookbook adds a cough BEFORE 'We tested'; .addNonverbal takes only the start or end of the take
+  ok   4.5-whisper                0.8s wall   8.58s out
+  ok   5.1-enhance                0.6s wall   4.98s out
+  --   5.2-separation: unexpressible — no audioSeparation surface (keep the second speaker to start talking)
+  --   5.3-music-sep: unexpressible — no audioSeparation surface (keep the singing voice)
+  --   5.4-tse: unexpressible — no audioSeparation surface (keep the speaker who says "get what")
+  ok   S-insert                   0.7s wall   7.52s out
+  ok   S-remove                   0.6s wall   4.66s out
+  ok   S-nonverbal-add-start      1.3s wall  14.30s out
+  ok   S-dereverb                 0.6s wall   4.98s out
+  ok   S-from-whisper             0.8s wall   8.58s out
+# 13s total render wall → /Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook/flash-bf16
+[gpu-lock] cookbook-flash-bf16 released at 20:21:01 (exit 0)
+[gpu-lock] cookbook-base-bf16 acquired at 20:21:01
+[Prewarm] auk: paged 3 file(s) / 10.8 GB into cache in 0.4s
+# cookbook base bf16 seed 0 — prepared in 2.8s
+  ok   1.1-zeroshot-tts           5.7s wall   6.00s out
+  ok   1.2-instruct-tts           1.8s wall   1.70s out
+  ok   2.1-content-edit           4.9s wall   7.00s out
+  --   2.2-lyric-edit: excluded — known model limit: fails in the torch reference too at the same steps and seed (AB-T-0416)
+  ok   3.1-pitch                  3.9s wall   5.50s out
+  ok   3.2-speed                  6.2s wall   6.86s out
+  ok   3.3-volume                 4.0s wall   5.50s out
+  ok   4.1-emotion                4.4s wall   6.32s out
+  ok   4.2-timbre                 4.7s wall   6.60s out
+  ok   4.3-deaccent               5.6s wall   8.20s out
+  ok   4.4-nonverbal-remove      15.9s wall  22.00s out
+  --   4.4-nonverbal-add: unexpressible — inline position: the cookbook adds a cough BEFORE 'We tested'; .addNonverbal takes only the start or end of the take
+  ok   4.5-whisper                5.8s wall   8.58s out
+  ok   5.1-enhance                3.7s wall   4.98s out
+  --   5.2-separation: unexpressible — no audioSeparation surface (keep the second speaker to start talking)
+  --   5.3-music-sep: unexpressible — no audioSeparation surface (keep the singing voice)
+  --   5.4-tse: unexpressible — no audioSeparation surface (keep the speaker who says "get what")
+  ok   S-insert                   5.0s wall   7.52s out
+  ok   S-remove                   4.3s wall   4.66s out
+  ok   S-nonverbal-add-start      9.1s wall  14.30s out
+  ok   S-dereverb                 3.7s wall   4.98s out
+  ok   S-from-whisper             5.8s wall   8.58s out
+# 95s total render wall → /Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook/base-bf16
+[gpu-lock] cookbook-base-bf16 released at 20:22:39 (exit 0)
+
+######## 1. after the fixes — verifier
+[gpu-lock] cookbook-verify-bf16 acquired at 20:22:39
+# ASR: /Users/dustinnielson/.cache/huggingface/hub/models--mlx-community--whisper-large-v3-turbo/snapshots/a4aaeec0636e6fef84abdcbe3544cb2bf7e9f6fb/
+
+## flash bf16 seed 0 — /Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook/flash-bf16
+  PASS cookbook      1.1-zeroshot-tts       word-acc=100%  “Ladies and gentlemen, it's an honor to have the opportunity to address”
+  PASS cookbook      1.2-instruct-tts       “Welcome home. How was work today?”
+  PASS cookbook      2.1-content-edit       new=True old_gone=True  “do you think the biggest victory is not fighting for what we want and ”
+  n/a  excluded      2.2-lyric-edit         known model limit: fails in the torch reference too at the same steps and seed (AB-T-0416)
+  PASS cookbook      3.1-pitch              190Hz -> 217Hz = +234 cents (target +200)
+  PASS cookbook      3.2-speed              dur 11.0s -> 6.9s = 1.60x (target 1.5x); syllable rate 4.74 -> 4.82/s
+  PASS cookbook      3.3-volume             -26.0 -> -19.1 dB = +6.9 dB (target +10)
+  PASS cookbook      4.1-emotion            content kept=91%  F0 126->146Hz (+264 cents)
+  PASS cookbook      4.2-timbre             F0 202 -> 119Hz = -907 cents (want lower)
+  PASS cookbook      4.3-deaccent           len ratio=1.00  “终于把任文婷告发给倒死了现在就等着他的反馈心里有点小紧张”
+  PASS cookbook      4.4-nonverbal-remove   23.9s -> 22.0s  rms 0.0190 -> 0.0194
+  n/a  unexpressible 4.4-nonverbal-add      inline position: the cookbook adds a cough BEFORE 'We tested'; .addNonverbal takes only the start or end of the take
+  PASS cookbook      4.5-whisper            HF/LF ratio 0.073 -> 0.092 (whisper raises it)
+  PASS cookbook      5.1-enhance            noise floor 0.02956 -> 0.00040 (-37.4 dB)
+  n/a  unexpressible 5.2-separation         no audioSeparation surface (keep the second speaker to start talking)
+  n/a  unexpressible 5.3-music-sep          no audioSeparation surface (keep the singing voice)
+  n/a  unexpressible 5.4-tse                no audioSeparation surface (keep the speaker who says "get what")
+  PASS supplementary S-insert               inserted=True anchor_kept=True  7.5s  “do you think the biggest victory is not fighting for what we want, but”
+  PASS supplementary S-remove               removed=True 7.0s -> 4.7s  “do you think the biggest victory is not fighting for what we want?”
+  PASS supplementary S-nonverbal-add-start  content kept=100%  14.3s (asked 14.3s)
+  PASS supplementary S-dereverb             len ratio=1.00  noise floor 0.02956 -> 0.00004  “大学生利用漏洞免费吃肯德基或许多”
+  info supplementary S-from-whisper         HF/LF ratio 0.073 -> 0.062 (information only: no whispered input in the assets)
+
+  cookbook: 12/12 expressible examples pass (5 of 17 not run: 2.2-lyric-edit, 4.4-nonverbal-add, 5.2-separation, 5.3-music-sep, 5.4-tse); supplementary: 4/4
+
+## base bf16 seed 0 — /Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook/base-bf16
+  PASS cookbook      1.1-zeroshot-tts       word-acc=100%  “Ladies and gentlemen, it's an honor to have the opportunity to address”
+  PASS cookbook      1.2-instruct-tts       “Welcome home. How was work today?”
+  PASS cookbook      2.1-content-edit       new=True old_gone=True  “do you think the biggest victory is not fighting for what we want and ”
+  n/a  excluded      2.2-lyric-edit         known model limit: fails in the torch reference too at the same steps and seed (AB-T-0416)
+  PASS cookbook      3.1-pitch              190Hz -> 220Hz = +258 cents (target +200)
+  PASS cookbook      3.2-speed              dur 11.0s -> 6.9s = 1.60x (target 1.5x); syllable rate 4.74 -> 4.82/s
+  PASS cookbook      3.3-volume             -26.0 -> -16.8 dB = +9.2 dB (target +10)
+  PASS cookbook      4.1-emotion            content kept=86%  F0 126->188Hz (+693 cents)
+  PASS cookbook      4.2-timbre             F0 202 -> 123Hz = -855 cents (want lower)
+  PASS cookbook      4.3-deaccent           len ratio=1.00  “终于把任文婷告发给倒死了现在就等着他的反馈心里有点小紧张”
+  PASS cookbook      4.4-nonverbal-remove   23.9s -> 22.0s  rms 0.0190 -> 0.0209
+  n/a  unexpressible 4.4-nonverbal-add      inline position: the cookbook adds a cough BEFORE 'We tested'; .addNonverbal takes only the start or end of the take
+  PASS cookbook      4.5-whisper            HF/LF ratio 0.073 -> 0.545 (whisper raises it)
+  PASS cookbook      5.1-enhance            noise floor 0.02956 -> 0.00055 (-34.6 dB)
+  n/a  unexpressible 5.2-separation         no audioSeparation surface (keep the second speaker to start talking)
+  n/a  unexpressible 5.3-music-sep          no audioSeparation surface (keep the singing voice)
+  n/a  unexpressible 5.4-tse                no audioSeparation surface (keep the speaker who says "get what")
+  PASS supplementary S-insert               inserted=True anchor_kept=True  7.5s  “do you think the biggest victory is not fighting for what we want, but”
+  PASS supplementary S-remove               removed=True 7.0s -> 4.7s  “do you think the biggest victory is not fighting for what we want?”
+  PASS supplementary S-nonverbal-add-start  content kept=100%  14.3s (asked 14.3s)
+  PASS supplementary S-dereverb             len ratio=1.00  noise floor 0.02956 -> 0.00005  “大学生利用漏洞免费吃肯德基获取”
+  info supplementary S-from-whisper         HF/LF ratio 0.073 -> 0.077 (information only: no whispered input in the assets)
+
+  cookbook: 12/12 expressible examples pass (5 of 17 not run: 2.2-lyric-edit, 4.4-nonverbal-add, 5.2-separation, 5.3-music-sep, 5.4-tse); supplementary: 4/4
+[gpu-lock] cookbook-verify-bf16 released at 20:22:42 (exit 0)
+
+######## 2. v0.2.0 (01a88e2) as shipped — verifier (before S-from-whisper became information-only)
+[gpu-lock] cookbook-verify-bf16 acquired at 19:52:49
+# ASR: /Users/dustinnielson/.cache/huggingface/hub/models--mlx-community--whisper-large-v3-turbo/snapshots/a4aaeec0636e6fef84abdcbe3544cb2bf7e9f6fb/
+
+## flash bf16 seed 0 — /Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook/flash-bf16
+  PASS cookbook      1.1-zeroshot-tts       word-acc=100%  “Ladies and gentlemen, it's an honor to have the opportunity to address”
+  FAIL cookbook      1.2-instruct-tts       “Dr. Speaker, welcome. How was work today?”
+  PASS cookbook      2.1-content-edit       new=True old_gone=True  “do you think the biggest victory is not fighting for what we want and ”
+  n/a  excluded      2.2-lyric-edit         known model limit: fails in the torch reference too at the same steps and seed (AB-T-0416)
+  PASS cookbook      3.1-pitch              190Hz -> 217Hz = +234 cents (target +200)
+  PASS cookbook      3.2-speed              dur 11.0s -> 6.9s = 1.60x (target 1.5x); syllable rate 4.74 -> 4.82/s
+  PASS cookbook      3.3-volume             -26.0 -> -19.1 dB = +6.9 dB (target +10)
+  PASS cookbook      4.1-emotion            content kept=91%  F0 126->146Hz (+264 cents)
+  PASS cookbook      4.2-timbre             F0 202 -> 119Hz = -907 cents (want lower)
+  PASS cookbook      4.3-deaccent           len ratio=1.00  “终于把任文婷告发给倒死了现在就等着他的反馈心里有点小紧张”
+  PASS cookbook      4.4-nonverbal-remove   23.9s -> 22.0s  rms 0.0190 -> 0.0194
+  n/a  unexpressible 4.4-nonverbal-add      inline position: the cookbook adds a cough BEFORE 'We tested'; .addNonverbal takes only the start or end of the take
+  FAIL cookbook      4.5-whisper            HF/LF ratio 0.073 -> 0.063 (whisper raises it)
+  PASS cookbook      5.1-enhance            noise floor 0.02956 -> 0.00040 (-37.4 dB)
+  n/a  unexpressible 5.2-separation         no audioSeparation surface (keep the second speaker to start talking)
+  n/a  unexpressible 5.3-music-sep          no audioSeparation surface (keep the singing voice)
+  n/a  unexpressible 5.4-tse                no audioSeparation surface (keep the speaker who says "get what")
+  PASS supplementary S-insert               inserted=True anchor_kept=True  7.5s  “do you think the biggest victory is not fighting for what we want, but”
+  PASS supplementary S-remove               removed=True 7.0s -> 4.7s  “do you think the biggest victory is not fighting for what we want?”
+  PASS supplementary S-nonverbal-add-start  content kept=100%  14.3s (asked 14.3s)
+  PASS supplementary S-dereverb             len ratio=1.00  noise floor 0.02956 -> 0.00004  “大学生利用漏洞免费吃肯德基或许多”
+  PASS supplementary S-from-whisper         HF/LF ratio 0.073 -> 0.062 (normal voice lowers it)
+
+  cookbook: 10/12 expressible examples pass (5 of 17 not run: 2.2-lyric-edit, 4.4-nonverbal-add, 5.2-separation, 5.3-music-sep, 5.4-tse); supplementary: 5/5
+
+## base bf16 seed 0 — /Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook/base-bf16
+  PASS cookbook      1.1-zeroshot-tts       word-acc=100%  “Ladies and gentlemen, it's an honor to have the opportunity to address”
+  PASS cookbook      1.2-instruct-tts       “Welcome home. How was work today?”
+  PASS cookbook      2.1-content-edit       new=True old_gone=True  “do you think the biggest victory is not fighting for what we want and ”
+  n/a  excluded      2.2-lyric-edit         known model limit: fails in the torch reference too at the same steps and seed (AB-T-0416)
+  PASS cookbook      3.1-pitch              190Hz -> 220Hz = +258 cents (target +200)
+  PASS cookbook      3.2-speed              dur 11.0s -> 6.9s = 1.60x (target 1.5x); syllable rate 4.74 -> 4.82/s
+  PASS cookbook      3.3-volume             -26.0 -> -16.8 dB = +9.2 dB (target +10)
+  PASS cookbook      4.1-emotion            content kept=86%  F0 126->188Hz (+693 cents)
+  PASS cookbook      4.2-timbre             F0 202 -> 123Hz = -855 cents (want lower)
+  PASS cookbook      4.3-deaccent           len ratio=1.00  “终于把任文婷告发给倒死了现在就等着他的反馈心里有点小紧张”
+  PASS cookbook      4.4-nonverbal-remove   23.9s -> 22.0s  rms 0.0190 -> 0.0209
+  n/a  unexpressible 4.4-nonverbal-add      inline position: the cookbook adds a cough BEFORE 'We tested'; .addNonverbal takes only the start or end of the take
+  PASS cookbook      4.5-whisper            HF/LF ratio 0.073 -> 0.080 (whisper raises it)
+  PASS cookbook      5.1-enhance            noise floor 0.02956 -> 0.00055 (-34.6 dB)
+  n/a  unexpressible 5.2-separation         no audioSeparation surface (keep the second speaker to start talking)
+  n/a  unexpressible 5.3-music-sep          no audioSeparation surface (keep the singing voice)
+  n/a  unexpressible 5.4-tse                no audioSeparation surface (keep the speaker who says "get what")
+  PASS supplementary S-insert               inserted=True anchor_kept=True  7.5s  “do you think the biggest victory is not fighting for what we want, but”
+  PASS supplementary S-remove               removed=True 7.0s -> 4.7s  “do you think the biggest victory is not fighting for what we want?”
+  PASS supplementary S-nonverbal-add-start  content kept=100%  14.3s (asked 14.3s)
+  PASS supplementary S-dereverb             len ratio=1.00  noise floor 0.02956 -> 0.00005  “大学生利用漏洞免费吃肯德基获取”
+  FAIL supplementary S-from-whisper         HF/LF ratio 0.073 -> 0.077 (normal voice lowers it)
+
+  cookbook: 12/12 expressible examples pass (5 of 17 not run: 2.2-lyric-edit, 4.4-nonverbal-add, 5.2-separation, 5.3-music-sep, 5.4-tse); supplementary: 4/5
+[gpu-lock] cookbook-verify-bf16 released at 19:52:53 (exit 0)
+
+######## 3. phrasing sweep, seeds 0-4, auk-gates render (Tools/cookbook/sweep_phrasing.sh + score_sweep.py)
+  base  1.2 cb  seed 0  PASS  “Welcome home. How was work today?”
+  base  1.2 cb  seed 1  PASS  “Welcome home. How was work today?”
+  base  1.2 cb  seed 2  PASS  “Welcome home. How was work today?”
+  base  1.2 cb  seed 3  PASS  “Welcome home. How was work today?”
+  base  1.2 cb  seed 4  PASS  “Welcome home. How was work today?”
+  base  1.2 pkg seed 0  PASS  “Welcome home. How was work today?”
+  base  1.2 pkg seed 1  PASS  “Welcome home. How was work today?”
+  base  1.2 pkg seed 2  PASS  “Welcome home. How was work today?”
+  base  1.2 pkg seed 3  PASS  “Welcome home. How was work today?”
+  base  1.2 pkg seed 4  FAIL  “are to come home. How was work today?”
+  base  4.5 cb  seed 0  PASS  HF/LF ratio 0.073 -> 0.545 (whisper raises it)
+  base  4.5 cb  seed 1  PASS  HF/LF ratio 0.073 -> 0.258 (whisper raises it)
+  base  4.5 cb  seed 2  PASS  HF/LF ratio 0.073 -> 6.105 (whisper raises it)
+  base  4.5 cb  seed 3  PASS  HF/LF ratio 0.073 -> 0.711 (whisper raises it)
+  base  4.5 cb  seed 4  PASS  HF/LF ratio 0.073 -> 0.412 (whisper raises it)
+  base  4.5 pkg seed 0  PASS  HF/LF ratio 0.073 -> 0.080 (whisper raises it)
+  base  4.5 pkg seed 1  PASS  HF/LF ratio 0.073 -> 0.080 (whisper raises it)
+  base  4.5 pkg seed 2  PASS  HF/LF ratio 0.073 -> 0.082 (whisper raises it)
+  base  4.5 pkg seed 3  PASS  HF/LF ratio 0.073 -> 0.081 (whisper raises it)
+  base  4.5 pkg seed 4  PASS  HF/LF ratio 0.073 -> 0.080 (whisper raises it)
+base  1.2 cb  5/5 seeds pass
+base  1.2 pkg 4/5 seeds pass
+base  4.5 cb  5/5 seeds pass
+base  4.5 pkg 5/5 seeds pass
+  flash 1.2 cb  seed 0  PASS  “Welcome home. How was work today?”
+  flash 1.2 cb  seed 1  PASS  “Welcome home. How was work today?”
+  flash 1.2 cb  seed 2  PASS  “Welcome home. How was work today?”
+  flash 1.2 cb  seed 3  PASS  “Welcome home. How was work today?”
+  flash 1.2 cb  seed 4  PASS  “Welcome home. How was work today?”
+  flash 1.2 pkg seed 0  FAIL  “Dr. Speaker, welcome. How was work today?”
+  flash 1.2 pkg seed 1  FAIL  “Remember, let's speak at home. How was work today?”
+  flash 1.2 pkg seed 2  FAIL  “Welcome to Speak Up Home. How was work today?”
+  flash 1.2 pkg seed 3  PASS  “My thumbs up, welcome home. How was work today?”
+  flash 1.2 pkg seed 4  FAIL  “How was work today?”
+  flash 4.5 cb  seed 0  PASS  HF/LF ratio 0.073 -> 0.092 (whisper raises it)
+  flash 4.5 cb  seed 1  PASS  HF/LF ratio 0.073 -> 0.080 (whisper raises it)
+  flash 4.5 cb  seed 2  PASS  HF/LF ratio 0.073 -> 0.097 (whisper raises it)
+  flash 4.5 cb  seed 3  PASS  HF/LF ratio 0.073 -> 0.089 (whisper raises it)
+  flash 4.5 cb  seed 4  PASS  HF/LF ratio 0.073 -> 0.090 (whisper raises it)
+  flash 4.5 pkg seed 0  FAIL  HF/LF ratio 0.073 -> 0.063 (whisper raises it)
+  flash 4.5 pkg seed 1  FAIL  HF/LF ratio 0.073 -> 0.065 (whisper raises it)
+  flash 4.5 pkg seed 2  FAIL  HF/LF ratio 0.073 -> 0.067 (whisper raises it)
+  flash 4.5 pkg seed 3  FAIL  HF/LF ratio 0.073 -> 0.062 (whisper raises it)
+  flash 4.5 pkg seed 4  FAIL  HF/LF ratio 0.073 -> 0.062 (whisper raises it)
+flash 1.2 cb  5/5 seeds pass
+flash 1.2 pkg 1/5 seeds pass
+flash 4.5 cb  5/5 seeds pass
+flash 4.5 pkg 0/5 seeds pass
+  base  4.5en pkg seed 0  FAIL  HF/LF ratio 0.057 -> 0.057 (whisper raises it)
+  base  4.5en pkg seed 1  FAIL  HF/LF ratio 0.057 -> 0.055 (whisper raises it)
+  base  4.5en pkg seed 2  PASS  HF/LF ratio 0.057 -> 0.058 (whisper raises it)
+  base  4.5en pkg seed 3  FAIL  HF/LF ratio 0.057 -> 0.055 (whisper raises it)
+  base  4.5en pkg seed 4  FAIL  HF/LF ratio 0.057 -> 0.056 (whisper raises it)
+  base  4.5en zh  seed 0  PASS  HF/LF ratio 0.057 -> 1.975 (whisper raises it)
+  base  4.5en zh  seed 1  PASS  HF/LF ratio 0.057 -> 15.115 (whisper raises it)
+  base  4.5en zh  seed 2  PASS  HF/LF ratio 0.057 -> 0.534 (whisper raises it)
+  base  4.5en zh  seed 3  PASS  HF/LF ratio 0.057 -> 1.145 (whisper raises it)
+  base  4.5en zh  seed 4  PASS  HF/LF ratio 0.057 -> 0.190 (whisper raises it)
+  base  fw    pkg seed 0  FAIL  HF/LF ratio 0.073 -> 0.077 (normal voice lowers it)
+  base  fw    pkg seed 1  FAIL  HF/LF ratio 0.073 -> 0.079 (normal voice lowers it)
+  base  fw    pkg seed 2  FAIL  HF/LF ratio 0.073 -> 0.080 (normal voice lowers it)
+  base  fw    pkg seed 3  FAIL  HF/LF ratio 0.073 -> 0.079 (normal voice lowers it)
+  base  fw    pkg seed 4  FAIL  HF/LF ratio 0.073 -> 0.078 (normal voice lowers it)
+  base  fw    zh  seed 0  FAIL  HF/LF ratio 0.073 -> 0.163 (normal voice lowers it)
+  base  fw    zh  seed 1  FAIL  HF/LF ratio 0.073 -> 0.123 (normal voice lowers it)
+  base  fw    zh  seed 2  FAIL  HF/LF ratio 0.073 -> 0.118 (normal voice lowers it)
+  base  fw    zh  seed 3  FAIL  HF/LF ratio 0.073 -> 0.115 (normal voice lowers it)
+  base  fw    zh  seed 4  FAIL  HF/LF ratio 0.073 -> 0.112 (normal voice lowers it)
+base  4.5en pkg 1/5 seeds pass
+base  4.5en zh  5/5 seeds pass
+base  fw pkg    0/5 seeds pass
+base  fw zh     0/5 seeds pass
+  flash 4.5en pkg seed 0  PASS  HF/LF ratio 0.057 -> 0.057 (whisper raises it)
+  flash 4.5en pkg seed 1  FAIL  HF/LF ratio 0.057 -> 0.054 (whisper raises it)
+  flash 4.5en pkg seed 2  PASS  HF/LF ratio 0.057 -> 0.058 (whisper raises it)
+  flash 4.5en pkg seed 3  FAIL  HF/LF ratio 0.057 -> 0.054 (whisper raises it)
+  flash 4.5en pkg seed 4  FAIL  HF/LF ratio 0.057 -> 0.054 (whisper raises it)
+  flash 4.5en zh  seed 0  FAIL  HF/LF ratio 0.057 -> 0.055 (whisper raises it)
+  flash 4.5en zh  seed 1  PASS  HF/LF ratio 0.057 -> 0.096 (whisper raises it)
+  flash 4.5en zh  seed 2  PASS  HF/LF ratio 0.057 -> 0.068 (whisper raises it)
+  flash 4.5en zh  seed 3  PASS  HF/LF ratio 0.057 -> 0.074 (whisper raises it)
+  flash 4.5en zh  seed 4  FAIL  HF/LF ratio 0.057 -> 0.054 (whisper raises it)
+  flash fw    pkg seed 0  PASS  HF/LF ratio 0.073 -> 0.062 (normal voice lowers it)
+  flash fw    pkg seed 1  PASS  HF/LF ratio 0.073 -> 0.066 (normal voice lowers it)
+  flash fw    pkg seed 2  PASS  HF/LF ratio 0.073 -> 0.066 (normal voice lowers it)
+  flash fw    pkg seed 3  PASS  HF/LF ratio 0.073 -> 0.062 (normal voice lowers it)
+  flash fw    pkg seed 4  PASS  HF/LF ratio 0.073 -> 0.062 (normal voice lowers it)
+  flash fw    zh  seed 0  FAIL  HF/LF ratio 0.073 -> 0.075 (normal voice lowers it)
+  flash fw    zh  seed 1  FAIL  HF/LF ratio 0.073 -> 0.082 (normal voice lowers it)
+  flash fw    zh  seed 2  FAIL  HF/LF ratio 0.073 -> 0.090 (normal voice lowers it)
+  flash fw    zh  seed 3  FAIL  HF/LF ratio 0.073 -> 0.076 (normal voice lowers it)
+  flash fw    zh  seed 4  FAIL  HF/LF ratio 0.073 -> 0.081 (normal voice lowers it)
+flash 4.5en pkg 2/5 seeds pass
+flash 4.5en zh  3/5 seeds pass
+flash fw pkg    5/5 seeds pass
+flash fw zh     0/5 seeds pass
+
+######## 4. de-accent: the ASR on the Sichuan source vs the edits (large-v3-turbo, zh)
+source 终于把伦文婷告发给倒死了现在就等着他的反馈心里有点小紧张
+flash 终于把任文婷告发给倒死了现在就等着他的反馈心里有点小紧张
+base 终于把任文婷告发给倒死了现在就等着他的反馈心里有点小紧张
+
+######## 5. int8 encoder tier (DiT + VAE bf16, as shipped) — render logs and verifier
+[gpu-lock] cookbook-flash-int8 acquired at 20:23:59
+[Prewarm] auk-flash: paged 3 file(s) / 7.6 GB into cache in 0.5s
+# cookbook flash int8 seed 0 — prepared in 1.9s
+  ok   1.1-zeroshot-tts           0.7s wall   6.00s out
+  ok   1.2-instruct-tts           0.3s wall   1.70s out
+  ok   2.1-content-edit           0.7s wall   7.00s out
+  --   2.2-lyric-edit: excluded — known model limit: fails in the torch reference too at the same steps and seed (AB-T-0416)
+  ok   3.1-pitch                  0.6s wall   5.50s out
+  ok   3.2-speed                  0.8s wall   6.86s out
+  ok   3.3-volume                 0.6s wall   5.50s out
+  ok   4.1-emotion                0.7s wall   6.32s out
+  ok   4.2-timbre                 0.7s wall   6.60s out
+  ok   4.3-deaccent               0.8s wall   8.20s out
+  ok   4.4-nonverbal-remove       2.0s wall  22.00s out
+  --   4.4-nonverbal-add: unexpressible — inline position: the cookbook adds a cough BEFORE 'We tested'; .addNonverbal takes only the start or end of the take
+  ok   4.5-whisper                0.8s wall   8.58s out
+  ok   5.1-enhance                0.5s wall   4.98s out
+  --   5.2-separation: unexpressible — no audioSeparation surface (keep the second speaker to start talking)
+  --   5.3-music-sep: unexpressible — no audioSeparation surface (keep the singing voice)
+  --   5.4-tse: unexpressible — no audioSeparation surface (keep the speaker who says "get what")
+  ok   S-insert                   0.7s wall   7.52s out
+  ok   S-remove                   0.6s wall   4.66s out
+  ok   S-nonverbal-add-start      1.2s wall  14.30s out
+  ok   S-dereverb                 0.6s wall   4.98s out
+  ok   S-from-whisper             0.8s wall   8.58s out
+# 13s total render wall → /Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook/flash-int8
+[gpu-lock] cookbook-flash-int8 released at 20:24:14 (exit 0)
+[gpu-lock] cookbook-base-int8 acquired at 20:24:14
+[Prewarm] auk: paged 3 file(s) / 7.6 GB into cache in 0.2s
+# cookbook base int8 seed 0 — prepared in 2.5s
+  ok   1.1-zeroshot-tts           5.6s wall   6.00s out
+  ok   1.2-instruct-tts           1.7s wall   1.70s out
+  ok   2.1-content-edit           4.8s wall   7.00s out
+  --   2.2-lyric-edit: excluded — known model limit: fails in the torch reference too at the same steps and seed (AB-T-0416)
+  ok   3.1-pitch                  3.9s wall   5.50s out
+  ok   3.2-speed                  5.9s wall   6.86s out
+  ok   3.3-volume                 3.8s wall   5.50s out
+  ok   4.1-emotion                4.3s wall   6.32s out
+  ok   4.2-timbre                 4.6s wall   6.60s out
+  ok   4.3-deaccent               5.5s wall   8.20s out
+  ok   4.4-nonverbal-remove      15.4s wall  22.00s out
+  --   4.4-nonverbal-add: unexpressible — inline position: the cookbook adds a cough BEFORE 'We tested'; .addNonverbal takes only the start or end of the take
+  ok   4.5-whisper                5.6s wall   8.58s out
+  ok   5.1-enhance                3.6s wall   4.98s out
+  --   5.2-separation: unexpressible — no audioSeparation surface (keep the second speaker to start talking)
+  --   5.3-music-sep: unexpressible — no audioSeparation surface (keep the singing voice)
+  --   5.4-tse: unexpressible — no audioSeparation surface (keep the speaker who says "get what")
+  ok   S-insert                   4.9s wall   7.52s out
+  ok   S-remove                   4.2s wall   4.66s out
+  ok   S-nonverbal-add-start      8.8s wall  14.30s out
+  ok   S-dereverb                 3.6s wall   4.98s out
+  ok   S-from-whisper             5.6s wall   8.58s out
+# 92s total render wall → /Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook/base-int8
+[gpu-lock] cookbook-base-int8 released at 20:25:49 (exit 0)
+[gpu-lock] cookbook-verify-int8 acquired at 20:25:49
+# ASR: /Users/dustinnielson/.cache/huggingface/hub/models--mlx-community--whisper-large-v3-turbo/snapshots/a4aaeec0636e6fef84abdcbe3544cb2bf7e9f6fb/
+
+## flash int8 seed 0 — /Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook/flash-int8
+  PASS cookbook      1.1-zeroshot-tts       word-acc=100%  “Ladies and gentlemen, it's an honor to have the opportunity to address”
+  PASS cookbook      1.2-instruct-tts       “Welcome home. How was work today?”
+  PASS cookbook      2.1-content-edit       new=True old_gone=True  “do you think the biggest victory is not fighting for what we want and ”
+  n/a  excluded      2.2-lyric-edit         known model limit: fails in the torch reference too at the same steps and seed (AB-T-0416)
+  PASS cookbook      3.1-pitch              190Hz -> 217Hz = +234 cents (target +200)
+  PASS cookbook      3.2-speed              dur 11.0s -> 6.9s = 1.60x (target 1.5x); syllable rate 4.74 -> 5.26/s
+  PASS cookbook      3.3-volume             -26.0 -> -19.1 dB = +6.9 dB (target +10)
+  PASS cookbook      4.1-emotion            content kept=91%  F0 126->147Hz (+274 cents)
+  PASS cookbook      4.2-timbre             F0 202 -> 119Hz = -907 cents (want lower)
+  PASS cookbook      4.3-deaccent           len ratio=1.00  “终于把任文婷告发给倒死了现在就等着他的反馈心里有点小紧张”
+  PASS cookbook      4.4-nonverbal-remove   23.9s -> 22.0s  rms 0.0190 -> 0.0195
+  n/a  unexpressible 4.4-nonverbal-add      inline position: the cookbook adds a cough BEFORE 'We tested'; .addNonverbal takes only the start or end of the take
+  PASS cookbook      4.5-whisper            HF/LF ratio 0.073 -> 0.090 (whisper raises it)
+  PASS cookbook      5.1-enhance            noise floor 0.02956 -> 0.00040 (-37.4 dB)
+  n/a  unexpressible 5.2-separation         no audioSeparation surface (keep the second speaker to start talking)
+  n/a  unexpressible 5.3-music-sep          no audioSeparation surface (keep the singing voice)
+  n/a  unexpressible 5.4-tse                no audioSeparation surface (keep the speaker who says "get what")
+  PASS supplementary S-insert               inserted=True anchor_kept=True  7.5s  “do you think the biggest victory is not fighting for what we want, but”
+  PASS supplementary S-remove               removed=True 7.0s -> 4.7s  “do you think the biggest victory is not fighting for what we want?”
+  PASS supplementary S-nonverbal-add-start  content kept=100%  14.3s (asked 14.3s)
+  PASS supplementary S-dereverb             len ratio=1.00  noise floor 0.02956 -> 0.00004  “大学生利用漏洞免费吃肯德基或许多”
+  info supplementary S-from-whisper         HF/LF ratio 0.073 -> 0.062 (information only: no whispered input in the assets)
+
+  cookbook: 12/12 expressible examples pass (5 of 17 not run: 2.2-lyric-edit, 4.4-nonverbal-add, 5.2-separation, 5.3-music-sep, 5.4-tse); supplementary: 4/4
+
+## base int8 seed 0 — /Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook/base-int8
+  PASS cookbook      1.1-zeroshot-tts       word-acc=100%  “Ladies and gentlemen, it's an honor to have the opportunity to address”
+  PASS cookbook      1.2-instruct-tts       “Welcome home. How was work today?”
+  PASS cookbook      2.1-content-edit       new=True old_gone=True  “do you think the biggest victory is not fighting for what we want and ”
+  n/a  excluded      2.2-lyric-edit         known model limit: fails in the torch reference too at the same steps and seed (AB-T-0416)
+  PASS cookbook      3.1-pitch              190Hz -> 220Hz = +258 cents (target +200)
+  PASS cookbook      3.2-speed              dur 11.0s -> 6.9s = 1.60x (target 1.5x); syllable rate 4.74 -> 4.82/s
+  PASS cookbook      3.3-volume             -26.0 -> -16.8 dB = +9.2 dB (target +10)
+  PASS cookbook      4.1-emotion            content kept=86%  F0 126->186Hz (+679 cents)
+  PASS cookbook      4.2-timbre             F0 202 -> 124Hz = -842 cents (want lower)
+  PASS cookbook      4.3-deaccent           len ratio=1.00  “终于把任文婷告发给倒死了现在就等着他的反馈心里有点小紧张”
+  PASS cookbook      4.4-nonverbal-remove   23.9s -> 22.0s  rms 0.0190 -> 0.0209
+  n/a  unexpressible 4.4-nonverbal-add      inline position: the cookbook adds a cough BEFORE 'We tested'; .addNonverbal takes only the start or end of the take
+  PASS cookbook      4.5-whisper            HF/LF ratio 0.073 -> 0.587 (whisper raises it)
+  PASS cookbook      5.1-enhance            noise floor 0.02956 -> 0.00055 (-34.6 dB)
+  n/a  unexpressible 5.2-separation         no audioSeparation surface (keep the second speaker to start talking)
+  n/a  unexpressible 5.3-music-sep          no audioSeparation surface (keep the singing voice)
+  n/a  unexpressible 5.4-tse                no audioSeparation surface (keep the speaker who says "get what")
+  PASS supplementary S-insert               inserted=True anchor_kept=True  7.5s  “do you think the biggest victory is not fighting for what we want, but”
+  PASS supplementary S-remove               removed=True 7.0s -> 4.7s  “do you think the biggest victory is not fighting for what we want?”
+  PASS supplementary S-nonverbal-add-start  content kept=100%  14.3s (asked 14.3s)
+  PASS supplementary S-dereverb             len ratio=1.00  noise floor 0.02956 -> 0.00005  “大学生利用漏洞免费吃肯德基获取”
+  info supplementary S-from-whisper         HF/LF ratio 0.073 -> 0.077 (information only: no whispered input in the assets)
+
+  cookbook: 12/12 expressible examples pass (5 of 17 not run: 2.2-lyric-edit, 4.4-nonverbal-add, 5.2-separation, 5.3-music-sep, 5.4-tse); supplementary: 4/4
+[gpu-lock] cookbook-verify-int8 released at 20:25:52 (exit 0)
+
+######## 5. int4 encoder tier (DiT + VAE bf16, as shipped) — render logs and verifier
+[gpu-lock] cookbook-flash-int4 acquired at 20:25:52
+[Prewarm] auk-flash: paged 3 file(s) / 5.9 GB into cache in 0.3s
+# cookbook flash int4 seed 0 — prepared in 1.6s
+  ok   1.1-zeroshot-tts           0.7s wall   6.00s out
+  ok   1.2-instruct-tts           0.3s wall   1.70s out
+  ok   2.1-content-edit           0.7s wall   7.00s out
+  --   2.2-lyric-edit: excluded — known model limit: fails in the torch reference too at the same steps and seed (AB-T-0416)
+  ok   3.1-pitch                  0.6s wall   5.50s out
+  ok   3.2-speed                  0.8s wall   6.86s out
+  ok   3.3-volume                 0.6s wall   5.50s out
+  ok   4.1-emotion                0.7s wall   6.32s out
+  ok   4.2-timbre                 0.7s wall   6.60s out
+  ok   4.3-deaccent               0.8s wall   8.20s out
+  ok   4.4-nonverbal-remove       2.0s wall  22.00s out
+  --   4.4-nonverbal-add: unexpressible — inline position: the cookbook adds a cough BEFORE 'We tested'; .addNonverbal takes only the start or end of the take
+  ok   4.5-whisper                0.8s wall   8.58s out
+  ok   5.1-enhance                0.5s wall   4.98s out
+  --   5.2-separation: unexpressible — no audioSeparation surface (keep the second speaker to start talking)
+  --   5.3-music-sep: unexpressible — no audioSeparation surface (keep the singing voice)
+  --   5.4-tse: unexpressible — no audioSeparation surface (keep the speaker who says "get what")
+  ok   S-insert                   0.7s wall   7.52s out
+  ok   S-remove                   0.6s wall   4.66s out
+  ok   S-nonverbal-add-start      1.2s wall  14.30s out
+  ok   S-dereverb                 0.5s wall   4.98s out
+  ok   S-from-whisper             0.8s wall   8.58s out
+# 13s total render wall → /Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook/flash-int4
+[gpu-lock] cookbook-flash-int4 released at 20:26:07 (exit 0)
+[gpu-lock] cookbook-base-int4 acquired at 20:26:07
+[Prewarm] auk: paged 3 file(s) / 5.9 GB into cache in 0.2s
+# cookbook base int4 seed 0 — prepared in 2.3s
+  ok   1.1-zeroshot-tts           5.5s wall   6.00s out
+  ok   1.2-instruct-tts           1.7s wall   1.70s out
+  ok   2.1-content-edit           4.8s wall   7.00s out
+  --   2.2-lyric-edit: excluded — known model limit: fails in the torch reference too at the same steps and seed (AB-T-0416)
+  ok   3.1-pitch                  3.8s wall   5.50s out
+  ok   3.2-speed                  5.9s wall   6.86s out
+  ok   3.3-volume                 3.8s wall   5.50s out
+  ok   4.1-emotion                4.3s wall   6.32s out
+  ok   4.2-timbre                 4.6s wall   6.60s out
+  ok   4.3-deaccent               5.5s wall   8.20s out
+  ok   4.4-nonverbal-remove      15.4s wall  22.00s out
+  --   4.4-nonverbal-add: unexpressible — inline position: the cookbook adds a cough BEFORE 'We tested'; .addNonverbal takes only the start or end of the take
+  ok   4.5-whisper                5.6s wall   8.58s out
+  ok   5.1-enhance                3.6s wall   4.98s out
+  --   5.2-separation: unexpressible — no audioSeparation surface (keep the second speaker to start talking)
+  --   5.3-music-sep: unexpressible — no audioSeparation surface (keep the singing voice)
+  --   5.4-tse: unexpressible — no audioSeparation surface (keep the speaker who says "get what")
+  ok   S-insert                   4.9s wall   7.52s out
+  ok   S-remove                   4.2s wall   4.66s out
+  ok   S-nonverbal-add-start      8.8s wall  14.30s out
+  ok   S-dereverb                 3.6s wall   4.98s out
+  ok   S-from-whisper             5.6s wall   8.58s out
+# 92s total render wall → /Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook/base-int4
+[gpu-lock] cookbook-base-int4 released at 20:27:41 (exit 0)
+[gpu-lock] cookbook-verify-int4 acquired at 20:27:41
+# ASR: /Users/dustinnielson/.cache/huggingface/hub/models--mlx-community--whisper-large-v3-turbo/snapshots/a4aaeec0636e6fef84abdcbe3544cb2bf7e9f6fb/
+
+## flash int4 seed 0 — /Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook/flash-int4
+  PASS cookbook      1.1-zeroshot-tts       word-acc=100%  “Ladies and gentlemen, it's an honor to have the opportunity to address”
+  PASS cookbook      1.2-instruct-tts       “Welcome home. How was work today?”
+  PASS cookbook      2.1-content-edit       new=True old_gone=True  “do you think the biggest victory is not fighting for what we want and ”
+  n/a  excluded      2.2-lyric-edit         known model limit: fails in the torch reference too at the same steps and seed (AB-T-0416)
+  PASS cookbook      3.1-pitch              190Hz -> 217Hz = +234 cents (target +200)
+  PASS cookbook      3.2-speed              dur 11.0s -> 6.9s = 1.60x (target 1.5x); syllable rate 4.74 -> 4.82/s
+  PASS cookbook      3.3-volume             -26.0 -> -19.2 dB = +6.8 dB (target +10)
+  PASS cookbook      4.1-emotion            content kept=94%  F0 126->150Hz (+307 cents)
+  PASS cookbook      4.2-timbre             F0 202 -> 119Hz = -920 cents (want lower)
+  PASS cookbook      4.3-deaccent           len ratio=1.00  “终于把任文婷告发给倒死了现在就等着他的反馈心里有点小紧张”
+  PASS cookbook      4.4-nonverbal-remove   23.9s -> 22.0s  rms 0.0190 -> 0.0196
+  n/a  unexpressible 4.4-nonverbal-add      inline position: the cookbook adds a cough BEFORE 'We tested'; .addNonverbal takes only the start or end of the take
+  PASS cookbook      4.5-whisper            HF/LF ratio 0.073 -> 0.089 (whisper raises it)
+  PASS cookbook      5.1-enhance            noise floor 0.02956 -> 0.00046 (-36.2 dB)
+  n/a  unexpressible 5.2-separation         no audioSeparation surface (keep the second speaker to start talking)
+  n/a  unexpressible 5.3-music-sep          no audioSeparation surface (keep the singing voice)
+  n/a  unexpressible 5.4-tse                no audioSeparation surface (keep the speaker who says "get what")
+  PASS supplementary S-insert               inserted=True anchor_kept=True  7.5s  “do you think the biggest victory is not fighting for what we want, but”
+  PASS supplementary S-remove               removed=True 7.0s -> 4.7s  “do you think the biggest victory is not fighting for what we want?”
+  PASS supplementary S-nonverbal-add-start  content kept=100%  14.3s (asked 14.3s)
+  PASS supplementary S-dereverb             len ratio=1.00  noise floor 0.02956 -> 0.00005  “大学生利用漏洞免费吃肯德基获取”
+  info supplementary S-from-whisper         HF/LF ratio 0.073 -> 0.064 (information only: no whispered input in the assets)
+
+  cookbook: 12/12 expressible examples pass (5 of 17 not run: 2.2-lyric-edit, 4.4-nonverbal-add, 5.2-separation, 5.3-music-sep, 5.4-tse); supplementary: 4/4
+
+## base int4 seed 0 — /Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/cookbook/base-int4
+  PASS cookbook      1.1-zeroshot-tts       word-acc=100%  “Ladies and gentlemen, it's an honor to have the opportunity to address”
+  PASS cookbook      1.2-instruct-tts       “Welcome home. How was work today?”
+  PASS cookbook      2.1-content-edit       new=True old_gone=True  “do you think the biggest victory is not fighting for what we want and ”
+  n/a  excluded      2.2-lyric-edit         known model limit: fails in the torch reference too at the same steps and seed (AB-T-0416)
+  PASS cookbook      3.1-pitch              190Hz -> 220Hz = +258 cents (target +200)
+  PASS cookbook      3.2-speed              dur 11.0s -> 6.9s = 1.60x (target 1.5x); syllable rate 4.74 -> 4.68/s
+  PASS cookbook      3.3-volume             -26.0 -> -16.8 dB = +9.2 dB (target +10)
+  PASS cookbook      4.1-emotion            content kept=91%  F0 126->169Hz (+513 cents)
+  PASS cookbook      4.2-timbre             F0 202 -> 123Hz = -851 cents (want lower)
+  PASS cookbook      4.3-deaccent           len ratio=1.00  “终于把任文婷告发给倒死了现在就等着他的反馈心里有点小紧张”
+  PASS cookbook      4.4-nonverbal-remove   23.9s -> 22.0s  rms 0.0190 -> 0.0210
+  n/a  unexpressible 4.4-nonverbal-add      inline position: the cookbook adds a cough BEFORE 'We tested'; .addNonverbal takes only the start or end of the take
+  PASS cookbook      4.5-whisper            HF/LF ratio 0.073 -> 0.396 (whisper raises it)
+  PASS cookbook      5.1-enhance            noise floor 0.02956 -> 0.00076 (-31.8 dB)
+  n/a  unexpressible 5.2-separation         no audioSeparation surface (keep the second speaker to start talking)
+  n/a  unexpressible 5.3-music-sep          no audioSeparation surface (keep the singing voice)
+  n/a  unexpressible 5.4-tse                no audioSeparation surface (keep the speaker who says "get what")
+  PASS supplementary S-insert               inserted=True anchor_kept=True  7.5s  “do you think the biggest victory is not fighting for what we want, but”
+  PASS supplementary S-remove               removed=True 7.0s -> 4.7s  “do you think the biggest victory is not fighting for what we want?”
+  PASS supplementary S-nonverbal-add-start  content kept=100%  14.3s (asked 14.3s)
+  PASS supplementary S-dereverb             len ratio=1.00  noise floor 0.02956 -> 0.00005  “大学生利用漏洞免费吃肯德基获取”
+  info supplementary S-from-whisper         HF/LF ratio 0.073 -> 0.077 (information only: no whispered input in the assets)
+
+  cookbook: 12/12 expressible examples pass (5 of 17 not run: 2.2-lyric-edit, 4.4-nonverbal-add, 5.2-separation, 5.3-music-sep, 5.4-tse); supplementary: 4/4
+[gpu-lock] cookbook-verify-int4 released at 20:27:44 (exit 0)

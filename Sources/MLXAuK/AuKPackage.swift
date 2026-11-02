@@ -234,8 +234,11 @@ public enum AuKSurfaces {
     }
 
     /// The template language for an edit: Mandarin when the words it carries are (the cookbook gives a CN template for
-    /// the content and timbre edits), else English — AuK's trained phrasings in either language.
+    /// the content and timbre edits), else English — AuK's trained phrasings in either language. To-whisper always takes
+    /// the CN template (the cookbook's own example): the EN one leaves the spectrum where it was on an EN take and a zh
+    /// one alike, on both variants (AB-T-0416, MEASUREMENTS "Cookbook").
     nonisolated static func language(for op: SpeechEditOperation) -> AukLanguage {
+        if case .style("whisper") = op { return .zh }
         let words: [String]
         switch op {
         case .replaceWords(let original, let new): words = [original, new]
