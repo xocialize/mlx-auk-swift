@@ -19,9 +19,13 @@ extension SPDXLicense {
 /// byte-ratio estimate from `referenceTranscript`), or instruct TTS from `emotion: .textDescription` with no reference
 /// (a voice designed from the description; `targetDuration` or a speaking-rate estimate).
 ///
-/// `speechEdit`: `.emotion` (AuK's 8 labels), `.style("whisper")` / `.style("normal")` (whisper conversion both ways),
-/// `.denoise`. The output keeps the source's length. The transcript is not needed by AuK and is returned unchanged.
-/// AuK's content, speed, pitch, volume, timbre and de-accent edits wait on the contract (AB-A-0188).
+/// `speechEdit` (contract 1.59.0, AB-A-0188 / AB-D-0200): `.emotion` (AuK's 8 labels), `.style("whisper")` /
+/// `.style("normal")` (whisper conversion both ways), `.denoise`, `.dereverberate`, the content edits
+/// (`.replaceWords` / `.insertWords` / `.removeWords`), `.speed` / `.pitch` / `.volume` on AuK's trained grids,
+/// `.timbre`, `.deAccent`, and `.addNonverbal` / `.removeNonverbal` of one named sound. AuK conditions on the audio
+/// alone (`transcript: .unused`); a transcript given is echoed, or edited for a content edit, and sharpens the length
+/// estimate. The output keeps the source's length unless the edit changes it: then `targetDuration`, else a speed
+/// edit scales the source by 1 / factor and a content edit estimates from the text (`AuKSurfaces.editSeconds`).
 ///
 /// `metaData` (package-specific, C5): `seed` (int) for TTS — speechEdit takes the request's `seed`; `nfe` and
 /// `cfgStrength` (Base only — Flash pins its distilled 4-step recipe).
@@ -63,8 +67,8 @@ public final class AuKSession {
         MLX.Memory.clearCache()
     }
 
-    func render(_ instruction: AukInstruction, audio: (samples: [Float], rate: Int)?, seconds: Double?, seed: UInt64,
-                meta: MetaData) throws -> Data {
+    func render(_ instruction: AukInstruction, language: AukLanguage = .en, audio: (samples: [Float], rate: Int)?,
+                seconds: Double?, seed: UInt64, meta: MetaData) throws -> Data {
         guard let pipeline else { throw PackageError.notLoaded }
         var sampling: SamplingConfig? = nil
         if !pipeline.config.is_flash, meta.intValue("nfe") != nil || meta.doubleValue("cfgStrength") != nil {
@@ -74,7 +78,7 @@ public final class AuKSession {
             sampling = s
         }
         let wave = try pipeline.generate(
-            AukRequest(instruction: instruction.text(), audio: audio?.samples, sampleRate: audio?.rate ?? 24000,
+            AukRequest(instruction: instruction.text(language), audio: audio?.samples, sampleRate: audio?.rate ?? 24000,
                        genSeconds: seconds, seed: seed, sampling: sampling),
             onStep: { RunProgress.report(.denoise, step: $0, totalSteps: $1) })
         return AuKAudioIO.encodeWAV16(samples: wave, sampleRate: pipeline.sampleRate)
@@ -86,18 +90,36 @@ public enum AuKSurfaces {
     public nonisolated static let styleLabels = ["whisper", "normal"]
     /// Training utterances are 1–35 s; upstream's ComfyUI node caps source + target at 30 s.
     public nonisolated static let maxInputSeconds: Double = 30
+    /// The nonverbal sounds the cookbook names (§4.4: breaths, laughs, coughs; humming in its remove example), as
+    /// singular labels: `.addNonverbal` says "a cough", `.removeNonverbal` "all coughs" (`nonverbalPhrase`).
+    public nonisolated static let nonverbalSounds = ["breath", "laugh", "cough", "humming"]
     /// Instruct-TTS length estimate when no targetDuration is given (Latin ≈ 14 chars/s, CJK ≈ 4.5 chars/s).
     nonisolated static func estimatedSpeechSeconds(_ text: String) -> Double {
+        max(0.8, speechSeconds(text))
+    }
+
+    /// The same speaking-rate estimate without a floor — for the length a content edit adds or takes away.
+    nonisolated static func speechSeconds(_ text: String) -> Double {
         var cjk = 0, other = 0
         for s in text.unicodeScalars {
-            if (0x4E00 ... 0x9FFF).contains(s.value) || (0x3400 ... 0x4DBF).contains(s.value) { cjk += 1 } else { other += 1 }
+            if isCJK(s) { cjk += 1 } else { other += 1 }
         }
-        return max(0.8, Double(cjk) / 4.5 + Double(other) / 14.0)
+        return Double(cjk) / 4.5 + Double(other) / 14.0
+    }
+
+    nonisolated static func isCJK(_ s: Unicode.Scalar) -> Bool {
+        (0x4E00 ... 0x9FFF).contains(s.value) || (0x3400 ... 0x4DBF).contains(s.value)
     }
 
     nonisolated static func speechEditControls() -> SpeechEditControls {
-        SpeechEditControls(operations: [.emotion, .style, .denoise], emotionLabels: emotionLabels, styleLabels: styleLabels,
-                           paralinguisticTags: [], maxInputSeconds: maxInputSeconds)
+        SpeechEditControls(
+            operations: [.emotion, .style, .denoise, .dereverberate, .replaceWords, .insertWords, .removeWords,
+                         .speed, .pitch, .volume, .timbre, .deAccent, .addNonverbal, .removeNonverbal],
+            emotionLabels: emotionLabels, styleLabels: styleLabels, paralinguisticTags: [],
+            nonverbalSounds: nonverbalSounds,
+            speedFactors: AukInstruction.speedFactors, pitchSemitones: AukInstruction.pitchSteps,
+            volumeDecibels: AukInstruction.volumeSteps,
+            transcript: .unused, supportsTargetDuration: true, maxInputSeconds: maxInputSeconds)
     }
 
     nonisolated static func manifest(variant: AuKVariant) -> PackageManifest {
@@ -134,9 +156,11 @@ public enum AuKSurfaces {
                 SpeechEditContract.descriptor(
                     name: name + "-edit",
                     summary: "AuK\(variant == .flash ? "-Flash" : "") (Tencent Hunyuan) speech editor (.wav, 24 kHz mono; en / zh): "
-                        + "an existing take re-delivered with an emotion (happy, angry, sad, fearful, surprised, disgusted, calm, "
-                        + "excited), converted to or from a whisper, or denoised — same voice, same words, same length. ≤ 30 s. "
-                        + "RESEARCH LICENCE (Qwen2.5-Omni encoder): not for commercial use.",
+                        + "an existing take in the same voice with words replaced, inserted or removed; faster or slower, higher "
+                        + "or lower, louder or quieter on AuK's trained steps; a new emotion, timbre or accent; to or from a "
+                        + "whisper; denoised or dereverberated; or a breath, laugh, cough or humming added at an edge or removed. "
+                        + "Needs no transcript. Content and speed edits change the length: pass targetDuration to fit a cue. "
+                        + "≤ 30 s. RESEARCH LICENCE (Qwen2.5-Omni encoder): not for commercial use.",
                     controls: speechEditControls()),
             ]
         )
@@ -158,10 +182,130 @@ public enum AuKSurfaces {
             }
         case .denoise:
             return .denoise
+        case .dereverberate:
+            return .dereverberate
+        case .replaceWords(let original, let new):
+            return .replace(original: original, new: new)
+        case .insertWords(let text, let anchor, let before):
+            return .insert(text: text, anchor: anchor, before: before)
+        case .removeWords(let text, let anchor, let before):
+            return .remove(text: text, anchor: anchor, before: before)
+        case .speed(let factor):
+            guard AukInstruction.speedFactors.contains(where: { abs($0 - factor) < 1e-9 }) else {
+                throw PackageError.unsupportedRequestFeature("speed \(factor)x — AuK's trained factors: 0.5 / 0.75 / 1.25 / 1.5 / 2.0")
+            }
+            return .speed(factor: factor)
+        case .pitch(let semitones):
+            guard AukInstruction.pitchSteps.contains(semitones) else {
+                throw PackageError.unsupportedRequestFeature("pitch \(semitones) semitones — AuK's trained steps: ±1…3")
+            }
+            return .pitch(semitones: semitones)
+        case .volume(let dB):
+            guard AukInstruction.volumeSteps.contains(dB) else {
+                throw PackageError.unsupportedRequestFeature("volume \(dB) dB — AuK's trained steps: ±5 / 10 / 15")
+            }
+            return .volume(dB: dB)
+        case .timbre(let description):
+            return .timbre(description: description)
+        case .deAccent:
+            return .deAccent
+        case .addNonverbal(let sound, let atEnd):
+            return .addNonverbal(sound: try nonverbalPhrase(sound, plural: false), atEnd: atEnd)
+        case .removeNonverbal(let sound?):
+            return .removeNonverbal(try nonverbalPhrase(sound, plural: true))
+        case .removeNonverbal(nil):
+            // the cookbook's remove template names one kind of sound; "every sound" has no trained phrasing
+            throw PackageError.unsupportedRequestFeature(
+                "removeNonverbal needs a sound — AuK removes one kind at a time: \(nonverbalSounds.joined(separator: ", "))")
         case .paralinguistic, .trimSilence:
             throw PackageError.unsupportedRequestFeature("speech edit kind not declared by AuK")
         @unknown default:
             throw PackageError.unsupportedRequestFeature("speech edit kind not known to this package")
+        }
+    }
+
+    /// A declared nonverbal label in the cookbook's words: "cough" (add) / "coughs" (remove); a mass noun in -ing
+    /// ("humming") stays as it is.
+    nonisolated static func nonverbalPhrase(_ sound: String, plural: Bool) throws -> String {
+        guard nonverbalSounds.contains(sound) else {
+            throw PackageError.unsupportedRequestFeature("nonverbal sound '\(sound)' — declared: \(nonverbalSounds.joined(separator: ", "))")
+        }
+        return plural && !sound.hasSuffix("ing") ? sound + "s" : sound
+    }
+
+    /// The template language for an edit: Mandarin when the words it carries are (the cookbook gives a CN template for
+    /// the content and timbre edits), else English — AuK's trained phrasings in either language.
+    nonisolated static func language(for op: SpeechEditOperation) -> AukLanguage {
+        let words: [String]
+        switch op {
+        case .replaceWords(let original, let new): words = [original, new]
+        case .insertWords(let text, let anchor, _): words = [text, anchor]
+        case .removeWords(let text, let anchor, _): words = [text, anchor ?? ""]
+        case .timbre(let description): words = [description]
+        default: words = []
+        }
+        return words.contains { $0.unicodeScalars.contains(where: isCJK) } ? .zh : .en
+    }
+
+    /// The edited take's length in seconds, or nil for the source's own length (upstream's default when `gen_seconds`
+    /// is unset). A `targetDuration` wins. Otherwise a speed edit scales the source by 1 / factor (COOKBOOK §3.2), and a
+    /// content edit takes upstream's `get_gen_duration` byte ratio when the transcript is known, else adds or takes away
+    /// the speaking-rate estimate of the changed words. The nonverbal edits keep the source length: pass a
+    /// `targetDuration` to fit a cue.
+    nonisolated static func editSeconds(for req: SpeechEditRequest, sourceSeconds: Double) -> Double? {
+        if let seconds = req.targetDuration { return seconds }
+        let before = req.transcript.trimmingCharacters(in: .whitespacesAndNewlines)
+        let after = editedTranscript(for: req.edit, transcript: before)
+        let byteRatio = before.isEmpty || after.isEmpty ? nil
+            : AukInstruction.estimatedSeconds(referenceSeconds: sourceSeconds, referenceText: before, targetText: after)
+        switch req.edit {
+        case .speed(let factor):
+            return sourceSeconds / factor
+        case .replaceWords(let original, let new):
+            return byteRatio ?? max(0.5, sourceSeconds + speechSeconds(new) - speechSeconds(original))
+        case .insertWords(let text, _, _):
+            return byteRatio ?? sourceSeconds + speechSeconds(text)
+        case .removeWords(let text, _, _):
+            return byteRatio ?? max(0.5, sourceSeconds - speechSeconds(text))
+        default:
+            return nil
+        }
+    }
+
+    /// The text the edited take should carry (`SpeechEditResponse.transcript`): the request's transcript, with the
+    /// words changed for a content edit — or "" when there is no transcript, or a content edit's words are not in it.
+    nonisolated static func editedTranscript(for op: SpeechEditOperation, transcript: String) -> String {
+        let text = transcript.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty else { return "" }
+        func spaced(_ words: String) -> String {
+            words.unicodeScalars.contains(where: isCJK) ? "" : " "
+        }
+        func tidy(_ s: String) -> String {
+            s.split(separator: " ", omittingEmptySubsequences: true).joined(separator: " ")
+                .replacingOccurrences(of: " ,", with: ",").replacingOccurrences(of: " .", with: ".")
+        }
+        switch op {
+        case .replaceWords(let original, let new):
+            guard let r = text.range(of: original) else { return "" }
+            return text.replacingCharacters(in: r, with: new)
+        case .insertWords(let words, let anchor, let before):
+            guard let r = text.range(of: anchor) else { return "" }
+            let gap = spaced(words + anchor)
+            return before ? text.replacingCharacters(in: r, with: words + gap + anchor)
+                          : text.replacingCharacters(in: r, with: anchor + gap + words)
+        case .removeWords(let words, let anchor, let before):
+            var r: Range<String.Index>?
+            if let anchor {
+                guard let a = text.range(of: anchor) else { return "" }
+                r = before ? text.range(of: words, options: .backwards, range: text.startIndex ..< a.lowerBound)
+                           : text.range(of: words, range: a.upperBound ..< text.endIndex)
+            } else {
+                r = text.range(of: words)
+            }
+            guard let r else { return "" }
+            return tidy(text.replacingCharacters(in: r, with: ""))
+        default:
+            return text
         }
     }
 
@@ -281,16 +425,28 @@ enum AuKRun {
             return TTSResponse(audio: Audio(format: .wav, data: wav, sampleRate: 24000, channels: 1))
         case .speechEdit:
             guard let req = request as? SpeechEditRequest else { throw PackageError.unsupportedCapability(request.capability) }
+            // the engine's own pre-flight (contract 1.59.0), so a directly driven package refuses identically
+            if let why = AuKSurfaces.speechEditControls().refusal(for: req) {
+                throw PackageError.unsupportedRequestFeature(why)
+            }
             let instruction = try AuKSurfaces.instruction(for: req.edit)
             let decoded = try AuKAudioIO.decode(req.audio)
             try checkLength(decoded, what: "take")
+            let sourceSeconds = Double(decoded.samples.count) / Double(decoded.sampleRate)
+            let seconds = AuKSurfaces.editSeconds(for: req, sourceSeconds: sourceSeconds)
+            if let s = seconds, s > AuKSurfaces.maxInputSeconds {
+                throw PackageError.unsupportedRequestFeature(String(
+                    format: "the edited take would be %.1f s — longer than the %.0f s AuK declares; split the take",
+                    s, AuKSurfaces.maxInputSeconds))
+            }
             let seed = req.seed ?? UInt64.random(in: 0 ... UInt64.max)
             try Task.checkCancellation()
-            let wav = try session.render(instruction, audio: (decoded.samples, decoded.sampleRate), seconds: nil, seed: seed,
+            let wav = try session.render(instruction, language: AuKSurfaces.language(for: req.edit),
+                                         audio: (decoded.samples, decoded.sampleRate), seconds: seconds, seed: seed,
                                          meta: req.metaData)
             try Task.checkCancellation()
             return SpeechEditResponse(audio: Audio(format: .wav, data: wav, sampleRate: 24000, channels: 1),
-                                      transcript: req.transcript)
+                                      transcript: AuKSurfaces.editedTranscript(for: req.edit, transcript: req.transcript))
         default:
             throw PackageError.unsupportedCapability(request.capability)
         }

@@ -1,0 +1,40 @@
+== flash bf16
+[License] tencent/AuK-Flash: weight license LicenseRef-Qwen-Research is outside permissiveOnly — declared and allowed to load (advisory enforcement).
+  [LIC] .permissiveOnly registered with 1 advisories — advisory only
+[Prewarm] auk-flash: paged 3 file(s) / 10.8 GB into cache in 0.9s
+  [VAL] flash bf16 prepared in 7.6s (warm-up incl.); phys 0.01 → 12.71 GB (resident +12.71)
+  [RUN] tts-clone: 5.50s audio, -24.7 dBFS, 2.45s wall (RTF 0.45), phys 13.61 GB
+  [RUN] tts-design: 2.36s audio, -23.3 dBFS, 0.47s wall (RTF 0.20), phys 13.31 GB
+  [RUN] edit-happy: 6.32s audio, -25.2 dBFS, 0.66s wall (RTF 0.10), phys 13.41 GB
+  [RUN] edit-whisper: 6.32s audio, -25.7 dBFS, 0.66s wall (RTF 0.10), phys 13.57 GB
+  [RUN] edit-denoise: 4.98s audio, -28.4 dBFS, 0.57s wall (RTF 0.11), phys 13.29 GB
+  [RUN] edit-replace: 7.00s audio, -34.1 dBFS, 0.71s wall (RTF 0.10), phys 13.48 GB
+  [RUN] edit-speed: 7.34s audio, -18.4 dBFS, 0.82s wall (RTF 0.11), phys 13.62 GB
+  [RUN] edit-pitch: 5.50s audio, -30.9 dBFS, 0.60s wall (RTF 0.11), phys 13.51 GB
+  [RUN] edit-nonverbal: 22.00s audio, -34.3 dBFS, 2.62s wall (RTF 0.12), phys 13.26 GB
+  [REQ] undeclared emotion refused: unsupportedRequestFeature("edit(.emotion(\"furious\")) — not one of the emotion labels this surface 
+  [REQ] off-grid speed refused: unsupportedRequestFeature("edit(.speed(1.1)) — not one of the factors this surface declares (SpeechE
+  [VAL] after evict 9.07 GB; malloc pressure relief released 0.00 GB → 9.07 GB
+[Prewarm] auk-flash: paged 3 file(s) / 10.8 GB into cache in 0.3s
+  [VAL] second cycle: phys after re-prepare 12.66 GB (first 12.71), after second evict 9.13 GB
+  [VAL] flash bf16: resident 12.71 GB, peak phys 13.62 GB (activation 0.91 GB), after evict 9.07 GB (MLX active 0.00, cache 0.00 GB)
+== base bf16
+[License] tencent/AuK: weight license LicenseRef-Qwen-Research is outside permissiveOnly — declared and allowed to load (advisory enforcement).
+  [LIC] .permissiveOnly registered with 1 advisories — advisory only
+[Prewarm] auk: paged 3 file(s) / 10.8 GB into cache in 0.5s
+  [VAL] base bf16 prepared in 2.8s (warm-up incl.); phys 0.01 → 12.79 GB (resident +12.78)
+  [RUN] tts-clone: 5.50s audio, -25.5 dBFS, 5.68s wall (RTF 1.03), phys 13.30 GB
+  [RUN] tts-design: 2.36s audio, -24.9 dBFS, 1.72s wall (RTF 0.73), phys 13.77 GB
+  [RUN] edit-happy: 6.32s audio, -25.9 dBFS, 4.46s wall (RTF 0.71), phys 13.70 GB
+  [RUN] edit-whisper: 6.32s audio, -25.0 dBFS, 4.51s wall (RTF 0.71), phys 13.65 GB
+  [RUN] edit-denoise: 4.98s audio, -28.5 dBFS, 3.76s wall (RTF 0.76), phys 13.31 GB
+  [RUN] edit-replace: 7.00s audio, -34.6 dBFS, 4.97s wall (RTF 0.71), phys 13.40 GB
+  [RUN] edit-speed: 7.34s audio, -18.7 dBFS, 6.31s wall (RTF 0.86), phys 13.77 GB
+  [RUN] edit-pitch: 5.50s audio, -31.4 dBFS, 4.02s wall (RTF 0.73), phys 13.75 GB
+  [RUN] edit-nonverbal: 22.00s audio, -33.5 dBFS, 16.12s wall (RTF 0.73), phys 13.76 GB
+  [REQ] undeclared emotion refused: unsupportedRequestFeature("edit(.emotion(\"furious\")) — not one of the emotion labels this surface 
+  [REQ] off-grid speed refused: unsupportedRequestFeature("edit(.speed(1.1)) — not one of the factors this surface declares (SpeechE
+  [VAL] after evict 8.96 GB; malloc pressure relief released 0.00 GB → 8.96 GB
+[Prewarm] auk: paged 3 file(s) / 10.8 GB into cache in 0.3s
+  [VAL] second cycle: phys after re-prepare 12.82 GB (first 12.79), after second evict 8.99 GB
+  [VAL] base bf16: resident 12.78 GB, peak phys 13.77 GB (activation 0.99 GB), after evict 8.96 GB (MLX active 0.00, cache 0.00 GB)

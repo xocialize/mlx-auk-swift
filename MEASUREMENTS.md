@@ -137,3 +137,45 @@ footprint (`receipts/validate.log`):
   leak.
 - **Bug found:** the gate CLI's `DispatchSemaphore.wait()` on the main thread deadlocked the engine's inference actor
   (0 % CPU); fixed with top-level `await`.
+
+## Contract 1.59.0 — the AuK edit kinds (2026-11-01)
+
+mlx-engine-swift 0.67.0 → 0.74.0 (AB-A-0188, AB-D-0200). `MLXAuK` now declares fourteen speechEdit kinds:
+- emotion, style, denoise, dereverberate;
+- replaceWords, insertWords, removeWords;
+- speed, pitch and volume, on AuK's trained grids;
+- timbre, deAccent;
+- addNonverbal and removeNonverbal, for breath, laugh, cough and humming.
+
+It also declares `transcript: .unused` and `supportsTargetDuration: true`.
+
+Without a `targetDuration`:
+- a speed edit scales the source length by 1 / factor;
+- a content edit uses upstream's byte ratio when the transcript is known, else the speaking-rate estimate of the
+  changed words;
+- every other edit keeps the source length.
+
+`removeNonverbal(sound: nil)` is refused, because the cookbook's remove template names one sound. Offline conformance:
+21 / 21.
+
+**Live, `auk-gates validate`, bf16, M5 Max** (`receipts/validate-1.59.log`). The run adds four lanes on the cookbook's
+own inputs, plus an off-grid refusal:
+
+| lane | input → output | Flash RTF | Base RTF |
+|---|---|---|---|
+| replaceWords, targetDuration 7.0 | 7.01 → 7.00 s | 0.10 | 0.71 |
+| speed ×1.5, no targetDuration | 11.00 → 7.34 s | 0.11 | 0.86 |
+| pitch +2 | 5.50 → 5.50 s | 0.11 | 0.73 |
+| removeNonverbal humming, targetDuration 22.0 | 23.88 → 22.00 s | 0.12 | 0.73 |
+
+- ASR (mlx-whisper large-v3-turbo): the replace edit reads "…not fighting for what we want and living well with dreams
+  unmet?" on both variants, and the speed edit keeps every word.
+- An off-grid `.speed(1.1)` is refused by the engine before admission.
+- Resident memory: 12.71 GB (Flash) and 12.78 GB (Base). Peak phys: 13.62 and 13.77 GB, inside the declared bf16
+  footprint.
+- Not measured here:
+  - the int8 and int4 tiers on the new lanes;
+  - the edit kinds that have no lane (insert, remove, volume, timbre, de-accent, dereverb, add nonverbal);
+  - the pitch shift itself, in cents.
+
+  The cookbook verifier in AB-T-0416 is for those.

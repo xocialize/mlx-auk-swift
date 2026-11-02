@@ -78,8 +78,10 @@ public enum AukInstruction: Sendable, Equatable {
         case (.replace(let o, let n), .zh): return "把‘\(o)’改成‘\(n)’"
         case (.insert(let t, let a, let before), .en): return "Add '\(t)' \(before ? "before" : "after") '\(a)'."
         case (.insert(let t, let a, let before), .zh): return "在‘\(a)’\(before ? "前面" : "后面")加上‘\(t)’"
-        case (.remove(let t, nil, _), _): return "Remove '\(t)'."
-        case (.remove(let t, let a?, let before), _): return "Remove '\(t)' \(before ? "before" : "after") '\(a)'."
+        case (.remove(let t, nil, _), .en): return "Remove '\(t)'."
+        case (.remove(let t, nil, _), .zh): return "删掉‘\(t)’"
+        case (.remove(let t, let a?, let before), .en): return "Remove '\(t)' \(before ? "before" : "after") '\(a)'."
+        case (.remove(let t, let a?, let before), .zh): return "删掉‘\(a)’\(before ? "前" : "后")面的‘\(t)’"
         case (.lyricEdit(let o, let n), .en): return "Change \"\(o)\" to \"\(n)\" in the vocal recording."
         case (.lyricEdit(let o, let n), .zh): return "把这段歌词中的“\(o)”改成“\(n)”。"
         case (.pitch(let s), .en): return s >= 0 ? "Raise the pitch by \(s) semitones." : "Lower the pitch by \(-s) semitones."
@@ -94,7 +96,9 @@ public enum AukInstruction: Sendable, Equatable {
         case (.deAccent, .en): return "Remove the regional accent while preserving the speaker's voice and content."
         case (.deAccent, .zh): return "请去掉这段语音里的方言口音，保持说话人音色一致。"
         case (.removeNonverbal(let s), _): return "Remove all \(s) from the audio."
-        case (.addNonverbal(let s, let end), _): return "Add a \(s) at the \(end ? "end" : "beginning") of the speech."
+        case (.addNonverbal(let s, let end), _):
+            // a count noun takes "a" ("Add a cough"); a mass noun in -ing does not ("Add humming")
+            return "Add \(s.hasSuffix("ing") ? s : "a \(s)") at the \(end ? "end" : "beginning") of the speech."
         case (.toWhisper, .en): return "Convert this speech into a soft whisper while preserving the speaker and content."
         case (.toWhisper, .zh): return "用小声耳语的方式把这段话说出来。"
         case (.fromWhisper, .en): return "Convert this whispered speech into a normal speaking voice while preserving the speaker and content."

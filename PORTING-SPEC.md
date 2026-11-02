@@ -29,8 +29,10 @@ Numbers are in `MEASUREMENTS.md`; raw logs are in `receipts/`. Records: AB-D-015
 lesson AB-L-0297.
 
 **Open.**
-- AuK's content / speed / pitch / volume / timbre / de-accent edits need new `speechEdit` operations: ask AB-A-0188 to
-  mlx-engine.
+- ~~AuK's content / speed / pitch / volume / timbre / de-accent edits need new `speechEdit` operations (AB-A-0188).~~
+  Done 2026-11-01: contract 1.59.0 (mlx-engine-swift v0.74.0, AB-D-0200). `MLXAuK` declares all fourteen edit kinds
+  with AuK's trained grids, `transcript: .unused` and `supportsTargetDuration: true`. Their acceptance against
+  upstream's cookbook verifier is AB-T-0416.
 - Upstream's promised permissive encoder ([AuK#13](https://github.com/Tencent-Hunyuan/AuK/issues/13), team reply:
   *"plans to replace the current encoder with an alternative encoder under a permissive license"*). When it ships, port
   the new encoder and the DiT trained against it behind `AukConditionEncoder`; the package then becomes MIT.

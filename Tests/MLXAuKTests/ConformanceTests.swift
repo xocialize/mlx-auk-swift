@@ -33,10 +33,21 @@ final class ManifestConformanceTests: XCTestCase {
         for m in [AuKPackage.manifest, AuKFlashPackage.manifest] {
             XCTAssertEqual(Set(m.capabilities), [.tts, .speechEdit])
             let edit = m.surfaces.first { $0.capability == .speechEdit }?.speechEditControls
-            XCTAssertEqual(edit?.operations, [.emotion, .style, .denoise])
+            XCTAssertEqual(edit?.operations, [.emotion, .style, .denoise, .dereverberate, .replaceWords, .insertWords,
+                                              .removeWords, .speed, .pitch, .volume, .timbre, .deAccent, .addNonverbal,
+                                              .removeNonverbal])
             XCTAssertEqual(edit?.emotionLabels.count, 8)
             XCTAssertEqual(edit?.styleLabels, ["whisper", "normal"])
+            XCTAssertEqual(edit?.nonverbalSounds, ["breath", "laugh", "cough", "humming"])
+            XCTAssertEqual(edit?.speedFactors, [0.5, 0.75, 1.25, 1.5, 2.0])
+            XCTAssertEqual(edit?.pitchSemitones, [-3, -2, -1, 1, 2, 3])
+            XCTAssertEqual(edit?.volumeDecibels, [-15, -10, -5, 5, 10, 15])
+            XCTAssertEqual(edit?.transcript, .unused)
+            XCTAssertEqual(edit?.supportsTargetDuration, true)
             XCTAssertEqual(edit?.maxInputSeconds, 30)
+            let editSurface = m.surfaces.first { $0.capability == .speechEdit }
+            XCTAssertEqual(editSurface?.parameters.first { $0.name == "transcript" }?.required, false)
+            XCTAssertNotNil(editSurface?.parameters.first { $0.name == "targetDuration" })
             let tts = m.surfaces.first { $0.capability == .tts }?.ttsControls
             XCTAssertEqual(tts?.emotionModes, [.textDescription])
             XCTAssertEqual(tts?.supportsTargetDuration, true)
@@ -173,6 +184,97 @@ final class RequestPlaneTests: XCTestCase {
         XCTAssertThrowsError(try AuKSurfaces.instruction(for: .style("shout")))
         XCTAssertThrowsError(try AuKSurfaces.instruction(for: .trimSilence))
         XCTAssertThrowsError(try AuKSurfaces.instruction(for: .paralinguistic(targetTranscript: "a [Laughter]")))
+        // 1.59.0 kinds
+        XCTAssertEqual(try AuKSurfaces.instruction(for: .dereverberate), .dereverberate)
+        XCTAssertEqual(try AuKSurfaces.instruction(for: .replaceWords(original: "a", new: "b")), .replace(original: "a", new: "b"))
+        XCTAssertEqual(try AuKSurfaces.instruction(for: .insertWords(text: "very", anchor: "good", before: true)),
+                       .insert(text: "very", anchor: "good", before: true))
+        XCTAssertEqual(try AuKSurfaces.instruction(for: .removeWords(text: "x", anchor: nil, before: false)),
+                       .remove(text: "x", anchor: nil, before: false))
+        XCTAssertEqual(try AuKSurfaces.instruction(for: .speed(factor: 1.5)), .speed(factor: 1.5))
+        XCTAssertEqual(try AuKSurfaces.instruction(for: .pitch(semitones: -2)), .pitch(semitones: -2))
+        XCTAssertEqual(try AuKSurfaces.instruction(for: .volume(dB: 10)), .volume(dB: 10))
+        XCTAssertEqual(try AuKSurfaces.instruction(for: .timbre(description: "a deep voice")), .timbre(description: "a deep voice"))
+        XCTAssertEqual(try AuKSurfaces.instruction(for: .deAccent), .deAccent)
+        XCTAssertEqual(try AuKSurfaces.instruction(for: .addNonverbal(sound: "cough", atEnd: true)), .addNonverbal(sound: "cough", atEnd: true))
+        XCTAssertEqual(try AuKSurfaces.instruction(for: .removeNonverbal(sound: "breath")), .removeNonverbal("breaths"))
+        XCTAssertEqual(try AuKSurfaces.instruction(for: .removeNonverbal(sound: "humming")), .removeNonverbal("humming"))
+        XCTAssertThrowsError(try AuKSurfaces.instruction(for: .removeNonverbal(sound: nil)))
+        XCTAssertThrowsError(try AuKSurfaces.instruction(for: .addNonverbal(sound: "sneeze", atEnd: false)))
+        XCTAssertThrowsError(try AuKSurfaces.instruction(for: .speed(factor: 1.1)))
+        XCTAssertThrowsError(try AuKSurfaces.instruction(for: .pitch(semitones: 4)))
+        XCTAssertThrowsError(try AuKSurfaces.instruction(for: .volume(dB: 3)))
+    }
+
+    /// The declaration's own refusals (`SpeechEditControls.refusal(for:)`), which the package runs first.
+    func testDeclaredRefusals() {
+        let controls = AuKSurfaces.speechEditControls()
+        func refused(_ edit: SpeechEditOperation, transcript: String = "", seconds: Double? = nil) -> Bool {
+            controls.refusal(for: SpeechEditRequest(audio: clip, transcript: transcript, edit: edit, targetDuration: seconds)) != nil
+        }
+        XCTAssertFalse(refused(.emotion("happy")))                                     // no transcript needed
+        XCTAssertFalse(refused(.speed(factor: 2.0), seconds: 4))
+        XCTAssertTrue(refused(.speed(factor: 1.1)))
+        XCTAssertTrue(refused(.pitch(semitones: 0)))
+        XCTAssertTrue(refused(.volume(dB: 20)))
+        XCTAssertTrue(refused(.addNonverbal(sound: "sneeze", atEnd: true)))
+        XCTAssertTrue(refused(.trimSilence))
+        XCTAssertTrue(refused(.denoise, seconds: -1))
+    }
+
+    /// An unloaded package answers `notLoaded` before it judges the request, as for 1.50.0 edits.
+    func testUnloadedPackageAnswersNotLoadedBeforeRefusing() async {
+        let package = AuKPackage(configuration: AuKConfiguration())
+        do {
+            _ = try await package.run(SpeechEditRequest(audio: clip, edit: .speed(factor: 1.1)))
+            XCTFail("expected a refusal")
+        } catch let error as PackageError {
+            guard case .notLoaded = error else { return XCTFail("expected notLoaded first, got \(error)") }
+        } catch {
+            XCTFail("expected PackageError, got \(error)")
+        }
+    }
+
+    func testEditLengths() {
+        func seconds(_ edit: SpeechEditOperation, transcript: String = "", target: Double? = nil) -> Double? {
+            AuKSurfaces.editSeconds(for: SpeechEditRequest(audio: clip, transcript: transcript, edit: edit, targetDuration: target),
+                                    sourceSeconds: 6)
+        }
+        XCTAssertNil(seconds(.emotion("happy")))                                        // the source's own length
+        XCTAssertNil(seconds(.addNonverbal(sound: "laugh", atEnd: true)))
+        XCTAssertEqual(seconds(.emotion("happy"), target: 5), 5)                         // a targetDuration wins
+        XCTAssertEqual(seconds(.speed(factor: 1.5)), 4)
+        XCTAssertEqual(seconds(.speed(factor: 0.5)), 12)
+        // with a transcript: upstream's byte ratio (6 s × 7 bytes "a horse" / 5 bytes "a cat")
+        XCTAssertEqual(seconds(.replaceWords(original: "cat", new: "horse"), transcript: "a cat") ?? 0,
+                       6 * 7 / 5, accuracy: 1e-9)
+        // without one: the speaking-rate estimate of the changed words
+        XCTAssertEqual(seconds(.insertWords(text: "fourteen chars", anchor: "x", before: true)) ?? 0, 7, accuracy: 1e-9)
+        XCTAssertEqual(seconds(.removeWords(text: "fourteen chars", anchor: nil, before: false)) ?? 0, 5, accuracy: 1e-9)
+        XCTAssertEqual(seconds(.removeWords(text: String(repeating: "x", count: 200), anchor: nil, before: false)), 0.5)
+    }
+
+    func testEditedTranscripts() {
+        func edited(_ edit: SpeechEditOperation, _ transcript: String) -> String {
+            AuKSurfaces.editedTranscript(for: edit, transcript: transcript)
+        }
+        XCTAssertEqual(edited(.replaceWords(original: "cat", new: "dog"), "the cat sat"), "the dog sat")
+        XCTAssertEqual(edited(.insertWords(text: "black", anchor: "cat", before: true), "the cat sat"), "the black cat sat")
+        XCTAssertEqual(edited(.insertWords(text: "down", anchor: "sat", before: false), "the cat sat."), "the cat sat down.")
+        XCTAssertEqual(edited(.insertWords(text: "黑", anchor: "猫", before: true), "那只猫"), "那只黑猫")
+        XCTAssertEqual(edited(.removeWords(text: "very", anchor: nil, before: false), "a very good day"), "a good day")
+        XCTAssertEqual(edited(.removeWords(text: "very", anchor: "bad", before: true), "very good, very bad"), "very good, bad")
+        XCTAssertEqual(edited(.removeWords(text: "very", anchor: "good", before: false), "very good, very bad"), "very good, bad")
+        XCTAssertEqual(edited(.replaceWords(original: "absent", new: "x"), "the cat sat"), "")    // words not in the transcript
+        XCTAssertEqual(edited(.replaceWords(original: "cat", new: "dog"), ""), "")                 // no transcript given
+        XCTAssertEqual(edited(.emotion("happy"), " the cat sat "), "the cat sat")                  // echoed
+    }
+
+    func testEditLanguage() {
+        XCTAssertEqual(AuKSurfaces.language(for: .replaceWords(original: "论文", new: "报告")), .zh)
+        XCTAssertEqual(AuKSurfaces.language(for: .replaceWords(original: "cat", new: "dog")), .en)
+        XCTAssertEqual(AuKSurfaces.language(for: .timbre(description: "低沉的男声")), .zh)
+        XCTAssertEqual(AuKSurfaces.language(for: .emotion("happy")), .en)
     }
 
     func testTTSPlanning() throws {
@@ -201,6 +303,13 @@ final class RequestPlaneTests: XCTestCase {
         XCTAssertEqual(AukInstruction.volume(dB: 10).text(), "Increase the volume by 10 dB.")
         XCTAssertEqual(AukInstruction.enhance.text(),
                        "Preserve all speakers, remove noise and reverberation, and output clean speech of the same length.")
+        XCTAssertEqual(AukInstruction.removeNonverbal("breaths").text(), "Remove all breaths from the audio.")
+        XCTAssertEqual(AukInstruction.addNonverbal(sound: "laugh", atEnd: true).text(), "Add a laugh at the end of the speech.")
+        XCTAssertEqual(AukInstruction.addNonverbal(sound: "humming", atEnd: false).text(),
+                       "Add humming at the beginning of the speech.")
+        XCTAssertEqual(AukInstruction.replace(original: "论文", new: "报告").text(.zh), "把‘论文’改成‘报告’")
+        XCTAssertEqual(AukInstruction.remove(text: "很", anchor: nil, before: false).text(.zh), "删掉‘很’")
+        XCTAssertEqual(AukInstruction.remove(text: "很", anchor: "好", before: true).text(.zh), "删掉‘好’前面的‘很’")
     }
 }
 

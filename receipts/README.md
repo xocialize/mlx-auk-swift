@@ -9,4 +9,5 @@ The raw outputs behind `MEASUREMENTS.md`, from an M5 Max with mlx-swift 0.32.3, 
 | `v2b-scores.csv` | V2b: per render, the ASR transcript, WER/CER, CAM++ SIM to source, DNSMOS | `Tools/asr/score_v2b.py` |
 | `v2b-score.log` | V2b: the scorer's log, pooled means and the pass/fail verdict per tier | `Tools/asr/score_v2b.py` |
 | `validate.log` | V3: MLXServeEngine register → prepare → run → evict, phys_footprint per tier × variant | `auk-gates validate` |
+| `validate-1.59.log` | contract 1.59.0: the same engine lane plus replace, speed, pitch and remove-nonverbal edits and an off-grid refusal, bf16 × variant (2026-11-01) | `auk-gates validate` |
 | `hf-upload.log` | V4: the Hugging Face commit for each published repo | `hf upload` |

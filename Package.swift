@@ -33,7 +33,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/ml-explore/mlx-swift", from: "0.32.3"),
         .package(url: "https://github.com/huggingface/swift-transformers", from: "1.1.6"),
-        .package(url: "https://github.com/xocialize/mlx-engine-swift", from: "0.67.0"),
+        .package(url: "https://github.com/xocialize/mlx-engine-swift", from: "0.74.0"),
     ],
     targets: [
         .target(

@@ -341,6 +341,15 @@ func validate(variant: String, quant q: String, _ modelDir: URL, _ encDir: URL, 
         ("edit-happy", .speechEdit, SpeechEditRequest(audio: try wav("emotion-edit/en-1-input.wav"), transcript: "", edit: .emotion("happy"), seed: 7)),
         ("edit-whisper", .speechEdit, SpeechEditRequest(audio: try wav("emotion-edit/en-1-input.wav"), transcript: "", edit: .style("whisper"), seed: 7)),
         ("edit-denoise", .speechEdit, SpeechEditRequest(audio: try wav("se/se-zh-1-input.wav"), transcript: "", edit: .denoise, seed: 7)),
+        // contract 1.59.0 kinds, on the cookbook's own inputs (its targets: content 7.0 s; speed ×1.5 on 11 s → ~7.3 s)
+        ("edit-replace", .speechEdit, SpeechEditRequest(audio: try wav("content-edit/content.wav"),
+                                                        edit: .replaceWords(original: "but accepting what we cannot have",
+                                                                            new: "and living well with dreams unmet"),
+                                                        targetDuration: 7.0, seed: 7)),
+        ("edit-speed", .speechEdit, SpeechEditRequest(audio: try wav("speed/speed-edit-1-input.wav"), edit: .speed(factor: 1.5), seed: 7)),
+        ("edit-pitch", .speechEdit, SpeechEditRequest(audio: try wav("pitch/pitch-1-input.wav"), edit: .pitch(semitones: 2), seed: 7)),
+        ("edit-nonverbal", .speechEdit, SpeechEditRequest(audio: try wav("nv/en-d-input.wav"),
+                                                          edit: .removeNonverbal(sound: "humming"), targetDuration: 22.0, seed: 7)),
     ]
     for (name, cap, req) in cases {
         if cap == .speechEdit { try await engine.prepare(.speechEdit, package: id) }
@@ -360,6 +369,11 @@ func validate(variant: String, quant q: String, _ modelDir: URL, _ encDir: URL, 
                                                    transcript: "", edit: .emotion("furious")), package: id)
         print("  [REQ] FAIL: undeclared emotion admitted")
     } catch { print("  [REQ] undeclared emotion refused: \(String(describing: error).prefix(100))") }
+    do {
+        _ = try await engine.run(SpeechEditRequest(audio: Audio(format: .wav, data: Data([1, 2, 3]), sampleRate: 24000, channels: 1),
+                                                   edit: .speed(factor: 1.1)), package: id)
+        print("  [REQ] FAIL: off-grid speed admitted")
+    } catch { print("  [REQ] off-grid speed refused: \(String(describing: error).prefix(100))") }
     await engine.evict(package: id)
     var afterEvict = physFootprintGB()
     let relieved = malloc_zone_pressure_relief(nil, 0)
