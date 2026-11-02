@@ -39,7 +39,7 @@ Phys footprint through MLXServeEngine, plus speed:
 | int8 encoder | 9.5 GB | 0.84 | 0.13 |
 | int4 encoder | 7.6–7.9 GB | 0.83 | 0.12 |
 
-Activation is ≤ 1.0 GB for every tier, measured after each request (a 5 ms sampler sees 1.9–2.5 GB inside one).
+Activation is 1.9–2.6 GB inside a request, measured with a 5 ms phys sampler; the declared footprints add 2.8 GB.
 
 **Staged residency** (`AuKConfiguration(residency: .staged)`): the encoder and the DiT are read for each request and
 freed after their stage, so only one large model is in memory at a time. The output is bit-identical. Peak phys drops

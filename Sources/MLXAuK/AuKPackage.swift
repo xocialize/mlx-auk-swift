@@ -350,10 +350,15 @@ public enum AuKSurfaces {
 /// leaves the MLX peak where 6 s ones put it (12.60 vs 12.65 GB). Declared with headroom. The second residency cycle
 /// re-peaks at the first cycle's level (no leak); phys after evict stays 2.5–9.6 GB with MLX active and cache at 0 —
 /// process memory the next load reuses.
+///
+/// Re-measured 2026-11-01 (AB-T-0414, receipts/staged-residency.txt), the same lane with a 5 ms phys sampler and the
+/// kernel's lifetime peak: the IN-request peak is 1.9–2.6 GB over resident (an after-request reading misses it), and
+/// Base int4 resident is 7.97 GB. Worst totals: bf16 14.92, int8 11.75, int4 10.04 GB (Base). Activation 1.5 → 2.8 GB
+/// and Base int4 7.8 → 8.1 GB, so resident + activation covers every measured peak with ≥ 0.85 GB headroom.
 enum AuKFootprints {
     struct Tier { let bf16Resident: UInt64; let int8Resident: UInt64; let int4Resident: UInt64; let peakActivation: UInt64 }
-    static let base = Tier(bf16Resident: 12_900_000_000, int8Resident: 9_600_000_000, int4Resident: 7_800_000_000, peakActivation: 1_500_000_000)
-    static let flash = Tier(bf16Resident: 12_900_000_000, int8Resident: 9_600_000_000, int4Resident: 8_000_000_000, peakActivation: 1_500_000_000)
+    static let base = Tier(bf16Resident: 12_900_000_000, int8Resident: 9_600_000_000, int4Resident: 8_100_000_000, peakActivation: 2_800_000_000)
+    static let flash = Tier(bf16Resident: 12_900_000_000, int8Resident: 9_600_000_000, int4Resident: 8_000_000_000, peakActivation: 2_800_000_000)
 }
 
 // MARK: - the two registrable packages

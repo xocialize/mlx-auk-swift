@@ -54,15 +54,20 @@ final class ManifestConformanceTests: XCTestCase {
         }
     }
 
-    /// C-memory — three tiers, at least what `auk-gates validate` measured through the engine.
+    /// C-memory — three tiers, at least what `auk-gates validate` measured through the engine: the resident floor
+    /// (the larger of the 2026-10-18 and 2026-11-01 runs), and resident + activation at least the in-request peak the
+    /// 5 ms sampler and kernel ledger saw (AB-T-0414).
     func testFootprintsAreTheMeasuredTiers() {
-        for (m, measured) in [(AuKPackage.manifest, [12_750_000_000, 9_460_000_000, 7_630_000_000]),
-                              (AuKFlashPackage.manifest, [12_760_000_000, 9_490_000_000, 7_900_000_000])] {
+        for (m, resident, peak) in [(AuKPackage.manifest, [12_750_000_000, 9_460_000_000, 7_970_000_000],
+                                     [14_920_000_000, 11_750_000_000, 10_040_000_000]),
+                                    (AuKFlashPackage.manifest, [12_770_000_000, 9_490_000_000, 7_920_000_000],
+                                     [14_890_000_000, 11_610_000_000, 9_830_000_000])] {
             let f = m.requirements.footprints
             XCTAssertEqual(f.map(\.quant), [.bf16, .int8, .int4])
-            for (fp, bytes) in zip(f, measured) {
-                XCTAssertGreaterThanOrEqual(fp.residentBytes, UInt64(bytes))
-                XCTAssertGreaterThanOrEqual(fp.peakActivationBytes, 1_030_000_000)
+            for (fp, (r, p)) in zip(f, zip(resident, peak)) {
+                XCTAssertGreaterThanOrEqual(fp.residentBytes, UInt64(r))
+                XCTAssertGreaterThanOrEqual(fp.residentBytes + fp.peakActivationBytes, UInt64(p))
+                XCTAssertGreaterThanOrEqual(fp.peakActivationBytes, 2_560_000_000)
             }
         }
     }

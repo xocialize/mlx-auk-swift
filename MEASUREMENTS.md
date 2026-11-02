@@ -132,6 +132,8 @@ footprint (`receipts/validate.log`):
 - A 27 s edit (the declared ceiling is 30 s) leaves the MLX peak where the 6 s edits put it: Base 12.60 GB at RTF
   0.82, Flash 12.49 GB at RTF 0.11.
 - Declared footprints: bf16 12.9 GB, int8 9.6 GB, int4 7.8 (Base) / 8.0 (Flash) GB, activation 1.5 GB.
+  **Superseded 2026-11-01:** these readings were taken after each request and miss the in-request peak. See
+  "Staged residency": activation is now 2.8 GB and Base int4 is now 8.1 GB.
 - **After evict.** phys stays at 2.5–9.6 GB with MLX active = cache = 0, and `malloc_zone_pressure_relief` frees
   nothing. The second cycle re-peaks at the first cycle's level, so this is process memory the next load reuses, not a
   leak.
@@ -227,8 +229,11 @@ Max with mlx-swift 0.32.3, under the AuK GPU lock.
 - **On a 16 GB Mac:** int8 and int4 staged peak below 8 GB, and bf16 staged peaks at 10.8 GB. Upstream reports 8-bit
   9.1 → 6.1 GB, with their DiT also 8-bit; ours keeps the DiT bf16.
 - **Finding on the resident declaration.** The 5 ms sampler shows the resident in-request peak is 1.9–2.5 GB over
-  idle. V3's after-request readings showed 0.80–1.03 GB. So the declared `peakActivationBytes` of 1.5 GB is short by
-  up to ~0.75 GB in total: base int4 measures 10.04 GB against 7.8 + 1.5 = 9.3 GB, and base bf16 14.92 against 14.4. This is not changed here; it is a follow-up.
+  idle (2.56 GB at most, base int8). V3's after-request readings showed 0.80–1.03 GB. The declared 1.5 GB
+  `peakActivationBytes` left the totals short by up to ~0.75 GB: base int4 measured 10.04 GB against 7.8 + 1.5 =
+  9.3 GB, and base bf16 14.92 against 14.4. Base int4 idle also measured 7.97 GB against its declared 7.8.
+  **Fixed:** activation is now 2.8 GB on every tier, and Base int4 resident is now 8.1 GB. Every measured peak sits
+  ≥ 0.85 GB under resident + activation, and `testFootprintsAreTheMeasuredTiers` checks the peaks.
 
 **Per-request latency added by the reloads** (`auk-gates staged`, 12 requests per pass, means):
 - The load columns time the encoder and DiT safetensors reads, cast and key check.
@@ -264,5 +269,5 @@ Max with mlx-swift 0.32.3, under the AuK GPU lock.
 - `expectedWeightReadBytesPerRunHint` = encoder + DiT bytes.
 
 Until mlx-engine answers, staged ships as **package configuration only**, without `FootprintConfigured`. The engine
-keeps charging the resident footprints (12.9 / 9.6 / 7.8–8.0 GB + 1.5 GB). This over-reserves a staged registration,
+keeps charging the resident footprints (12.9 / 9.6 / 8.0–8.1 GB + 2.8 GB). This over-reserves a staged registration,
 which is safe. It also means the engine does not yet admit staged AuK on a budget that only the staged numbers fit.
