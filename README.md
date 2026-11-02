@@ -37,11 +37,15 @@ Phys footprint through MLXServeEngine, plus speed:
 |---|---|---|---|
 | bf16 | 12.8 GB | 0.89 | 0.13 |
 | int8 encoder | 9.5 GB | 0.84 | 0.13 |
-| int4 encoder | 7.6–7.9 GB | 0.83 | 0.12 |
+| int4 encoder ⚠︎ | 7.6–7.9 GB | 0.83 | 0.12 |
 
 Activation is 1.9–2.6 GB inside a request, measured with a 5 ms phys sampler; the declared footprints add 2.8 GB.
 Parity at fp32 against the upstream PyTorch code: generated latent relL2 ≤ 6.6e-4 on 12 lanes. All three tiers pass a
 pre-registered quality gate (WER/CER, CAM++ SIM, DNSMOS). Details are in `PORTING-SPEC.md` and `MEASUREMENTS.md`.
+
+⚠︎ **The int4 tier is not for Mandarin edits** (AB-D-0202). On a Mandarin content probe the 4-bit encoder fails the
+same gate: de-accent CER goes from 3.6 % to 17.9 %, and it drops content words. Zero-shot Mandarin TTS and English
+hold. For Mandarin use the 8-bit encoder, staged if memory is tight (below).
 
 **Staged residency** (`AuKConfiguration(residency: .staged)`): the encoder and the DiT are read for each request and
 freed after their stage, so only one large model is in memory at a time. The output is bit-identical. Peak phys drops

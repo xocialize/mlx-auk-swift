@@ -420,6 +420,9 @@ CER per cell (mean of 3 seeds):
   - The merged matrix is not the pre-registered one, so this is reported, not a re-verdict of A or B.
 - **Not changed here.** The package manifest, the model cards and the shipped tier list are untouched. A zh caveat
   on C, or withdrawing C, is the operator's call.
+- **Decision (2026-11-01, AB-D-0202):** tier C stays shipped, caveated as not for Mandarin edits. The caveat is in
+  `AuKConfiguration.quant`, the speechEdit surface summary, the README and the model-card sources in `Tools/publish`.
+  For Mandarin, use tier B, staged if memory is tight.
 
 ## Cookbook — upstream's verifier as the edit-kind acceptance check (AB-T-0416, 2026-11-01)
 

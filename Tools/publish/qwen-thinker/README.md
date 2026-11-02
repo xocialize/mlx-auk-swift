@@ -47,4 +47,5 @@ At fp32 against the transformers 4.57.1 reference:
 - AuK's fused 36-layer condition 3.8e-6.
 
 As AuK's encoder, the bf16, 8-bit and 4-bit tiers all pass AuK's pre-registered quality gate (error rate, CAM++ SIM,
-DNSMOS against fp32).
+DNSMOS against fp32) in English. On Mandarin content the 4-bit tier fails it: AuK's de-accent CER goes from 3.6 % to
+17.9 %, and content words are lost. Use the 8-bit tier for Mandarin edits.

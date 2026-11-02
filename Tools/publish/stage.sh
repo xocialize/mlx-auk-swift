@@ -18,7 +18,7 @@ for T in bf16 8bit 4bit; do
   case $T in
     bf16) Q="bfloat16, unquantised (7.45 GB).";;
     8bit) Q="The 36 LLM layers and 32 audio-tower layers have their Linears quantised to affine 8-bit, group size 64 (4.26 GB). Embeddings, norms and projections are bf16.";;
-    4bit) Q="The 36 LLM layers and 32 audio-tower layers have their Linears quantised to affine 4-bit, group size 64 (2.55 GB). Embeddings, norms and projections are bf16.";;
+    4bit) Q="The 36 LLM layers and 32 audio-tower layers have their Linears quantised to affine 4-bit, group size 64 (2.55 GB). Embeddings, norms and projections are bf16. **Not for Mandarin edits:** as AuK's encoder it loses content words in Mandarin (de-accent CER 3.6 → 17.9 %); use -8bit for Mandarin.";;
   esac
   sed -e "s/__TIER__/$T/; s|__QUANT__|$Q|" "$H/qwen-thinker/README.md" > "$D/README.md"
 done

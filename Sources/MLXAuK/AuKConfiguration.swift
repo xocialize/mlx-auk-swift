@@ -26,6 +26,10 @@ public struct AuKConfiguration: PackageConfiguration, ModelStorable, QuantConfig
     public var variant: AuKVariant
     /// `.bf16` (DiT, VAE and encoder bf16), `.int8` / `.int4` (encoder 8- / 4-bit, group 64; DiT and VAE bf16 — all
     /// three pass the V2b gate, PORTING-SPEC §7), `.fp32` (parity).
+    ///
+    /// **`.int4` is not for Mandarin edits** (AB-D-0202). The 4-bit encoder fails the zh content probe: de-accent CER
+    /// goes from 3.6 to 17.9 %, and it drops the words upstream's 4-bit run dropped (AB-T-0413). Zero-shot zh TTS and
+    /// English hold. For Mandarin take `.int8`, with `residency: .staged` when memory is tight (peak ≈ 7.7 GB).
     public var quant: Quant
     public var revision: String?
     public var encoderRevision: String?

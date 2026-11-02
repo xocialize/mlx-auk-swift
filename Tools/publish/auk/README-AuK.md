@@ -53,7 +53,8 @@ The reference is the upstream PyTorch code (`Tencent-Hunyuan/AuK@9481474`) run i
 tasks with the same noise, on Base and Flash:
 - the Swift port's generated latent is within relL2 ≤ 6.6e-4 at fp32, and the waveform within ≤ 7.5e-3;
 - bf16 against fp32 over 36 renders: error rate −1.2 points, CAM++ SIM −0.023, DNSMOS −0.01;
-- the 8-bit and 4-bit encoders pass the same gate.
+- the 8-bit and 4-bit encoders pass the same gate in English. On Mandarin content the 4-bit encoder fails it
+  (de-accent CER 3.6 → 17.9 %): use the 8-bit encoder for Mandarin edits.
 
 Receipts: [PORTING-SPEC and MEASUREMENTS](https://github.com/xocialize/mlx-auk-swift).
 

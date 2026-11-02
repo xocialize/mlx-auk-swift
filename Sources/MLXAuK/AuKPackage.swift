@@ -161,7 +161,8 @@ public enum AuKSurfaces {
                         + "or lower, louder or quieter on AuK's trained steps; a new emotion, timbre or accent; to or from a "
                         + "whisper; denoised or dereverberated; or a breath, laugh, cough or humming added at an edge or removed. "
                         + "Needs no transcript. Content and speed edits change the length: pass targetDuration to fit a cue. "
-                        + "≤ 30 s. RESEARCH LICENCE (Qwen2.5-Omni encoder): not for commercial use.",
+                        + "≤ 30 s. The int4 (4-bit encoder) tier loses words in Mandarin edits: use int8 for zh. "
+                        + "RESEARCH LICENCE (Qwen2.5-Omni encoder): not for commercial use.",
                     controls: speechEditControls()),
             ]
         )

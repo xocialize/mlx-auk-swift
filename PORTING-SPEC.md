@@ -21,7 +21,7 @@ the fp32 goldens and the venvs) lives in `mlxengine-audio/WIP/auk-port/`. Everyt
 | V0 oracle | fp32 CPU goldens for 6 tasks × Base/Flash; outputs ASR-checked |
 | V1 converter | bit-exact against upstream's folded weights (1,249 tensors, max \|Δ\| 0) |
 | V2 Swift core | fp32 parity on 12/12 lanes: generated latent relL2 ≤ 6.6e-4, waveform ≤ 7.5e-3 |
-| V2b tiers | bf16 / 8-bit / 4-bit encoder (and 8-bit DiT) all pass the pre-registered gate (§6–7) |
+| V2b tiers | bf16 / 8-bit / 4-bit encoder (and 8-bit DiT) all pass the pre-registered gate (§6–7). The 2026-11-01 zh content probe fails the 4-bit encoder, which ships caveated as not for Mandarin edits (AB-T-0413, AB-D-0202) |
 | V3 engine | `MLXAuK` on `tts` + `speechEdit`; 16/16 conformance; footprints from phys_footprint through MLXServeEngine |
 | V4 publish | xocialize/mlx-auk-swift; mlx-community `AuK-bf16`, `AuK-Flash-bf16`, `Qwen2.5-Omni-3B-Thinker-{bf16,8bit,4bit}` plus a collection; hub smoke passed |
 

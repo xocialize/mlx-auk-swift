@@ -48,6 +48,8 @@ final class ManifestConformanceTests: XCTestCase {
             let editSurface = m.surfaces.first { $0.capability == .speechEdit }
             XCTAssertEqual(editSurface?.parameters.first { $0.name == "transcript" }?.required, false)
             XCTAssertNotNil(editSurface?.parameters.first { $0.name == "targetDuration" })
+            // AB-D-0202: a planner reading the surface learns that the 4-bit encoder is not for Mandarin edits
+            XCTAssertTrue(editSurface?.summary.contains("int4 (4-bit encoder) tier loses words in Mandarin edits") == true)
             let tts = m.surfaces.first { $0.capability == .tts }?.ttsControls
             XCTAssertEqual(tts?.emotionModes, [.textDescription])
             XCTAssertEqual(tts?.supportsTargetDuration, true)
