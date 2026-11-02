@@ -5,6 +5,7 @@
 //   auk-gates encoder <golden> <model> <encoder>  token ids, mel features, audio tower, hidden states, fused condition
 //   auk-gates e2e     <golden> <model> <encoder> [out.wav]   whole request with the oracle's noise
 //   auk-gates render  <model> <encoder> "<instruction>" <in.wav|-> <seconds|-> <out.wav> [seed]
+//   auk-gates profile <goldens/variant> <assets> <model> <encoder> <out.jsonl> [runs]   per-stage wall clock, warm
 //
 // Options (before the subcommand): --cpu (fp32 reference lane on the CPU stream), --dtype float32|bfloat16,
 // --enc-dtype float32|bfloat16|… (encoder only).
@@ -256,6 +257,75 @@ func matrix(_ goldenVariant: URL, _ assets: URL, _ modelDir: URL, _ encDir: URL,
     try fh.close()
 }
 
+/// AB-T-0415: per-stage wall clock of `generate` on every golden task, warm. The stage boundaries are the `capture`
+/// calls `generate` already makes right after each stage's `eval` (ref_latents, fused, gen_latent, audio_out), so
+/// each interval is materialised GPU work, not lazy-graph building. One untimed warm-up per task, then `runs` timed runs
+/// at seed 0. The 24 / 16 kHz resamples (CPU, inside the ref stage) are timed again on their own to split that stage.
+func profile(_ goldenVariant: URL, _ assets: URL, _ modelDir: URL, _ encDir: URL, _ outFile: URL, runs: Int) async throws {
+    let q = AukQuantization(ditBits: ditBits, encoderBits: encBits)
+    let pipe = try await AukPipeline.load(modelDir: modelDir, encoderDir: encDir, dtype: dtype, encoderDType: encDType,
+                                          quantization: q)
+    if !FileManager.default.fileExists(atPath: outFile.path) { FileManager.default.createFile(atPath: outFile.path, contents: nil) }
+    let fh = try FileHandle(forWritingTo: outFile); fh.seekToEndOfFile()
+    let tasks = try FileManager.default.contentsOfDirectory(atPath: goldenVariant.path).filter {
+        FileManager.default.fileExists(atPath: goldenVariant.appendingPathComponent("\($0)/meta.json").path)
+    }.sorted()
+    func now() -> Double { Double(DispatchTime.now().uptimeNanoseconds) / 1e9 }
+    let stages = ["ref", "encoder", "ode", "decode", "host"]
+    var pooled = [String: Double]()   // Σ over tasks of each stage's per-task minimum
+    var pooledTotal = 0.0
+    print("  model \(modelDir.lastPathComponent)  encoder \(encDir.lastPathComponent)  dtype \(dtype)  runs \(runs) (+1 warm-up)")
+    for task in tasks {
+        let meta = try loadMeta(goldenVariant.appendingPathComponent(task))
+        var audio: [Float]? = nil
+        var rate = 24000
+        if let a = meta.audio { (audio, rate) = try WAV.read(assets.appendingPathComponent(a)) }
+        let req = AukRequest(instruction: meta.instruction.replacingOccurrences(of: "|<no_prompt_audio>|", with: ""),
+                             audio: audio, sampleRate: rate, genSeconds: meta.gen_seconds, seed: 0)
+        var mins = [String: Double](), minTotal = Double.infinity, minResample = Double.infinity
+        var stepMin = [Double]()
+        for r in 0 ... runs {
+            var marks = [String: Double](), steps = [Double]()
+            let t0 = now()
+            let wave = try pipe.generate(req, onStep: { _, _ in steps.append(now()) },
+                                         capture: { name, _ in
+                                             if ["ref_latents", "fused", "gen_latent", "audio_out"].contains(name) { marks[name] = now() }
+                                         })
+            let t1 = now()
+            var resample = 0.0
+            if let a = audio {
+                let s = now()
+                _ = Resample.sinc(a, from: rate, to: pipe.sampleRate); _ = Resample.sinc(a, from: rate, to: 16000)
+                resample = now() - s
+            }
+            let ref = marks["ref_latents"] ?? t0
+            let st: [String: Double] = ["ref": ref - t0, "encoder": marks["fused"]! - ref, "ode": marks["gen_latent"]! - marks["fused"]!,
+                                        "decode": marks["audio_out"]! - marks["gen_latent"]!, "host": t1 - marks["audio_out"]!]
+            let perStep = zip(steps, [marks["fused"]!] + steps.dropLast()).map { $0 - $1 }
+            let secs = Double(wave.count) / Double(pipe.sampleRate)
+            let line = stages.map { String(format: "%@ %.3f", $0, st[$0]!) }.joined(separator: "  ")
+            print(String(format: "  %@ %@  %@  total %.3f s / %.2f s audio (RTF %.3f)  resample %.3f", task as NSString,
+                         r == 0 ? "warm" : "r\(r)", line, t1 - t0, secs, (t1 - t0) / secs, resample))
+            guard r > 0 else { continue }
+            var rec: [String: Any] = ["task": task, "run": r, "total_s": t1 - t0, "audio_s": secs, "resample_s": resample,
+                                      "ode_steps_s": perStep, "model": modelDir.lastPathComponent, "encoder": encDir.lastPathComponent]
+            for s in stages { rec["\(s)_s"] = st[s]!; mins[s] = min(mins[s] ?? .infinity, st[s]!) }
+            fh.write(try JSONSerialization.data(withJSONObject: rec)); fh.write("\n".data(using: .utf8)!)
+            minTotal = min(minTotal, t1 - t0); minResample = min(minResample, resample)
+            stepMin = stepMin.isEmpty ? perStep : zip(stepMin, perStep).map { min($0, $1) }
+        }
+        let sumMins = stages.reduce(0) { $0 + mins[$1]! }
+        print(String(format: "  [MIN] %@  %@  | total %.3f (Σ stage mins %.3f)  resample %.3f  per-step %@", task as NSString,
+                     stages.map { String(format: "%@ %.3f (%.0f%%)", $0, mins[$0]!, 100 * mins[$0]! / sumMins) }.joined(separator: "  "),
+                     minTotal, sumMins, minResample, stepMin.map { String(format: "%.3f", $0) }.joined(separator: ",")))
+        for s in stages { pooled[s, default: 0] += mins[s]! }
+        pooledTotal += sumMins
+    }
+    print(String(format: "  [POOLED] %@  | Σ %.3f s over %d tasks", stages.map {
+        String(format: "%@ %.0f%%", $0, 100 * pooled[$0]! / pooledTotal) }.joined(separator: "  "), pooledTotal, tasks.count))
+    try fh.close()
+}
+
 /// Writes a pre-quantised encoder bundle from the bf16 one: layer Linears → affine `bits` (group 64), everything else
 /// as stored; config.json gains `quantization`; tokenizer / processor files copied verbatim.
 func quantizeEncoder(_ src: URL, _ dst: URL, bits: Int) throws {
@@ -415,6 +485,9 @@ func run() async throws {
     case "matrix":
         try await matrix(URL(fileURLWithPath: rest[0]), URL(fileURLWithPath: rest[1]), URL(fileURLWithPath: rest[2]),
                          URL(fileURLWithPath: rest[3]), URL(fileURLWithPath: rest[4]))
+    case "profile":
+        try await profile(URL(fileURLWithPath: rest[0]), URL(fileURLWithPath: rest[1]), URL(fileURLWithPath: rest[2]),
+                          URL(fileURLWithPath: rest[3]), URL(fileURLWithPath: rest[4]), runs: rest.count > 5 ? Int(rest[5]) ?? 5 : 5)
     default: print("unknown command \(cmd)"); exit(2)
     }
 }

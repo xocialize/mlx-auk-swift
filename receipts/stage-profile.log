@@ -1,0 +1,182 @@
+[gpu-lock] t0415-profile acquired at 19:36:06
+== flash-bf16
+  model AuK-Flash-bf16  encoder Qwen2.5-Omni-3B-Thinker-bf16  dtype bfloat16  runs 5 (+1 warm-up)
+  content warm  ref 1.505  encoder 2.431  ode 1.535  decode 0.620  host 0.000  total 6.091 s / 7.00 s audio (RTF 0.870)  resample 0.002
+  content r1  ref 0.022  encoder 0.084  ode 0.327  decode 0.262  host 0.000  total 0.695 s / 7.00 s audio (RTF 0.099)  resample 0.003
+  content r2  ref 0.013  encoder 0.065  ode 0.332  decode 0.259  host 0.000  total 0.669 s / 7.00 s audio (RTF 0.096)  resample 0.002
+  content r3  ref 0.014  encoder 0.063  ode 0.324  decode 0.259  host 0.000  total 0.659 s / 7.00 s audio (RTF 0.094)  resample 0.001
+  content r4  ref 0.012  encoder 0.063  ode 0.325  decode 0.260  host 0.000  total 0.661 s / 7.00 s audio (RTF 0.094)  resample 0.001
+  content r5  ref 0.013  encoder 0.063  ode 0.325  decode 0.260  host 0.000  total 0.661 s / 7.00 s audio (RTF 0.094)  resample 0.002
+  [MIN] content  ref 0.012 (2%)  encoder 0.063 (10%)  ode 0.324 (49%)  decode 0.259 (39%)  host 0.000 (0%)  | total 0.659 (Σ stage mins 0.658)  resample 0.001  per-step 0.081,0.081,0.081,0.081
+  emotion warm  ref 0.013  encoder 0.069  ode 0.306  decode 0.239  host 0.000  total 0.628 s / 6.32 s audio (RTF 0.099)  resample 0.001
+  emotion r1  ref 0.011  encoder 0.073  ode 0.306  decode 0.236  host 0.000  total 0.626 s / 6.32 s audio (RTF 0.099)  resample 0.001
+  emotion r2  ref 0.011  encoder 0.070  ode 0.304  decode 0.236  host 0.000  total 0.621 s / 6.32 s audio (RTF 0.098)  resample 0.001
+  emotion r3  ref 0.011  encoder 0.069  ode 0.303  decode 0.236  host 0.000  total 0.618 s / 6.32 s audio (RTF 0.098)  resample 0.001
+  emotion r4  ref 0.011  encoder 0.071  ode 0.312  decode 0.236  host 0.000  total 0.629 s / 6.32 s audio (RTF 0.100)  resample 0.001
+  emotion r5  ref 0.011  encoder 0.071  ode 0.404  decode 0.255  host 0.000  total 0.741 s / 6.32 s audio (RTF 0.117)  resample 0.001
+  [MIN] emotion  ref 0.011 (2%)  encoder 0.069 (11%)  ode 0.303 (49%)  decode 0.236 (38%)  host 0.000 (0%)  | total 0.618 (Σ stage mins 0.618)  resample 0.001  per-step 0.076,0.075,0.076,0.076
+  itts warm  ref 0.000  encoder 0.045  ode 0.178  decode 0.066  host 0.000  total 0.289 s / 1.70 s audio (RTF 0.170)  resample 0.000
+  itts r1  ref 0.000  encoder 0.043  ode 0.180  decode 0.067  host 0.000  total 0.291 s / 1.70 s audio (RTF 0.171)  resample 0.000
+  itts r2  ref 0.000  encoder 0.044  ode 0.178  decode 0.066  host 0.000  total 0.288 s / 1.70 s audio (RTF 0.169)  resample 0.000
+  itts r3  ref 0.000  encoder 0.043  ode 0.182  decode 0.067  host 0.000  total 0.291 s / 1.70 s audio (RTF 0.171)  resample 0.000
+  itts r4  ref 0.000  encoder 0.043  ode 0.181  decode 0.066  host 0.000  total 0.290 s / 1.70 s audio (RTF 0.170)  resample 0.000
+  itts r5  ref 0.000  encoder 0.042  ode 0.179  decode 0.067  host 0.000  total 0.289 s / 1.70 s audio (RTF 0.170)  resample 0.000
+  [MIN] itts  ref 0.000 (0%)  encoder 0.042 (15%)  ode 0.178 (62%)  decode 0.066 (23%)  host 0.000 (0%)  | total 0.288 (Σ stage mins 0.286)  resample 0.000  per-step 0.044,0.044,0.045,0.044
+  se warm  ref 0.014  encoder 0.077  ode 0.300  decode 0.193  host 0.000  total 0.585 s / 4.98 s audio (RTF 0.117)  resample 0.001
+  se r1  ref 0.011  encoder 0.072  ode 0.298  decode 0.189  host 0.000  total 0.571 s / 4.98 s audio (RTF 0.115)  resample 0.001
+  se r2  ref 0.011  encoder 0.072  ode 0.300  decode 0.190  host 0.000  total 0.572 s / 4.98 s audio (RTF 0.115)  resample 0.001
+  se r3  ref 0.011  encoder 0.073  ode 0.300  decode 0.189  host 0.000  total 0.573 s / 4.98 s audio (RTF 0.115)  resample 0.001
+  se r4  ref 0.011  encoder 0.147  ode 0.299  decode 0.190  host 0.000  total 0.648 s / 4.98 s audio (RTF 0.130)  resample 0.001
+  se r5  ref 0.010  encoder 0.073  ode 0.298  decode 0.190  host 0.000  total 0.572 s / 4.98 s audio (RTF 0.115)  resample 0.001
+  [MIN] se  ref 0.010 (2%)  encoder 0.072 (13%)  ode 0.298 (52%)  decode 0.189 (33%)  host 0.000 (0%)  | total 0.571 (Σ stage mins 0.570)  resample 0.001  per-step 0.074,0.074,0.074,0.074
+  speed warm  ref 0.024  encoder 0.093  ode 0.427  decode 0.272  host 0.000  total 0.816 s / 6.86 s audio (RTF 0.119)  resample 0.001
+  speed r1  ref 0.018  encoder 0.092  ode 0.425  decode 0.267  host 0.000  total 0.803 s / 6.86 s audio (RTF 0.117)  resample 0.001
+  speed r2  ref 0.018  encoder 0.092  ode 0.427  decode 0.266  host 0.000  total 0.804 s / 6.86 s audio (RTF 0.117)  resample 0.001
+  speed r3  ref 0.018  encoder 0.091  ode 0.426  decode 0.266  host 0.000  total 0.802 s / 6.86 s audio (RTF 0.117)  resample 0.001
+  speed r4  ref 0.018  encoder 0.089  ode 0.425  decode 0.266  host 0.000  total 0.798 s / 6.86 s audio (RTF 0.116)  resample 0.001
+  speed r5  ref 0.018  encoder 0.092  ode 0.478  decode 0.267  host 0.001  total 0.857 s / 6.86 s audio (RTF 0.125)  resample 0.001
+  [MIN] speed  ref 0.018 (2%)  encoder 0.089 (11%)  ode 0.425 (53%)  decode 0.266 (33%)  host 0.000 (0%)  | total 0.798 (Σ stage mins 0.798)  resample 0.001  per-step 0.106,0.106,0.106,0.106
+  zs warm  ref 0.023  encoder 0.094  ode 0.498  decode 0.244  host 0.001  total 0.859 s / 6.00 s audio (RTF 0.143)  resample 0.001
+  zs r1  ref 0.020  encoder 0.090  ode 0.447  decode 0.233  host 0.000  total 0.791 s / 6.00 s audio (RTF 0.132)  resample 0.001
+  zs r2  ref 0.018  encoder 0.132  ode 0.414  decode 0.238  host 0.000  total 0.802 s / 6.00 s audio (RTF 0.134)  resample 0.001
+  zs r3  ref 0.018  encoder 0.144  ode 0.450  decode 0.238  host 0.002  total 0.850 s / 6.00 s audio (RTF 0.142)  resample 0.001
+  zs r4  ref 0.018  encoder 0.114  ode 0.435  decode 0.235  host 0.000  total 0.802 s / 6.00 s audio (RTF 0.134)  resample 0.001
+  zs r5  ref 0.017  encoder 0.146  ode 0.421  decode 0.232  host 0.000  total 0.816 s / 6.00 s audio (RTF 0.136)  resample 0.001
+  [MIN] zs  ref 0.017 (2%)  encoder 0.090 (12%)  ode 0.414 (55%)  decode 0.232 (31%)  host 0.000 (0%)  | total 0.791 (Σ stage mins 0.754)  resample 0.001  per-step 0.104,0.102,0.103,0.103
+  [POOLED] ref 2%  encoder 12%  ode 53%  decode 34%  host 0%  | Σ 3.685 s over 6 tasks
+== flash-int8
+  model AuK-Flash-bf16  encoder Qwen2.5-Omni-3B-Thinker-8bit  dtype bfloat16  runs 5 (+1 warm-up)
+  content warm  ref 0.034  encoder 0.500  ode 0.369  decode 0.272  host 0.000  total 1.175 s / 7.00 s audio (RTF 0.168)  resample 0.003
+  content r1  ref 0.014  encoder 0.079  ode 0.341  decode 0.265  host 0.000  total 0.698 s / 7.00 s audio (RTF 0.100)  resample 0.002
+  content r2  ref 0.014  encoder 0.074  ode 0.337  decode 0.264  host 0.000  total 0.689 s / 7.00 s audio (RTF 0.098)  resample 0.003
+  content r3  ref 0.014  encoder 0.079  ode 0.336  decode 0.264  host 0.000  total 0.693 s / 7.00 s audio (RTF 0.099)  resample 0.002
+  content r4  ref 0.014  encoder 0.078  ode 0.340  decode 0.263  host 0.000  total 0.695 s / 7.00 s audio (RTF 0.099)  resample 0.003
+  content r5  ref 0.014  encoder 0.077  ode 0.337  decode 0.263  host 0.000  total 0.691 s / 7.00 s audio (RTF 0.099)  resample 0.002
+  [MIN] content  ref 0.014 (2%)  encoder 0.074 (11%)  ode 0.336 (49%)  decode 0.263 (38%)  host 0.000 (0%)  | total 0.689 (Σ stage mins 0.687)  resample 0.002  per-step 0.084,0.084,0.084,0.084
+  emotion warm  ref 0.014  encoder 0.132  ode 0.314  decode 0.241  host 0.000  total 0.700 s / 6.32 s audio (RTF 0.111)  resample 0.001
+  emotion r1  ref 0.011  encoder 0.087  ode 0.313  decode 0.238  host 0.000  total 0.649 s / 6.32 s audio (RTF 0.103)  resample 0.001
+  emotion r2  ref 0.011  encoder 0.086  ode 0.446  decode 0.243  host 0.000  total 0.787 s / 6.32 s audio (RTF 0.125)  resample 0.001
+  emotion r3  ref 0.012  encoder 0.093  ode 0.349  decode 0.248  host 0.000  total 0.701 s / 6.32 s audio (RTF 0.111)  resample 0.001
+  emotion r4  ref 0.011  encoder 0.089  ode 0.317  decode 0.238  host 0.000  total 0.655 s / 6.32 s audio (RTF 0.104)  resample 0.001
+  emotion r5  ref 0.011  encoder 0.084  ode 0.316  decode 0.236  host 0.000  total 0.648 s / 6.32 s audio (RTF 0.103)  resample 0.001
+  [MIN] emotion  ref 0.011 (2%)  encoder 0.084 (13%)  ode 0.313 (49%)  decode 0.236 (37%)  host 0.000 (0%)  | total 0.648 (Σ stage mins 0.645)  resample 0.001  per-step 0.078,0.078,0.078,0.077
+  itts warm  ref 0.000  encoder 0.049  ode 0.165  decode 0.064  host 0.000  total 0.278 s / 1.70 s audio (RTF 0.163)  resample 0.000
+  itts r1  ref 0.000  encoder 0.084  ode 0.172  decode 0.065  host 0.000  total 0.321 s / 1.70 s audio (RTF 0.189)  resample 0.000
+  itts r2  ref 0.000  encoder 0.053  ode 0.165  decode 0.064  host 0.000  total 0.282 s / 1.70 s audio (RTF 0.166)  resample 0.000
+  itts r3  ref 0.000  encoder 0.054  ode 0.164  decode 0.064  host 0.000  total 0.282 s / 1.70 s audio (RTF 0.166)  resample 0.000
+  itts r4  ref 0.000  encoder 0.054  ode 0.164  decode 0.064  host 0.000  total 0.283 s / 1.70 s audio (RTF 0.166)  resample 0.000
+  itts r5  ref 0.000  encoder 0.049  ode 0.164  decode 0.064  host 0.000  total 0.277 s / 1.70 s audio (RTF 0.163)  resample 0.000
+  [MIN] itts  ref 0.000 (0%)  encoder 0.049 (18%)  ode 0.164 (59%)  decode 0.064 (23%)  host 0.000 (0%)  | total 0.277 (Σ stage mins 0.277)  resample 0.000  per-step 0.041,0.041,0.041,0.041
+  se warm  ref 0.012  encoder 0.068  ode 0.326  decode 0.186  host 0.000  total 0.593 s / 4.98 s audio (RTF 0.119)  resample 0.001
+  se r1  ref 0.010  encoder 0.069  ode 0.276  decode 0.183  host 0.000  total 0.538 s / 4.98 s audio (RTF 0.108)  resample 0.001
+  se r2  ref 0.009  encoder 0.065  ode 0.276  decode 0.183  host 0.000  total 0.534 s / 4.98 s audio (RTF 0.107)  resample 0.001
+  se r3  ref 0.009  encoder 0.064  ode 0.284  decode 0.183  host 0.000  total 0.541 s / 4.98 s audio (RTF 0.109)  resample 0.001
+  se r4  ref 0.009  encoder 0.065  ode 0.275  decode 0.183  host 0.000  total 0.532 s / 4.98 s audio (RTF 0.107)  resample 0.001
+  se r5  ref 0.009  encoder 0.064  ode 0.276  decode 0.183  host 0.000  total 0.533 s / 4.98 s audio (RTF 0.107)  resample 0.001
+  [MIN] se  ref 0.009 (2%)  encoder 0.064 (12%)  ode 0.275 (52%)  decode 0.183 (34%)  host 0.000 (0%)  | total 0.532 (Σ stage mins 0.532)  resample 0.001  per-step 0.068,0.069,0.069,0.069
+  speed warm  ref 0.022  encoder 0.086  ode 0.402  decode 0.261  host 0.000  total 0.771 s / 6.86 s audio (RTF 0.112)  resample 0.001
+  speed r1  ref 0.017  encoder 0.083  ode 0.398  decode 0.256  host 0.000  total 0.754 s / 6.86 s audio (RTF 0.110)  resample 0.001
+  speed r2  ref 0.017  encoder 0.081  ode 0.397  decode 0.256  host 0.000  total 0.750 s / 6.86 s audio (RTF 0.109)  resample 0.001
+  speed r3  ref 0.017  encoder 0.082  ode 0.396  decode 0.256  host 0.000  total 0.751 s / 6.86 s audio (RTF 0.109)  resample 0.001
+  speed r4  ref 0.017  encoder 0.082  ode 0.397  decode 0.257  host 0.000  total 0.753 s / 6.86 s audio (RTF 0.110)  resample 0.001
+  speed r5  ref 0.017  encoder 0.083  ode 0.404  decode 0.257  host 0.000  total 0.761 s / 6.86 s audio (RTF 0.111)  resample 0.001
+  [MIN] speed  ref 0.017 (2%)  encoder 0.081 (11%)  ode 0.396 (53%)  decode 0.256 (34%)  host 0.000 (0%)  | total 0.750 (Σ stage mins 0.750)  resample 0.001  per-step 0.099,0.099,0.099,0.099
+  zs warm  ref 0.018  encoder 0.088  ode 0.387  decode 0.227  host 0.000  total 0.720 s / 6.00 s audio (RTF 0.120)  resample 0.001
+  zs r1  ref 0.015  encoder 0.086  ode 0.387  decode 0.224  host 0.000  total 0.713 s / 6.00 s audio (RTF 0.119)  resample 0.001
+  zs r2  ref 0.015  encoder 0.086  ode 0.384  decode 0.223  host 0.000  total 0.709 s / 6.00 s audio (RTF 0.118)  resample 0.001
+  zs r3  ref 0.015  encoder 0.089  ode 0.390  decode 0.225  host 0.000  total 0.719 s / 6.00 s audio (RTF 0.120)  resample 0.001
+  zs r4  ref 0.016  encoder 0.088  ode 0.386  decode 0.224  host 0.000  total 0.714 s / 6.00 s audio (RTF 0.119)  resample 0.001
+  zs r5  ref 0.015  encoder 0.086  ode 0.383  decode 0.224  host 0.000  total 0.708 s / 6.00 s audio (RTF 0.118)  resample 0.001
+  [MIN] zs  ref 0.015 (2%)  encoder 0.086 (12%)  ode 0.383 (54%)  decode 0.223 (32%)  host 0.000 (0%)  | total 0.708 (Σ stage mins 0.708)  resample 0.001  per-step 0.096,0.096,0.096,0.096
+  [POOLED] ref 2%  encoder 12%  ode 52%  decode 34%  host 0%  | Σ 3.599 s over 6 tasks
+== base-bf16
+  model AuK-bf16  encoder Qwen2.5-Omni-3B-Thinker-bf16  dtype bfloat16  runs 5 (+1 warm-up)
+  content warm  ref 0.029  encoder 0.091  ode 4.364  decode 0.263  host 0.001  total 4.748 s / 7.00 s audio (RTF 0.678)  resample 0.002
+  content r1  ref 0.013  encoder 0.084  ode 4.338  decode 0.259  host 0.000  total 4.694 s / 7.00 s audio (RTF 0.671)  resample 0.001
+  content r2  ref 0.013  encoder 0.082  ode 4.323  decode 0.259  host 0.000  total 4.676 s / 7.00 s audio (RTF 0.668)  resample 0.002
+  content r3  ref 0.013  encoder 0.081  ode 4.328  decode 0.259  host 0.000  total 4.682 s / 7.00 s audio (RTF 0.669)  resample 0.001
+  content r4  ref 0.013  encoder 0.082  ode 4.328  decode 0.259  host 0.000  total 4.682 s / 7.00 s audio (RTF 0.669)  resample 0.002
+  content r5  ref 0.013  encoder 0.081  ode 4.332  decode 0.259  host 0.000  total 4.686 s / 7.00 s audio (RTF 0.669)  resample 0.002
+  [MIN] content  ref 0.013 (0%)  encoder 0.081 (2%)  ode 4.323 (92%)  decode 0.259 (6%)  host 0.000 (0%)  | total 4.676 (Σ stage mins 4.676)  resample 0.001  per-step 0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.134,0.134,0.135,0.134,0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.134,0.134
+  emotion warm  ref 0.014  encoder 0.090  ode 3.903  decode 0.237  host 0.000  total 4.245 s / 6.32 s audio (RTF 0.672)  resample 0.001
+  emotion r1  ref 0.013  encoder 0.093  ode 3.899  decode 0.234  host 0.000  total 4.238 s / 6.32 s audio (RTF 0.671)  resample 0.001
+  emotion r2  ref 0.012  encoder 0.086  ode 3.920  decode 0.234  host 0.000  total 4.251 s / 6.32 s audio (RTF 0.673)  resample 0.001
+  emotion r3  ref 0.012  encoder 0.087  ode 3.896  decode 0.234  host 0.000  total 4.228 s / 6.32 s audio (RTF 0.669)  resample 0.001
+  emotion r4  ref 0.012  encoder 0.087  ode 3.898  decode 0.234  host 0.000  total 4.231 s / 6.32 s audio (RTF 0.669)  resample 0.001
+  emotion r5  ref 0.012  encoder 0.087  ode 3.905  decode 0.235  host 0.000  total 4.239 s / 6.32 s audio (RTF 0.671)  resample 0.001
+  [MIN] emotion  ref 0.012 (0%)  encoder 0.086 (2%)  ode 3.896 (92%)  decode 0.234 (6%)  host 0.000 (0%)  | total 4.228 (Σ stage mins 4.227)  resample 0.001  per-step 0.122,0.122,0.122,0.122,0.122,0.122,0.122,0.122,0.121,0.121,0.121,0.121,0.121,0.121,0.121,0.121,0.121,0.121,0.121,0.121,0.122,0.121,0.121,0.121,0.121,0.121,0.121,0.122,0.121,0.121,0.121,0.121
+  itts warm  ref 0.000  encoder 0.057  ode 1.591  decode 0.063  host 0.000  total 1.712 s / 1.70 s audio (RTF 1.007)  resample 0.000
+  itts r1  ref 0.000  encoder 0.051  ode 1.607  decode 0.063  host 0.000  total 1.721 s / 1.70 s audio (RTF 1.012)  resample 0.000
+  itts r2  ref 0.000  encoder 0.054  ode 1.594  decode 0.063  host 0.000  total 1.712 s / 1.70 s audio (RTF 1.007)  resample 0.000
+  itts r3  ref 0.000  encoder 0.054  ode 1.709  decode 0.067  host 0.000  total 1.830 s / 1.70 s audio (RTF 1.077)  resample 0.000
+  itts r4  ref 0.000  encoder 0.073  ode 1.842  decode 0.069  host 0.000  total 1.984 s / 1.70 s audio (RTF 1.167)  resample 0.000
+  itts r5  ref 0.000  encoder 0.074  ode 1.783  decode 0.070  host 0.000  total 1.928 s / 1.70 s audio (RTF 1.134)  resample 0.000
+  [MIN] itts  ref 0.000 (0%)  encoder 0.051 (3%)  ode 1.594 (93%)  decode 0.063 (4%)  host 0.000 (0%)  | total 1.712 (Σ stage mins 1.709)  resample 0.000  per-step 0.049,0.049,0.049,0.049,0.050,0.050,0.050,0.050,0.050,0.049,0.049,0.050,0.050,0.050,0.050,0.050,0.049,0.050,0.050,0.050,0.050,0.050,0.050,0.051,0.050,0.050,0.050,0.049,0.050,0.049,0.050,0.049
+  se warm  ref 0.015  encoder 0.184  ode 3.954  decode 0.193  host 0.001  total 4.348 s / 4.98 s audio (RTF 0.873)  resample 0.001
+  se r1  ref 0.012  encoder 0.126  ode 4.033  decode 0.198  host 0.004  total 4.374 s / 4.98 s audio (RTF 0.878)  resample 0.002
+  se r2  ref 0.014  encoder 0.195  ode 3.734  decode 0.187  host 0.000  total 4.131 s / 4.98 s audio (RTF 0.829)  resample 0.001
+  se r3  ref 0.011  encoder 0.099  ode 3.434  decode 0.184  host 0.000  total 3.728 s / 4.98 s audio (RTF 0.749)  resample 0.001
+  se r4  ref 0.011  encoder 0.090  ode 3.609  decode 0.184  host 0.000  total 3.894 s / 4.98 s audio (RTF 0.782)  resample 0.001
+  se r5  ref 0.010  encoder 0.091  ode 3.424  decode 0.183  host 0.000  total 3.708 s / 4.98 s audio (RTF 0.745)  resample 0.001
+  [MIN] se  ref 0.010 (0%)  encoder 0.090 (2%)  ode 3.424 (92%)  decode 0.183 (5%)  host 0.000 (0%)  | total 3.708 (Σ stage mins 3.708)  resample 0.001  per-step 0.106,0.106,0.106,0.106,0.106,0.106,0.106,0.106,0.106,0.107,0.106,0.107,0.106,0.106,0.106,0.107,0.107,0.106,0.106,0.106,0.105,0.106,0.106,0.107,0.106,0.106,0.106,0.106,0.106,0.105,0.105,0.106
+  speed warm  ref 0.022  encoder 0.102  ode 5.544  decode 0.259  host 0.000  total 5.928 s / 6.86 s audio (RTF 0.864)  resample 0.001
+  speed r1  ref 0.018  encoder 0.103  ode 5.531  decode 0.255  host 0.000  total 5.907 s / 6.86 s audio (RTF 0.861)  resample 0.001
+  speed r2  ref 0.018  encoder 0.100  ode 5.500  decode 0.256  host 0.000  total 5.873 s / 6.86 s audio (RTF 0.856)  resample 0.001
+  speed r3  ref 0.018  encoder 0.100  ode 5.474  decode 0.255  host 0.000  total 5.846 s / 6.86 s audio (RTF 0.852)  resample 0.001
+  speed r4  ref 0.018  encoder 0.096  ode 5.467  decode 0.255  host 0.000  total 5.836 s / 6.86 s audio (RTF 0.851)  resample 0.001
+  speed r5  ref 0.018  encoder 0.097  ode 5.470  decode 0.255  host 0.000  total 5.839 s / 6.86 s audio (RTF 0.851)  resample 0.001
+  [MIN] speed  ref 0.018 (0%)  encoder 0.096 (2%)  ode 5.467 (94%)  decode 0.255 (4%)  host 0.000 (0%)  | total 5.836 (Σ stage mins 5.836)  resample 0.001  per-step 0.171,0.172,0.172,0.171,0.171,0.171,0.170,0.170,0.170,0.171,0.171,0.171,0.171,0.170,0.170,0.170,0.171,0.170,0.170,0.170,0.171,0.170,0.170,0.171,0.170,0.170,0.171,0.170,0.171,0.170,0.171,0.170
+  zs warm  ref 0.019  encoder 0.096  ode 5.108  decode 0.225  host 0.000  total 5.448 s / 6.00 s audio (RTF 0.908)  resample 0.001
+  zs r1  ref 0.016  encoder 0.095  ode 5.105  decode 0.223  host 0.000  total 5.439 s / 6.00 s audio (RTF 0.907)  resample 0.001
+  zs r2  ref 0.016  encoder 0.114  ode 5.207  decode 0.234  host 0.000  total 5.572 s / 6.00 s audio (RTF 0.929)  resample 0.001
+  zs r3  ref 0.022  encoder 0.119  ode 5.169  decode 0.222  host 0.000  total 5.532 s / 6.00 s audio (RTF 0.922)  resample 0.001
+  zs r4  ref 0.016  encoder 0.096  ode 5.117  decode 0.223  host 0.000  total 5.452 s / 6.00 s audio (RTF 0.909)  resample 0.001
+  zs r5  ref 0.016  encoder 0.096  ode 5.108  decode 0.222  host 0.000  total 5.443 s / 6.00 s audio (RTF 0.907)  resample 0.001
+  [MIN] zs  ref 0.016 (0%)  encoder 0.095 (2%)  ode 5.105 (94%)  decode 0.222 (4%)  host 0.000 (0%)  | total 5.439 (Σ stage mins 5.439)  resample 0.001  per-step 0.160,0.160,0.160,0.160,0.160,0.160,0.159,0.159,0.159,0.159,0.159,0.160,0.159,0.159,0.159,0.159,0.159,0.159,0.159,0.159,0.159,0.159,0.159,0.159,0.159,0.159,0.159,0.159,0.159,0.159,0.159,0.159
+  [POOLED] ref 0%  encoder 2%  ode 93%  decode 5%  host 0%  | Σ 25.594 s over 6 tasks
+== base-int8
+  model AuK-bf16  encoder Qwen2.5-Omni-3B-Thinker-8bit  dtype bfloat16  runs 5 (+1 warm-up)
+  content warm  ref 0.029  encoder 0.094  ode 4.346  decode 0.263  host 0.000  total 4.731 s / 7.00 s audio (RTF 0.676)  resample 0.002
+  content r1  ref 0.013  encoder 0.088  ode 4.372  decode 0.260  host 0.000  total 4.733 s / 7.00 s audio (RTF 0.676)  resample 0.002
+  content r2  ref 0.014  encoder 0.091  ode 4.324  decode 0.259  host 0.000  total 4.688 s / 7.00 s audio (RTF 0.670)  resample 0.002
+  content r3  ref 0.013  encoder 0.088  ode 4.333  decode 0.259  host 0.000  total 4.693 s / 7.00 s audio (RTF 0.670)  resample 0.002
+  content r4  ref 0.013  encoder 0.089  ode 4.326  decode 0.259  host 0.000  total 4.687 s / 7.00 s audio (RTF 0.670)  resample 0.002
+  content r5  ref 0.013  encoder 0.089  ode 4.322  decode 0.259  host 0.000  total 4.684 s / 7.00 s audio (RTF 0.669)  resample 0.002
+  [MIN] content  ref 0.013 (0%)  encoder 0.088 (2%)  ode 4.322 (92%)  decode 0.259 (6%)  host 0.000 (0%)  | total 4.684 (Σ stage mins 4.683)  resample 0.002  per-step 0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.134,0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.134,0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.135,0.134
+  emotion warm  ref 0.014  encoder 0.098  ode 3.896  decode 0.237  host 0.000  total 4.244 s / 6.32 s audio (RTF 0.672)  resample 0.001
+  emotion r1  ref 0.011  encoder 0.096  ode 3.897  decode 0.234  host 0.000  total 4.238 s / 6.32 s audio (RTF 0.671)  resample 0.001
+  emotion r2  ref 0.011  encoder 0.096  ode 3.896  decode 0.234  host 0.000  total 4.238 s / 6.32 s audio (RTF 0.671)  resample 0.001
+  emotion r3  ref 0.011  encoder 0.096  ode 3.892  decode 0.234  host 0.000  total 4.233 s / 6.32 s audio (RTF 0.670)  resample 0.001
+  emotion r4  ref 0.011  encoder 0.096  ode 3.902  decode 0.234  host 0.000  total 4.244 s / 6.32 s audio (RTF 0.672)  resample 0.001
+  emotion r5  ref 0.011  encoder 0.096  ode 3.922  decode 0.235  host 0.000  total 4.265 s / 6.32 s audio (RTF 0.675)  resample 0.001
+  [MIN] emotion  ref 0.011 (0%)  encoder 0.096 (2%)  ode 3.892 (92%)  decode 0.234 (6%)  host 0.000 (0%)  | total 4.233 (Σ stage mins 4.232)  resample 0.001  per-step 0.121,0.122,0.122,0.122,0.122,0.122,0.121,0.121,0.121,0.121,0.121,0.121,0.121,0.121,0.121,0.121,0.121,0.121,0.121,0.121,0.121,0.121,0.121,0.121,0.121,0.121,0.122,0.121,0.121,0.121,0.121,0.121
+  itts warm  ref 0.000  encoder 0.073  ode 1.590  decode 0.064  host 0.000  total 1.728 s / 1.70 s audio (RTF 1.016)  resample 0.000
+  itts r1  ref 0.000  encoder 0.064  ode 1.584  decode 0.063  host 0.000  total 1.712 s / 1.70 s audio (RTF 1.007)  resample 0.000
+  itts r2  ref 0.000  encoder 0.065  ode 1.580  decode 0.064  host 0.000  total 1.710 s / 1.70 s audio (RTF 1.006)  resample 0.000
+  itts r3  ref 0.000  encoder 0.067  ode 1.568  decode 0.063  host 0.000  total 1.698 s / 1.70 s audio (RTF 0.999)  resample 0.000
+  itts r4  ref 0.000  encoder 0.068  ode 1.568  decode 0.063  host 0.000  total 1.698 s / 1.70 s audio (RTF 0.999)  resample 0.000
+  itts r5  ref 0.000  encoder 0.064  ode 1.566  decode 0.063  host 0.000  total 1.693 s / 1.70 s audio (RTF 0.996)  resample 0.000
+  [MIN] itts  ref 0.000 (0%)  encoder 0.064 (4%)  ode 1.566 (92%)  decode 0.063 (4%)  host 0.000 (0%)  | total 1.693 (Σ stage mins 1.693)  resample 0.000  per-step 0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049,0.049
+  se warm  ref 0.011  encoder 0.080  ode 3.311  decode 0.183  host 0.000  total 3.585 s / 4.98 s audio (RTF 0.720)  resample 0.001
+  se r1  ref 0.010  encoder 0.080  ode 3.308  decode 0.181  host 0.000  total 3.580 s / 4.98 s audio (RTF 0.719)  resample 0.001
+  se r2  ref 0.011  encoder 0.085  ode 3.305  decode 0.181  host 0.000  total 3.582 s / 4.98 s audio (RTF 0.719)  resample 0.001
+  se r3  ref 0.010  encoder 0.079  ode 3.308  decode 0.181  host 0.000  total 3.578 s / 4.98 s audio (RTF 0.719)  resample 0.001
+  se r4  ref 0.010  encoder 0.079  ode 3.308  decode 0.182  host 0.000  total 3.579 s / 4.98 s audio (RTF 0.719)  resample 0.001
+  se r5  ref 0.010  encoder 0.079  ode 3.310  decode 0.181  host 0.000  total 3.581 s / 4.98 s audio (RTF 0.719)  resample 0.001
+  [MIN] se  ref 0.010 (0%)  encoder 0.079 (2%)  ode 3.305 (92%)  decode 0.181 (5%)  host 0.000 (0%)  | total 3.578 (Σ stage mins 3.575)  resample 0.001  per-step 0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103,0.103
+  speed warm  ref 0.020  encoder 0.099  ode 5.685  decode 0.280  host 0.000  total 6.084 s / 6.86 s audio (RTF 0.887)  resample 0.001
+  speed r1  ref 0.018  encoder 0.122  ode 5.499  decode 0.255  host 0.000  total 5.895 s / 6.86 s audio (RTF 0.859)  resample 0.001
+  speed r2  ref 0.017  encoder 0.102  ode 5.484  decode 0.255  host 0.000  total 5.859 s / 6.86 s audio (RTF 0.854)  resample 0.001
+  speed r3  ref 0.017  encoder 0.101  ode 5.476  decode 0.255  host 0.000  total 5.850 s / 6.86 s audio (RTF 0.853)  resample 0.001
+  speed r4  ref 0.017  encoder 0.098  ode 5.473  decode 0.255  host 0.000  total 5.844 s / 6.86 s audio (RTF 0.852)  resample 0.001
+  speed r5  ref 0.017  encoder 0.098  ode 5.469  decode 0.255  host 0.000  total 5.839 s / 6.86 s audio (RTF 0.851)  resample 0.001
+  [MIN] speed  ref 0.017 (0%)  encoder 0.098 (2%)  ode 5.469 (94%)  decode 0.255 (4%)  host 0.000 (0%)  | total 5.839 (Σ stage mins 5.838)  resample 0.001  per-step 0.171,0.171,0.171,0.171,0.171,0.171,0.171,0.170,0.171,0.170,0.171,0.171,0.170,0.170,0.170,0.170,0.170,0.171,0.171,0.170,0.170,0.170,0.170,0.170,0.170,0.171,0.171,0.171,0.170,0.170,0.170,0.170
+  zs warm  ref 0.018  encoder 0.104  ode 5.109  decode 0.225  host 0.000  total 5.456 s / 6.00 s audio (RTF 0.909)  resample 0.001
+  zs r1  ref 0.016  encoder 0.104  ode 5.103  decode 0.222  host 0.000  total 5.446 s / 6.00 s audio (RTF 0.908)  resample 0.001
+  zs r2  ref 0.017  encoder 0.105  ode 5.116  decode 0.223  host 0.000  total 5.460 s / 6.00 s audio (RTF 0.910)  resample 0.001
+  zs r3  ref 0.017  encoder 0.103  ode 5.670  decode 0.233  host 0.001  total 6.024 s / 6.00 s audio (RTF 1.004)  resample 0.001
+  zs r4  ref 0.019  encoder 0.140  ode 5.814  decode 0.234  host 0.000  total 6.207 s / 6.00 s audio (RTF 1.035)  resample 0.001
+  zs r5  ref 0.020  encoder 0.150  ode 5.725  decode 0.226  host 0.000  total 6.121 s / 6.00 s audio (RTF 1.020)  resample 0.001
+  [MIN] zs  ref 0.016 (0%)  encoder 0.103 (2%)  ode 5.103 (94%)  decode 0.222 (4%)  host 0.000 (0%)  | total 5.446 (Σ stage mins 5.445)  resample 0.001  per-step 0.160,0.160,0.160,0.160,0.160,0.160,0.160,0.159,0.159,0.159,0.159,0.159,0.159,0.159,0.159,0.159,0.159,0.159,0.159,0.159,0.159,0.159,0.160,0.159,0.159,0.159,0.160,0.160,0.159,0.159,0.160,0.159
+  [POOLED] ref 0%  encoder 2%  ode 93%  decode 5%  host 0%  | Σ 25.467 s over 6 tasks
+[gpu-lock] t0415-profile released at 19:42:14 (exit 0)

@@ -179,3 +179,66 @@ own inputs, plus an off-grid refusal:
   - the pitch shift itself, in cents.
 
   The cookbook verifier in AB-T-0416 is for those.
+
+## Stage profile — where a call's time goes (2026-11-01, AB-T-0415)
+
+`auk-gates profile` runs the six golden tasks with `AukPipeline.generate`, on the production path: the pipeline's own
+noise, resampling and features. Settings:
+- GPU, TF32 at MLX's default, seed 0.
+- One untimed warm-up per task, then 5 timed runs. Each figure is the lowest of the 5.
+- Each config runs in a fresh process, holding the AuK GPU lock alone (`Tools/run_profile.sh`).
+- Raw per-run log: `receipts/stage-profile.log`.
+
+**How each stage is bounded.** `generate` already calls `eval` at the end of every stage, then `capture`. The profile
+timestamps those `capture` calls, so each interval is finished GPU work, not lazy graph building:
+
+| stage | from → to | what it holds |
+|---|---|---|
+| ref | call start → `ref_latents` | sinc resample to 24 and 16 kHz (CPU, ≈ 1 ms, timed separately), VAE encode |
+| encoder | → `fused` | Whisper features, tokenizer, Qwen thinker (36 layers), ELMo fusion; `eval` after every layer |
+| ODE | → `gen_latent` | the Euler loop; `eval(x)` after every step, which `onStep` timestamps |
+| decode | → `audio_out` | denormalise + BigVGAN-Flow decoder |
+| host | → return | the fp32 copy to `[Float]`, < 1 ms |
+
+**Pooled over the six tasks** (32.9 s of audio in all). Each cell is the sum, over the tasks, of each task's lowest
+time for that stage:
+
+| config | ref | encoder | ODE | VAE decode | total | RTF | decode share: pooled (per-task range) |
+|---|---|---|---|---|---|---|---|
+| Flash bf16 | 0.07 s | 0.43 (12 %) | 1.94 (53 %) | 1.25 | 3.73 | 0.113 | **34 %** (23–39 %) |
+| Flash 8-bit encoder | 0.07 | 0.44 (12 %) | 1.87 (52 %) | 1.23 | 3.60 | 0.110 | **34 %** (23–38 %) |
+| Base bf16 | 0.07 | 0.50 (2 %) | 23.81 (93 %) | 1.22 | 25.60 | 0.779 | 5 % (4–6 %) |
+| Base 8-bit encoder | 0.07 | 0.53 (2 %) | 23.66 (93 %) | 1.21 | 25.47 | 0.775 | 5 % (4–6 %) |
+
+**Per task, Flash bf16** (lowest time per stage, in seconds; the bracket is that stage's share of the call):
+
+| task | audio | ref | encoder | ODE (per step) | decode | total |
+|---|---|---|---|---|---|---|
+| content | 7.00 s | 0.012 | 0.063 | 0.324 (0.081) | 0.259 (39 %) | 0.659 |
+| emotion | 6.32 | 0.011 | 0.069 | 0.303 (0.076) | 0.236 (38 %) | 0.618 |
+| itts (no ref) | 1.70 | — | 0.042 | 0.178 (0.044) | 0.066 (23 %) | 0.288 |
+| se | 4.98 | 0.010 | 0.072 | 0.298 (0.074) | 0.189 (33 %) | 0.571 |
+| speed | 6.86 | 0.018 | 0.089 | 0.425 (0.106) | 0.266 (33 %) | 0.798 |
+| zs | 6.00 | 0.017 | 0.090 | 0.414 (0.103) | 0.232 (31 %) | 0.791 |
+
+**Reading.**
+- **The VAE decoder does not dominate Flash here.** Pooled it is 34 % of the call; its worst task share is 39 %
+  (content); the ODE is 52–53 %. AB-T-0415's 40 % threshold is not met, so no decoder-optimisation task is filed.
+  Upstream's ~60 % decode (fp32 Python-MLX, M4 Pro, 4 s clip) does not reproduce on bf16 Swift on an M5 Max.
+- **Decode cost is linear in output length**: 36–41 ms per second of audio in every config and task. Its share
+  therefore depends on the ODE cost per step, which follows the whole DiT sequence (reference + target), not the
+  output alone:
+  - 0.044 s per step for 1.7 s of instruct TTS with no reference;
+  - 0.074–0.106 s with a 5–11 s reference.
+- Not measured here: calls near the 30 s ceiling. There the ODE's attention should grow faster than the linear
+  decoder, so the decode share should fall further. A long-clip sweep would confirm it.
+- **Base is ODE-bound**: 32 CFG steps take 92–94 % of the call. The doubled batch makes each step 1.1–1.7 × a Flash
+  step.
+- **The 8-bit encoder buys no speed.** Encoder time is the same as bf16 within noise (0.44 vs 0.43 s pooled for
+  Flash). It is one short prefill, and its cost is mostly not weight reads. Tier B's value is memory (V2b: 9.4 vs
+  12.6 GB), not latency.
+- RTF from this pass (Flash 0.11, Base 0.78) sits at the low end of V2b / V3's Flash 0.11–0.14 and Base ≈ 0.9:
+  those were single runs, these are the lowest of 5.
+- Spread: within a task the slowest of 5 runs is at most 22 % over the fastest. The low end is reported.
+- The first call in a process is dominated by kernel compile (Flash content warm-up: ref 1.5 s, encoder 2.4 s, total
+  6.1 s). That is the cost `AuKConfiguration.warmUp` exists to pay at load.
