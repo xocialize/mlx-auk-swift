@@ -42,7 +42,13 @@ public final class QwenOmniConditionEncoder: AukConditionEncoder {
     public private(set) var lastFeatures: MLXArray?
     public private(set) var lastAudioEmbeds: MLXArray?
 
-    public init(directory: URL, dtype: DType) async throws {
+    public convenience init(directory: URL, dtype: DType) async throws {
+        try self.init(directory: directory, dtype: dtype, tokenizer: try await AutoTokenizer.from(modelFolder: directory))
+    }
+
+    /// The synchronous load with a tokenizer already in hand — a staged pipeline loads the tokenizer once and the
+    /// thinker on every call.
+    public init(directory: URL, dtype: DType, tokenizer: Tokenizer) throws {
         let config = try ConfigIO.load(QwenOmniThinkerConfig.self, from: directory.appendingPathComponent("config.json"))
         let thinker = Qwen2_5OmniThinker(config)
         if let q = config.quantization { thinker.quantizeLayers(groupSize: q.group_size, bits: q.bits) }
@@ -51,7 +57,7 @@ public final class QwenOmniConditionEncoder: AukConditionEncoder {
                                         keepFP32: { $0.hasSuffix(".scales") || $0.hasSuffix(".biases") })
         try WeightIO.apply(WeightIO.scoped(weights, prefix: "thinker."), to: thinker, component: "thinker")
         self.thinker = thinker
-        self.tokenizer = try await AutoTokenizer.from(modelFolder: directory)
+        self.tokenizer = tokenizer
         self.melFilters = Signal.slaneyMelFilters(sampleRate: 16000, nFFT: 400, nMels: config.audio_config.num_mel_bins)
         self.dtype = dtype
     }

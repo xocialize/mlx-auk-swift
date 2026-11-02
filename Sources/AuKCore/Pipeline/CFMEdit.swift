@@ -44,15 +44,23 @@ public struct SamplingConfig: Codable, Sendable {
     }
 }
 
-public final class CFMEdit: Module {
-    @ModuleInfo(key: "transformer") public var transformer: Flux2Edit
-    @ParameterInfo(key: "layer_weights") var layerWeights: MLXArray
-    @ParameterInfo(key: "layer_scale") var layerScale: MLXArray
+/// The ELMo-style fusion head: `layer_weights` and `layer_scale`, the only part of dit.safetensors the conditioning
+/// stage reads. A staged pipeline keeps these two small tensors loaded while the backbone is not (AB-T-0414).
+public struct AukFusion {
+    public let layerWeights: MLXArray
+    public let layerScale: MLXArray
 
-    public init(_ c: Flux2EditConfig, numEncoderLayers: Int) {
-        self._transformer.wrappedValue = Flux2Edit(c)
-        self._layerWeights.wrappedValue = MLXArray.zeros([numEncoderLayers])
-        self._layerScale.wrappedValue = MLXArray.ones([1])
+    public init(layerWeights: MLXArray, layerScale: MLXArray) {
+        self.layerWeights = layerWeights; self.layerScale = layerScale
+    }
+
+    /// Reads just the two fusion tensors from a dit.safetensors, as `AukPipeline.loadModel` stores them (fp32).
+    public static func load(_ url: URL) throws -> AukFusion {
+        let w = try WeightIO.load(url, dtype: nil, only: { $0 == "layer_weights" || $0 == "layer_scale" })
+        guard let lw = w["layer_weights"], let ls = w["layer_scale"] else {
+            throw AuKError.keyContract(component: "fusion", missing: ["layer_weights", "layer_scale"].filter { w[$0] == nil }, unused: [])
+        }
+        return AukFusion(layerWeights: lw, layerScale: ls)
     }
 
     /// Fused condition (1, nt, d_llm) fp32: Σ_i softmax(layer_weights)_i · LN(h_i) · layer_scale over i = 1…L, where LN
@@ -71,6 +79,27 @@ public final class CFMEdit: Module {
         guard let acc else { throw AuKError.invalidInput("encoder produced no hidden states") }
         let fused = acc * layerScale.asType(.float32)
         return (fused, MLXArray.ones([1, n]).asType(.bool))
+    }
+}
+
+public final class CFMEdit: Module {
+    @ModuleInfo(key: "transformer") public var transformer: Flux2Edit
+    @ParameterInfo(key: "layer_weights") var layerWeights: MLXArray
+    @ParameterInfo(key: "layer_scale") var layerScale: MLXArray
+
+    public init(_ c: Flux2EditConfig, numEncoderLayers: Int) {
+        self._transformer.wrappedValue = Flux2Edit(c)
+        self._layerWeights.wrappedValue = MLXArray.zeros([numEncoderLayers])
+        self._layerScale.wrappedValue = MLXArray.ones([1])
+    }
+
+    /// The fusion head as a value — what the conditioning stage needs from this module.
+    public var fusion: AukFusion { AukFusion(layerWeights: layerWeights, layerScale: layerScale) }
+
+    /// Fused condition (1, nt, d_llm) fp32 — `AukFusion.encodeText`.
+    public func encodeText(_ prompt: AukPrompt, encoder: AukConditionEncoder,
+                           capture: ((Int, MLXArray) -> Void)? = nil) throws -> (MLXArray, MLXArray) {
+        try fusion.encodeText(prompt, encoder: encoder, capture: capture)
     }
 
     /// The flow sampler. `cond` is the normalised reference latent (1, Np, D) — Np may be 0 (instruct TTS) — of which

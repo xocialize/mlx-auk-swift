@@ -39,7 +39,13 @@ Phys footprint through MLXServeEngine, plus speed:
 | int8 encoder | 9.5 GB | 0.84 | 0.13 |
 | int4 encoder | 7.6–7.9 GB | 0.83 | 0.12 |
 
-Activation is ≤ 1.0 GB for every tier. Parity at fp32 against the upstream PyTorch code: generated latent relL2
+Activation is ≤ 1.0 GB for every tier, measured after each request (a 5 ms sampler sees 1.9–2.5 GB inside one).
+
+**Staged residency** (`AuKConfiguration(residency: .staged)`): the encoder and the DiT are read for each request and
+freed after their stage, so only one large model is in memory at a time. The output is bit-identical. Peak phys drops
+to 10.8 GB (bf16), 7.7 GB (int8) and 6.4–7.3 GB (int4), against 14.9 / 11.6–11.8 / 9.8–10.0 GB resident. Idle drops to
+2.3–2.8 GB. Each request takes +0.2–0.45 s with a warm page cache, or about +1 s cold on a 13 GB/s disk. The engine
+still charges the resident footprints until AB-A-0246 settles the declaration. Parity at fp32 against the upstream PyTorch code: generated latent relL2
 ≤ 6.6e-4 on 12 lanes. All three tiers pass a pre-registered quality gate (WER/CER, CAM++ SIM, DNSMOS). Details are
 in `PORTING-SPEC.md` and `MEASUREMENTS.md`.
 

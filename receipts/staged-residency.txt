@@ -1,0 +1,708 @@
+# AB-T-0414 staged residency — raw outputs (M5 Max, mlx-swift 0.32.3, 2026-11-01, under the AuK GPU lock)
+# produced by Tools/run_staged.sh bit|mem (auk-gates staged / validate --residency) and a page-cache probe
+
+===== staged-base-bf16.log
+  resident load 0.62 s, phys 11.13 GB
+  [resident] content-prod wall   4.67 s  (encoder load  0.00, DiT load  0.00)  MLX peak 12.46 GB  phys peak 17.71 GB
+  [resident] content-oracle wall   4.68 s  (encoder load  0.00, DiT load  0.00)  MLX peak 12.46 GB  phys peak 17.71 GB
+  [resident] emotion-prod wall   4.23 s  (encoder load  0.00, DiT load  0.00)  MLX peak 12.57 GB  phys peak 22.89 GB
+  [resident] emotion-oracle wall   4.23 s  (encoder load  0.00, DiT load  0.00)  MLX peak 12.57 GB  phys peak 22.90 GB
+  [resident] itts-prod wall   1.69 s  (encoder load  0.00, DiT load  0.00)  MLX peak 12.43 GB  phys peak 25.20 GB
+  [resident] itts-oracle wall   1.69 s  (encoder load  0.00, DiT load  0.00)  MLX peak 12.43 GB  phys peak 25.21 GB
+  [resident] se-prod wall   3.59 s  (encoder load  0.00, DiT load  0.00)  MLX peak 12.45 GB  phys peak 29.91 GB
+  [resident] se-oracle wall   3.58 s  (encoder load  0.00, DiT load  0.00)  MLX peak 12.43 GB  phys peak 29.91 GB
+  [resident] speed-prod wall   5.85 s  (encoder load  0.00, DiT load  0.00)  MLX peak 12.73 GB  phys peak 36.07 GB
+  [resident] speed-oracle wall   5.84 s  (encoder load  0.00, DiT load  0.00)  MLX peak 12.73 GB  phys peak 36.08 GB
+  [resident] zs-prod wall   5.47 s  (encoder load  0.00, DiT load  0.00)  MLX peak 12.62 GB  phys peak 41.62 GB
+  [resident] zs-oracle wall   5.46 s  (encoder load  0.00, DiT load  0.00)  MLX peak 12.62 GB  phys peak 41.68 GB
+  staged load 0.41 s, phys 0.96 GB (MLX active 0.37 GB)
+  [staged-warm] content-prod wall   5.11 s  (encoder load  0.21, DiT load  0.09)  MLX peak  8.15 GB  phys peak 12.05 GB
+  [staged-warm] content-oracle wall   5.06 s  (encoder load  0.20, DiT load  0.09)  MLX peak  8.14 GB  phys peak 12.06 GB
+  [staged-warm] emotion-prod wall   4.60 s  (encoder load  0.19, DiT load  0.09)  MLX peak  8.12 GB  phys peak 12.06 GB
+  [staged-warm] emotion-oracle wall   4.59 s  (encoder load  0.19, DiT load  0.09)  MLX peak  8.12 GB  phys peak 11.93 GB
+  [staged-warm] itts-prod wall   2.13 s  (encoder load  0.19, DiT load  0.09)  MLX peak  7.84 GB  phys peak 11.23 GB
+  [staged-warm] itts-oracle wall   2.13 s  (encoder load  0.19, DiT load  0.09)  MLX peak  7.84 GB  phys peak  9.62 GB
+  [staged-warm] se-prod wall   3.95 s  (encoder load  0.19, DiT load  0.09)  MLX peak  8.06 GB  phys peak 10.23 GB
+  [staged-warm] se-oracle wall   3.94 s  (encoder load  0.19, DiT load  0.09)  MLX peak  8.06 GB  phys peak 11.67 GB
+  [staged-warm] speed-prod wall   6.21 s  (encoder load  0.19, DiT load  0.09)  MLX peak  8.25 GB  phys peak 12.37 GB
+  [staged-warm] speed-oracle wall   6.39 s  (encoder load  0.19, DiT load  0.09)  MLX peak  8.25 GB  phys peak 12.53 GB
+  [staged-warm] zs-prod wall   6.02 s  (encoder load  0.20, DiT load  0.09)  MLX peak  8.21 GB  phys peak 12.52 GB
+  [staged-warm] zs-oracle wall   5.84 s  (encoder load  0.20, DiT load  0.09)  MLX peak  8.21 GB  phys peak 12.34 GB
+  [staged-cold] content-prod wall   5.67 s  (encoder load  0.59, DiT load  0.25)  MLX peak  8.15 GB  phys peak 12.05 GB  page cache before 0%
+  [staged-cold] content-oracle wall   5.73 s  (encoder load  0.60, DiT load  0.25)  MLX peak  8.14 GB  phys peak 12.10 GB  page cache before 0%
+  [staged-cold] emotion-prod wall   5.25 s  (encoder load  0.59, DiT load  0.25)  MLX peak  8.12 GB  phys peak 12.09 GB  page cache before 0%
+  [staged-cold] emotion-oracle wall   5.22 s  (encoder load  0.59, DiT load  0.25)  MLX peak  8.12 GB  phys peak 11.98 GB  page cache before 0%
+  [staged-cold] itts-prod wall   2.68 s  (encoder load  0.59, DiT load  0.25)  MLX peak  7.84 GB  phys peak 11.27 GB  page cache before 0%
+  [staged-cold] itts-oracle wall   2.70 s  (encoder load  0.59, DiT load  0.25)  MLX peak  7.84 GB  phys peak  9.66 GB  page cache before 0%
+  [staged-cold] se-prod wall   4.52 s  (encoder load  0.59, DiT load  0.25)  MLX peak  8.06 GB  phys peak 10.27 GB  page cache before 0%
+  [staged-cold] se-oracle wall   4.51 s  (encoder load  0.59, DiT load  0.25)  MLX peak  8.06 GB  phys peak 11.70 GB  page cache before 0%
+  [staged-cold] speed-prod wall   6.76 s  (encoder load  0.59, DiT load  0.25)  MLX peak  8.25 GB  phys peak 12.38 GB  page cache before 0%
+  [staged-cold] speed-oracle wall   6.77 s  (encoder load  0.59, DiT load  0.25)  MLX peak  8.25 GB  phys peak 12.56 GB  page cache before 0%
+  [staged-cold] zs-prod wall   6.41 s  (encoder load  0.59, DiT load  0.25)  MLX peak  8.21 GB  phys peak 12.46 GB  page cache before 0%
+  [staged-cold] zs-oracle wall   6.42 s  (encoder load  0.59, DiT load  0.25)  MLX peak  8.21 GB  phys peak 12.37 GB  page cache before 0%
+  [BIT] staged-warm content-prod IDENTICAL (168000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm content-oracle IDENTICAL (168000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm emotion-prod IDENTICAL (151680 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm emotion-oracle IDENTICAL (151680 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm itts-prod IDENTICAL (40800 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm itts-oracle IDENTICAL (40800 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm se-prod IDENTICAL (119520 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm se-oracle IDENTICAL (119520 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm speed-prod IDENTICAL (164640 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm speed-oracle IDENTICAL (164640 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm zs-prod IDENTICAL (144000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm zs-oracle IDENTICAL (144000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-cold content-prod IDENTICAL (168000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-cold content-oracle IDENTICAL (168000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-cold emotion-prod IDENTICAL (151680 samples, max|Δ| 0.000e+00)
+  [BIT] staged-cold emotion-oracle IDENTICAL (151680 samples, max|Δ| 0.000e+00)
+  [BIT] staged-cold itts-prod IDENTICAL (40800 samples, max|Δ| 0.000e+00)
+  [BIT] staged-cold itts-oracle IDENTICAL (40800 samples, max|Δ| 0.000e+00)
+  [BIT] staged-cold se-prod IDENTICAL (119520 samples, max|Δ| 0.000e+00)
+  [BIT] staged-cold se-oracle IDENTICAL (119520 samples, max|Δ| 0.000e+00)
+  [BIT] staged-cold speed-prod IDENTICAL (164640 samples, max|Δ| 0.000e+00)
+  [BIT] staged-cold speed-oracle IDENTICAL (164640 samples, max|Δ| 0.000e+00)
+  [BIT] staged-cold zs-prod IDENTICAL (144000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-cold zs-oracle IDENTICAL (144000 samples, max|Δ| 0.000e+00)
+  [BIT] staged vs resident: PASS — every sample bit-identical
+
+===== staged-base-int4.log
+  resident load 0.54 s, phys 6.25 GB
+  [resident] content-prod wall   4.68 s  (encoder load  0.00, DiT load  0.00)  MLX peak  7.57 GB  phys peak 12.73 GB
+  [resident] content-oracle wall   4.69 s  (encoder load  0.00, DiT load  0.00)  MLX peak  7.57 GB  phys peak 12.75 GB
+  [resident] emotion-prod wall   4.24 s  (encoder load  0.00, DiT load  0.00)  MLX peak  7.69 GB  phys peak 17.94 GB
+  [resident] emotion-oracle wall   4.24 s  (encoder load  0.00, DiT load  0.00)  MLX peak  7.69 GB  phys peak 17.94 GB
+  [resident] itts-prod wall   1.71 s  (encoder load  0.00, DiT load  0.00)  MLX peak  7.55 GB  phys peak 20.23 GB
+  [resident] itts-oracle wall   1.70 s  (encoder load  0.00, DiT load  0.00)  MLX peak  7.55 GB  phys peak 20.24 GB
+  [resident] se-prod wall   3.58 s  (encoder load  0.00, DiT load  0.00)  MLX peak  7.56 GB  phys peak 24.85 GB
+  [resident] se-oracle wall   3.99 s  (encoder load  0.00, DiT load  0.00)  MLX peak  7.54 GB  phys peak 24.86 GB
+  [resident] speed-prod wall   6.15 s  (encoder load  0.00, DiT load  0.00)  MLX peak  7.84 GB  phys peak 31.00 GB
+  [resident] speed-oracle wall   6.17 s  (encoder load  0.00, DiT load  0.00)  MLX peak  7.84 GB  phys peak 31.02 GB
+  [resident] zs-prod wall   5.53 s  (encoder load  0.00, DiT load  0.00)  MLX peak  7.73 GB  phys peak 36.39 GB
+  [resident] zs-oracle wall   5.44 s  (encoder load  0.00, DiT load  0.00)  MLX peak  7.73 GB  phys peak 36.45 GB
+  staged load 0.31 s, phys 1.47 GB (MLX active 0.37 GB)
+  [staged-warm] content-prod wall   4.97 s  (encoder load  0.12, DiT load  0.09)  MLX peak  5.00 GB  phys peak  7.07 GB
+  [staged-warm] content-oracle wall   4.96 s  (encoder load  0.12, DiT load  0.09)  MLX peak  5.00 GB  phys peak  7.07 GB
+  [staged-warm] emotion-prod wall   4.54 s  (encoder load  0.12, DiT load  0.10)  MLX peak  5.12 GB  phys peak  7.05 GB
+  [staged-warm] emotion-oracle wall   4.53 s  (encoder load  0.12, DiT load  0.10)  MLX peak  5.12 GB  phys peak  6.93 GB
+  [staged-warm] itts-prod wall   2.01 s  (encoder load  0.12, DiT load  0.10)  MLX peak  4.98 GB  phys peak  6.35 GB
+  [staged-warm] itts-oracle wall   2.02 s  (encoder load  0.12, DiT load  0.09)  MLX peak  4.98 GB  phys peak  5.60 GB
+  [staged-warm] se-prod wall   3.87 s  (encoder load  0.12, DiT load  0.10)  MLX peak  4.99 GB  phys peak  6.07 GB
+  [staged-warm] se-oracle wall   3.87 s  (encoder load  0.12, DiT load  0.10)  MLX peak  4.99 GB  phys peak  6.77 GB
+  [staged-warm] speed-prod wall   6.12 s  (encoder load  0.12, DiT load  0.10)  MLX peak  5.27 GB  phys peak  7.35 GB
+  [staged-warm] speed-oracle wall   6.13 s  (encoder load  0.12, DiT load  0.10)  MLX peak  5.27 GB  phys peak  7.53 GB
+  [staged-warm] zs-prod wall   5.75 s  (encoder load  0.12, DiT load  0.10)  MLX peak  5.16 GB  phys peak  7.49 GB
+  [staged-warm] zs-oracle wall   5.73 s  (encoder load  0.12, DiT load  0.10)  MLX peak  5.16 GB  phys peak  7.40 GB
+  [BIT] staged-warm content-prod IDENTICAL (168000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm content-oracle IDENTICAL (168000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm emotion-prod IDENTICAL (151680 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm emotion-oracle IDENTICAL (151680 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm itts-prod IDENTICAL (40800 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm itts-oracle IDENTICAL (40800 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm se-prod IDENTICAL (119520 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm se-oracle IDENTICAL (119520 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm speed-prod IDENTICAL (164640 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm speed-oracle IDENTICAL (164640 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm zs-prod IDENTICAL (144000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm zs-oracle IDENTICAL (144000 samples, max|Δ| 0.000e+00)
+  [BIT] staged vs resident: PASS — every sample bit-identical
+
+===== staged-base-int8.log
+  resident load 0.57 s, phys 7.95 GB
+  [resident] content-prod wall   4.70 s  (encoder load  0.00, DiT load  0.00)  MLX peak  9.27 GB  phys peak 14.44 GB
+  [resident] content-oracle wall   4.69 s  (encoder load  0.00, DiT load  0.00)  MLX peak  9.27 GB  phys peak 14.44 GB
+  [resident] emotion-prod wall   4.25 s  (encoder load  0.00, DiT load  0.00)  MLX peak  9.39 GB  phys peak 19.64 GB
+  [resident] emotion-oracle wall   4.24 s  (encoder load  0.00, DiT load  0.00)  MLX peak  9.39 GB  phys peak 19.64 GB
+  [resident] itts-prod wall   1.71 s  (encoder load  0.00, DiT load  0.00)  MLX peak  9.25 GB  phys peak 21.92 GB
+  [resident] itts-oracle wall   1.71 s  (encoder load  0.00, DiT load  0.00)  MLX peak  9.25 GB  phys peak 21.93 GB
+  [resident] se-prod wall   3.58 s  (encoder load  0.00, DiT load  0.00)  MLX peak  9.26 GB  phys peak 26.53 GB
+  [resident] se-oracle wall   3.58 s  (encoder load  0.00, DiT load  0.00)  MLX peak  9.25 GB  phys peak 26.54 GB
+  [resident] speed-prod wall   5.85 s  (encoder load  0.00, DiT load  0.00)  MLX peak  9.54 GB  phys peak 32.54 GB
+  [resident] speed-oracle wall   5.84 s  (encoder load  0.00, DiT load  0.00)  MLX peak  9.54 GB  phys peak 32.55 GB
+  [resident] zs-prod wall   5.46 s  (encoder load  0.00, DiT load  0.00)  MLX peak  9.43 GB  phys peak 37.95 GB
+  [resident] zs-oracle wall   5.45 s  (encoder load  0.00, DiT load  0.00)  MLX peak  9.43 GB  phys peak 38.00 GB
+  staged load 0.32 s, phys 1.30 GB (MLX active 0.37 GB)
+  [staged-warm] content-prod wall   5.02 s  (encoder load  0.16, DiT load  0.09)  MLX peak  5.00 GB  phys peak  8.76 GB
+  [staged-warm] content-oracle wall   5.02 s  (encoder load  0.16, DiT load  0.09)  MLX peak  5.00 GB  phys peak  8.77 GB
+  [staged-warm] emotion-prod wall   4.57 s  (encoder load  0.16, DiT load  0.10)  MLX peak  5.12 GB  phys peak  8.75 GB
+  [staged-warm] emotion-oracle wall   4.57 s  (encoder load  0.16, DiT load  0.09)  MLX peak  5.12 GB  phys peak  8.63 GB
+  [staged-warm] itts-prod wall   2.06 s  (encoder load  0.16, DiT load  0.09)  MLX peak  4.98 GB  phys peak  8.09 GB
+  [staged-warm] itts-oracle wall   2.06 s  (encoder load  0.16, DiT load  0.09)  MLX peak  4.98 GB  phys peak  6.49 GB
+  [staged-warm] se-prod wall   3.91 s  (encoder load  0.16, DiT load  0.10)  MLX peak  4.99 GB  phys peak  6.99 GB
+  [staged-warm] se-oracle wall   3.91 s  (encoder load  0.16, DiT load  0.09)  MLX peak  4.99 GB  phys peak  8.47 GB
+  [staged-warm] speed-prod wall   6.17 s  (encoder load  0.16, DiT load  0.10)  MLX peak  5.27 GB  phys peak  9.10 GB
+  [staged-warm] speed-oracle wall   6.17 s  (encoder load  0.16, DiT load  0.10)  MLX peak  5.27 GB  phys peak  9.27 GB
+  [staged-warm] zs-prod wall   5.78 s  (encoder load  0.16, DiT load  0.10)  MLX peak  5.16 GB  phys peak  9.20 GB
+  [staged-warm] zs-oracle wall   5.77 s  (encoder load  0.16, DiT load  0.10)  MLX peak  5.16 GB  phys peak  9.11 GB
+  [BIT] staged-warm content-prod IDENTICAL (168000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm content-oracle IDENTICAL (168000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm emotion-prod IDENTICAL (151680 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm emotion-oracle IDENTICAL (151680 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm itts-prod IDENTICAL (40800 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm itts-oracle IDENTICAL (40800 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm se-prod IDENTICAL (119520 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm se-oracle IDENTICAL (119520 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm speed-prod IDENTICAL (164640 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm speed-oracle IDENTICAL (164640 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm zs-prod IDENTICAL (144000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm zs-oracle IDENTICAL (144000 samples, max|Δ| 0.000e+00)
+  [BIT] staged vs resident: PASS — every sample bit-identical
+
+===== staged-flash-bf16.log
+  resident load 0.63 s, phys 11.14 GB
+  [resident] content-prod wall   0.66 s  (encoder load  0.00, DiT load  0.00)  MLX peak 12.46 GB  phys peak 17.16 GB
+  [resident] content-oracle wall   0.66 s  (encoder load  0.00, DiT load  0.00)  MLX peak 12.46 GB  phys peak 17.17 GB
+  [resident] emotion-prod wall   0.62 s  (encoder load  0.00, DiT load  0.00)  MLX peak 12.38 GB  phys peak 21.58 GB
+  [resident] emotion-oracle wall   0.61 s  (encoder load  0.00, DiT load  0.00)  MLX peak 12.38 GB  phys peak 21.59 GB
+  [resident] itts-prod wall   0.26 s  (encoder load  0.00, DiT load  0.00)  MLX peak 12.26 GB  phys peak 23.56 GB
+  [resident] itts-oracle wall   0.25 s  (encoder load  0.00, DiT load  0.00)  MLX peak 12.26 GB  phys peak 23.56 GB
+  [resident] se-prod wall   0.53 s  (encoder load  0.00, DiT load  0.00)  MLX peak 12.29 GB  phys peak 27.48 GB
+  [resident] se-oracle wall   0.53 s  (encoder load  0.00, DiT load  0.00)  MLX peak 12.28 GB  phys peak 27.49 GB
+  [resident] speed-prod wall   0.76 s  (encoder load  0.00, DiT load  0.00)  MLX peak 12.36 GB  phys peak 32.81 GB
+  [resident] speed-oracle wall   0.74 s  (encoder load  0.00, DiT load  0.00)  MLX peak 12.36 GB  phys peak 32.82 GB
+  [resident] zs-prod wall   0.72 s  (encoder load  0.00, DiT load  0.00)  MLX peak 12.61 GB  phys peak 37.49 GB
+  [resident] zs-oracle wall   0.70 s  (encoder load  0.00, DiT load  0.00)  MLX peak 12.60 GB  phys peak 37.55 GB
+  staged load 0.32 s, phys 2.43 GB (MLX active 0.37 GB)
+  [staged-warm] content-prod wall   1.04 s  (encoder load  0.19, DiT load  0.09)  MLX peak  8.15 GB  phys peak 12.05 GB
+  [staged-warm] content-oracle wall   1.04 s  (encoder load  0.19, DiT load  0.09)  MLX peak  8.14 GB  phys peak 12.05 GB
+  [staged-warm] emotion-prod wall   0.99 s  (encoder load  0.19, DiT load  0.09)  MLX peak  8.12 GB  phys peak 12.04 GB
+  [staged-warm] emotion-oracle wall   0.99 s  (encoder load  0.19, DiT load  0.09)  MLX peak  8.12 GB  phys peak 11.91 GB
+  [staged-warm] itts-prod wall   0.71 s  (encoder load  0.19, DiT load  0.09)  MLX peak  7.84 GB  phys peak 11.23 GB
+  [staged-warm] itts-oracle wall   0.71 s  (encoder load  0.19, DiT load  0.09)  MLX peak  7.84 GB  phys peak  9.62 GB
+  [staged-warm] se-prod wall   0.91 s  (encoder load  0.19, DiT load  0.09)  MLX peak  8.06 GB  phys peak 10.23 GB
+  [staged-warm] se-oracle wall   0.92 s  (encoder load  0.20, DiT load  0.09)  MLX peak  8.06 GB  phys peak 11.66 GB
+  [staged-warm] speed-prod wall   1.23 s  (encoder load  0.20, DiT load  0.09)  MLX peak  8.25 GB  phys peak 12.36 GB
+  [staged-warm] speed-oracle wall   1.32 s  (encoder load  0.25, DiT load  0.10)  MLX peak  8.25 GB  phys peak 12.63 GB
+  [staged-warm] zs-prod wall   1.30 s  (encoder load  0.24, DiT load  0.10)  MLX peak  8.21 GB  phys peak 12.55 GB
+  [staged-warm] zs-oracle wall   1.23 s  (encoder load  0.24, DiT load  0.10)  MLX peak  8.21 GB  phys peak 12.34 GB
+  [staged-cold] content-prod wall   1.89 s  (encoder load  0.60, DiT load  0.25)  MLX peak  8.15 GB  phys peak 12.03 GB  page cache before 0%
+  [staged-cold] content-oracle wall   1.71 s  (encoder load  0.59, DiT load  0.25)  MLX peak  8.14 GB  phys peak 12.10 GB  page cache before 0%
+  [staged-cold] emotion-prod wall   1.69 s  (encoder load  0.59, DiT load  0.25)  MLX peak  8.12 GB  phys peak 12.06 GB  page cache before 0%
+  [staged-cold] emotion-oracle wall   1.68 s  (encoder load  0.60, DiT load  0.25)  MLX peak  8.12 GB  phys peak 11.86 GB  page cache before 0%
+  [staged-cold] itts-prod wall   1.35 s  (encoder load  0.61, DiT load  0.26)  MLX peak  7.84 GB  phys peak 11.33 GB  page cache before 0%
+  [staged-cold] itts-oracle wall   1.31 s  (encoder load  0.60, DiT load  0.26)  MLX peak  7.85 GB  phys peak  9.66 GB  page cache before 0%
+  [staged-cold] se-prod wall   1.52 s  (encoder load  0.60, DiT load  0.25)  MLX peak  8.06 GB  phys peak 10.04 GB  page cache before 0%
+  [staged-cold] se-oracle wall   1.52 s  (encoder load  0.59, DiT load  0.25)  MLX peak  8.06 GB  phys peak 11.70 GB  page cache before 0%
+  [staged-cold] speed-prod wall   1.72 s  (encoder load  0.59, DiT load  0.25)  MLX peak  8.25 GB  phys peak 12.41 GB  page cache before 0%
+  [staged-cold] speed-oracle wall   1.72 s  (encoder load  0.59, DiT load  0.25)  MLX peak  8.25 GB  phys peak 12.58 GB  page cache before 0%
+  [staged-cold] zs-prod wall   1.65 s  (encoder load  0.59, DiT load  0.25)  MLX peak  8.21 GB  phys peak 12.46 GB  page cache before 0%
+  [staged-cold] zs-oracle wall   1.66 s  (encoder load  0.59, DiT load  0.25)  MLX peak  8.21 GB  phys peak 12.37 GB  page cache before 0%
+  [BIT] staged-warm content-prod IDENTICAL (168000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm content-oracle IDENTICAL (168000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm emotion-prod IDENTICAL (151680 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm emotion-oracle IDENTICAL (151680 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm itts-prod IDENTICAL (40800 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm itts-oracle IDENTICAL (40800 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm se-prod IDENTICAL (119520 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm se-oracle IDENTICAL (119520 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm speed-prod IDENTICAL (164640 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm speed-oracle IDENTICAL (164640 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm zs-prod IDENTICAL (144000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm zs-oracle IDENTICAL (144000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-cold content-prod IDENTICAL (168000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-cold content-oracle IDENTICAL (168000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-cold emotion-prod IDENTICAL (151680 samples, max|Δ| 0.000e+00)
+  [BIT] staged-cold emotion-oracle IDENTICAL (151680 samples, max|Δ| 0.000e+00)
+  [BIT] staged-cold itts-prod IDENTICAL (40800 samples, max|Δ| 0.000e+00)
+  [BIT] staged-cold itts-oracle IDENTICAL (40800 samples, max|Δ| 0.000e+00)
+  [BIT] staged-cold se-prod IDENTICAL (119520 samples, max|Δ| 0.000e+00)
+  [BIT] staged-cold se-oracle IDENTICAL (119520 samples, max|Δ| 0.000e+00)
+  [BIT] staged-cold speed-prod IDENTICAL (164640 samples, max|Δ| 0.000e+00)
+  [BIT] staged-cold speed-oracle IDENTICAL (164640 samples, max|Δ| 0.000e+00)
+  [BIT] staged-cold zs-prod IDENTICAL (144000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-cold zs-oracle IDENTICAL (144000 samples, max|Δ| 0.000e+00)
+  [BIT] staged vs resident: PASS — every sample bit-identical
+
+===== staged-flash-int4.log
+  resident load 0.73 s, phys 6.25 GB
+  [resident] content-prod wall   0.67 s  (encoder load  0.00, DiT load  0.00)  MLX peak  7.57 GB  phys peak 12.15 GB
+  [resident] content-oracle wall   0.66 s  (encoder load  0.00, DiT load  0.00)  MLX peak  7.57 GB  phys peak 12.16 GB
+  [resident] emotion-prod wall   0.70 s  (encoder load  0.00, DiT load  0.00)  MLX peak  7.49 GB  phys peak 16.60 GB
+  [resident] emotion-oracle wall   0.62 s  (encoder load  0.00, DiT load  0.00)  MLX peak  7.49 GB  phys peak 16.60 GB
+  [resident] itts-prod wall   0.27 s  (encoder load  0.00, DiT load  0.00)  MLX peak  7.38 GB  phys peak 18.55 GB
+  [resident] itts-oracle wall   0.27 s  (encoder load  0.00, DiT load  0.00)  MLX peak  7.37 GB  phys peak 18.55 GB
+  [resident] se-prod wall   0.52 s  (encoder load  0.00, DiT load  0.00)  MLX peak  7.40 GB  phys peak 22.41 GB
+  [resident] se-oracle wall   0.52 s  (encoder load  0.00, DiT load  0.00)  MLX peak  7.40 GB  phys peak 22.41 GB
+  [resident] speed-prod wall   0.75 s  (encoder load  0.00, DiT load  0.00)  MLX peak  7.47 GB  phys peak 27.57 GB
+  [resident] speed-oracle wall   0.74 s  (encoder load  0.00, DiT load  0.00)  MLX peak  7.47 GB  phys peak 27.58 GB
+  [resident] zs-prod wall   0.71 s  (encoder load  0.00, DiT load  0.00)  MLX peak  7.72 GB  phys peak 32.19 GB
+  [resident] zs-oracle wall   0.70 s  (encoder load  0.00, DiT load  0.00)  MLX peak  7.72 GB  phys peak 32.25 GB
+  staged load 0.32 s, phys 2.66 GB (MLX active 0.37 GB)
+  [staged-warm] content-prod wall   0.98 s  (encoder load  0.12, DiT load  0.10)  MLX peak  5.01 GB  phys peak  7.06 GB
+  [staged-warm] content-oracle wall   0.98 s  (encoder load  0.13, DiT load  0.10)  MLX peak  5.01 GB  phys peak  7.07 GB
+  [staged-warm] emotion-prod wall   0.93 s  (encoder load  0.12, DiT load  0.10)  MLX peak  4.92 GB  phys peak  7.05 GB
+  [staged-warm] emotion-oracle wall   0.92 s  (encoder load  0.12, DiT load  0.10)  MLX peak  4.92 GB  phys peak  6.93 GB
+  [staged-warm] itts-prod wall   0.60 s  (encoder load  0.12, DiT load  0.10)  MLX peak  4.79 GB  phys peak  6.37 GB
+  [staged-warm] itts-oracle wall   0.59 s  (encoder load  0.12, DiT load  0.09)  MLX peak  4.79 GB  phys peak  5.31 GB
+  [staged-warm] se-prod wall   0.82 s  (encoder load  0.12, DiT load  0.09)  MLX peak  4.84 GB  phys peak  5.52 GB
+  [staged-warm] se-oracle wall   0.82 s  (encoder load  0.12, DiT load  0.09)  MLX peak  4.84 GB  phys peak  6.76 GB
+  [staged-warm] speed-prod wall   1.04 s  (encoder load  0.12, DiT load  0.10)  MLX peak  4.90 GB  phys peak  7.33 GB
+  [staged-warm] speed-oracle wall   1.04 s  (encoder load  0.12, DiT load  0.10)  MLX peak  4.90 GB  phys peak  7.53 GB
+  [staged-warm] zs-prod wall   1.00 s  (encoder load  0.12, DiT load  0.09)  MLX peak  5.15 GB  phys peak  7.48 GB
+  [staged-warm] zs-oracle wall   1.00 s  (encoder load  0.12, DiT load  0.10)  MLX peak  5.15 GB  phys peak  7.40 GB
+  [BIT] staged-warm content-prod IDENTICAL (168000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm content-oracle IDENTICAL (168000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm emotion-prod IDENTICAL (151680 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm emotion-oracle IDENTICAL (151680 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm itts-prod IDENTICAL (40800 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm itts-oracle IDENTICAL (40800 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm se-prod IDENTICAL (119520 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm se-oracle IDENTICAL (119520 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm speed-prod IDENTICAL (164640 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm speed-oracle IDENTICAL (164640 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm zs-prod IDENTICAL (144000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm zs-oracle IDENTICAL (144000 samples, max|Δ| 0.000e+00)
+  [BIT] staged vs resident: PASS — every sample bit-identical
+
+===== staged-flash-int8.log
+  resident load 0.62 s, phys 7.95 GB
+  [resident] content-prod wall   0.67 s  (encoder load  0.00, DiT load  0.00)  MLX peak  9.28 GB  phys peak 13.88 GB
+  [resident] content-oracle wall   0.67 s  (encoder load  0.00, DiT load  0.00)  MLX peak  9.28 GB  phys peak 13.89 GB
+  [resident] emotion-prod wall   0.67 s  (encoder load  0.00, DiT load  0.00)  MLX peak  9.19 GB  phys peak 18.32 GB
+  [resident] emotion-oracle wall   0.63 s  (encoder load  0.00, DiT load  0.00)  MLX peak  9.19 GB  phys peak 18.33 GB
+  [resident] itts-prod wall   0.27 s  (encoder load  0.00, DiT load  0.00)  MLX peak  9.08 GB  phys peak 20.28 GB
+  [resident] itts-oracle wall   0.27 s  (encoder load  0.00, DiT load  0.00)  MLX peak  9.07 GB  phys peak 20.28 GB
+  [resident] se-prod wall   0.53 s  (encoder load  0.00, DiT load  0.00)  MLX peak  9.11 GB  phys peak 24.14 GB
+  [resident] se-oracle wall   0.52 s  (encoder load  0.00, DiT load  0.00)  MLX peak  9.10 GB  phys peak 24.14 GB
+  [resident] speed-prod wall   0.75 s  (encoder load  0.00, DiT load  0.00)  MLX peak  9.17 GB  phys peak 29.31 GB
+  [resident] speed-oracle wall   0.75 s  (encoder load  0.00, DiT load  0.00)  MLX peak  9.17 GB  phys peak 29.31 GB
+  [resident] zs-prod wall   0.71 s  (encoder load  0.00, DiT load  0.00)  MLX peak  9.42 GB  phys peak 33.93 GB
+  [resident] zs-oracle wall   0.70 s  (encoder load  0.00, DiT load  0.00)  MLX peak  9.42 GB  phys peak 33.98 GB
+  staged load 0.31 s, phys 2.74 GB (MLX active 0.37 GB)
+  [staged-warm] content-prod wall   1.01 s  (encoder load  0.16, DiT load  0.09)  MLX peak  5.01 GB  phys peak  8.76 GB
+  [staged-warm] content-oracle wall   1.01 s  (encoder load  0.16, DiT load  0.09)  MLX peak  5.01 GB  phys peak  8.77 GB
+  [staged-warm] emotion-prod wall   0.97 s  (encoder load  0.16, DiT load  0.10)  MLX peak  4.92 GB  phys peak  8.75 GB
+  [staged-warm] emotion-oracle wall   0.97 s  (encoder load  0.16, DiT load  0.10)  MLX peak  4.92 GB  phys peak  8.63 GB
+  [staged-warm] itts-prod wall   0.64 s  (encoder load  0.16, DiT load  0.09)  MLX peak  4.79 GB  phys peak  8.08 GB
+  [staged-warm] itts-oracle wall   0.63 s  (encoder load  0.16, DiT load  0.09)  MLX peak  4.79 GB  phys peak  6.48 GB
+  [staged-warm] se-prod wall   0.87 s  (encoder load  0.16, DiT load  0.10)  MLX peak  4.84 GB  phys peak  6.98 GB
+  [staged-warm] se-oracle wall   0.87 s  (encoder load  0.16, DiT load  0.10)  MLX peak  4.84 GB  phys peak  8.47 GB
+  [staged-warm] speed-prod wall   1.11 s  (encoder load  0.16, DiT load  0.10)  MLX peak  4.94 GB  phys peak  9.10 GB
+  [staged-warm] speed-oracle wall   1.11 s  (encoder load  0.16, DiT load  0.10)  MLX peak  4.94 GB  phys peak  9.30 GB
+  [staged-warm] zs-prod wall   1.08 s  (encoder load  0.17, DiT load  0.10)  MLX peak  5.15 GB  phys peak  9.19 GB
+  [staged-warm] zs-oracle wall   1.07 s  (encoder load  0.16, DiT load  0.10)  MLX peak  5.15 GB  phys peak  9.11 GB
+  [BIT] staged-warm content-prod IDENTICAL (168000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm content-oracle IDENTICAL (168000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm emotion-prod IDENTICAL (151680 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm emotion-oracle IDENTICAL (151680 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm itts-prod IDENTICAL (40800 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm itts-oracle IDENTICAL (40800 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm se-prod IDENTICAL (119520 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm se-oracle IDENTICAL (119520 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm speed-prod IDENTICAL (164640 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm speed-oracle IDENTICAL (164640 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm zs-prod IDENTICAL (144000 samples, max|Δ| 0.000e+00)
+  [BIT] staged-warm zs-oracle IDENTICAL (144000 samples, max|Δ| 0.000e+00)
+  [BIT] staged vs resident: PASS — every sample bit-identical
+
+===== validate-base-bf16-resident.log
+  [VAL] residency resident
+[License] tencent/AuK: weight license LicenseRef-Qwen-Research is outside permissiveOnly — declared and allowed to load (advisory enforcement).
+  [LIC] .permissiveOnly registered with 1 advisories — advisory only
+[Prewarm] auk: paged 3 file(s) / 10.8 GB into cache in 0.3s
+  [MEM] prepare (load + warm-up): phys peak 12.96 GB (5 ms sampler)
+  [VAL] base bf16 prepared in 2.7s (warm-up incl.); phys 0.01 → 12.52 GB (resident +12.51)
+  [MEM] tts-clone: phys peak during the run 14.72 GB (5 ms sampler)
+  [RUN] tts-clone: 5.50s audio, -25.5 dBFS, 5.49s wall (RTF 1.00), phys 13.83 GB
+  [MEM] tts-design: phys peak during the run 14.54 GB (5 ms sampler)
+  [RUN] tts-design: 2.36s audio, -24.9 dBFS, 1.68s wall (RTF 0.71), phys 13.71 GB
+  [MEM] edit-happy: phys peak during the run 14.74 GB (5 ms sampler)
+  [RUN] edit-happy: 6.32s audio, -25.9 dBFS, 4.32s wall (RTF 0.68), phys 13.66 GB
+  [MEM] edit-whisper: phys peak during the run 14.74 GB (5 ms sampler)
+  [RUN] edit-whisper: 6.32s audio, -25.0 dBFS, 4.36s wall (RTF 0.69), phys 13.72 GB
+  [MEM] edit-denoise: phys peak during the run 14.56 GB (5 ms sampler)
+  [RUN] edit-denoise: 4.98s audio, -28.5 dBFS, 3.64s wall (RTF 0.73), phys 13.57 GB
+  [MEM] edit-replace: phys peak during the run 14.62 GB (5 ms sampler)
+  [RUN] edit-replace: 7.00s audio, -34.6 dBFS, 4.78s wall (RTF 0.68), phys 13.68 GB
+  [MEM] edit-speed: phys peak during the run 14.71 GB (5 ms sampler)
+  [RUN] edit-speed: 7.34s audio, -18.7 dBFS, 6.09s wall (RTF 0.83), phys 13.63 GB
+  [MEM] edit-pitch: phys peak during the run 14.66 GB (5 ms sampler)
+  [RUN] edit-pitch: 5.50s audio, -31.4 dBFS, 3.84s wall (RTF 0.70), phys 13.68 GB
+  [MEM] edit-nonverbal: phys peak during the run 14.91 GB (5 ms sampler)
+  [RUN] edit-nonverbal: 22.00s audio, -33.5 dBFS, 15.41s wall (RTF 0.70), phys 13.51 GB
+  [REQ] undeclared emotion refused: unsupportedRequestFeature("edit(.emotion(\"furious\")) — not one of the emotion labels this surface 
+  [REQ] off-grid speed refused: unsupportedRequestFeature("edit(.speed(1.1)) — not one of the factors this surface declares (SpeechE
+  [VAL] after evict 10.13 GB; malloc pressure relief released 0.00 GB → 10.13 GB
+[Prewarm] auk: paged 3 file(s) / 10.8 GB into cache in 0.3s
+  [VAL] second cycle: phys after re-prepare 12.70 GB (first 12.52), after second evict 9.96 GB
+  [VAL] base bf16: resident 12.51 GB, peak phys 13.83 GB (activation 1.32 GB), after evict 10.13 GB (MLX active 0.00, cache 0.00 GB)
+  [MEM] base bf16 resident: process phys_footprint lifetime peak 14.92 GB (kernel ledger)
+
+===== validate-base-bf16-staged.log
+  [VAL] residency staged
+[License] tencent/AuK: weight license LicenseRef-Qwen-Research is outside permissiveOnly — declared and allowed to load (advisory enforcement).
+  [LIC] .permissiveOnly registered with 1 advisories — advisory only
+[Prewarm] auk: paged 3 file(s) / 10.8 GB into cache in 0.4s
+  [MEM] prepare (load + warm-up): phys peak 8.00 GB (5 ms sampler)
+  [VAL] base bf16 prepared in 2.8s (warm-up incl.); phys 0.01 → 2.73 GB (resident +2.72)
+  [MEM] tts-clone: phys peak during the run 8.96 GB (5 ms sampler)
+  [RUN] tts-clone: 5.50s audio, -25.5 dBFS, 5.75s wall (RTF 1.05), phys 3.29 GB
+  [MEM] tts-design: phys peak during the run 10.14 GB (5 ms sampler)
+  [RUN] tts-design: 2.36s audio, -24.9 dBFS, 2.00s wall (RTF 0.85), phys 2.45 GB
+  [MEM] edit-happy: phys peak during the run 10.46 GB (5 ms sampler)
+  [RUN] edit-happy: 6.32s audio, -25.9 dBFS, 4.66s wall (RTF 0.74), phys 3.07 GB
+  [MEM] edit-whisper: phys peak during the run 10.46 GB (5 ms sampler)
+  [RUN] edit-whisper: 6.32s audio, -25.0 dBFS, 4.72s wall (RTF 0.75), phys 3.16 GB
+  [MEM] edit-denoise: phys peak during the run 10.40 GB (5 ms sampler)
+  [RUN] edit-denoise: 4.98s audio, -28.5 dBFS, 3.97s wall (RTF 0.80), phys 3.01 GB
+  [MEM] edit-replace: phys peak during the run 10.51 GB (5 ms sampler)
+  [RUN] edit-replace: 7.00s audio, -34.6 dBFS, 5.16s wall (RTF 0.74), phys 2.90 GB
+  [MEM] edit-speed: phys peak during the run 10.58 GB (5 ms sampler)
+  [RUN] edit-speed: 7.34s audio, -18.7 dBFS, 6.51s wall (RTF 0.89), phys 3.27 GB
+  [MEM] edit-pitch: phys peak during the run 10.44 GB (5 ms sampler)
+  [RUN] edit-pitch: 5.50s audio, -31.4 dBFS, 4.18s wall (RTF 0.76), phys 3.22 GB
+  [MEM] edit-nonverbal: phys peak during the run 10.77 GB (5 ms sampler)
+  [RUN] edit-nonverbal: 22.00s audio, -33.5 dBFS, 15.69s wall (RTF 0.71), phys 3.14 GB
+  [REQ] undeclared emotion refused: unsupportedRequestFeature("edit(.emotion(\"furious\")) — not one of the emotion labels this surface 
+  [REQ] off-grid speed refused: unsupportedRequestFeature("edit(.speed(1.1)) — not one of the factors this surface declares (SpeechE
+  [VAL] after evict 2.32 GB; malloc pressure relief released 0.00 GB → 2.32 GB
+[Prewarm] auk: paged 3 file(s) / 10.8 GB into cache in 0.3s
+  [VAL] second cycle: phys after re-prepare 2.57 GB (first 2.73), after second evict 1.81 GB
+  [VAL] base bf16: resident 2.72 GB, peak phys 3.29 GB (activation 0.56 GB), after evict 2.32 GB (MLX active 0.00, cache 0.00 GB)
+  [MEM] base bf16 staged: process phys_footprint lifetime peak 10.79 GB (kernel ledger)
+
+===== validate-base-int4-resident.log
+  [VAL] residency resident
+[License] tencent/AuK: weight license LicenseRef-Qwen-Research is outside permissiveOnly — declared and allowed to load (advisory enforcement).
+  [LIC] .permissiveOnly registered with 1 advisories — advisory only
+[Prewarm] auk: paged 3 file(s) / 5.9 GB into cache in 0.2s
+  [MEM] prepare (load + warm-up): phys peak 8.06 GB (5 ms sampler)
+  [VAL] base int4 prepared in 2.4s (warm-up incl.); phys 0.01 → 7.98 GB (resident +7.97)
+  [MEM] tts-clone: phys peak during the run 9.91 GB (5 ms sampler)
+  [RUN] tts-clone: 5.50s audio, -25.5 dBFS, 5.46s wall (RTF 0.99), phys 8.59 GB
+  [MEM] tts-design: phys peak during the run 9.66 GB (5 ms sampler)
+  [RUN] tts-design: 2.36s audio, -24.3 dBFS, 1.68s wall (RTF 0.71), phys 8.79 GB
+  [MEM] edit-happy: phys peak during the run 9.80 GB (5 ms sampler)
+  [RUN] edit-happy: 6.32s audio, -26.1 dBFS, 4.32s wall (RTF 0.68), phys 8.89 GB
+  [MEM] edit-whisper: phys peak during the run 9.87 GB (5 ms sampler)
+  [RUN] edit-whisper: 6.32s audio, -25.1 dBFS, 4.35s wall (RTF 0.69), phys 8.97 GB
+  [MEM] edit-denoise: phys peak during the run 9.68 GB (5 ms sampler)
+  [RUN] edit-denoise: 4.98s audio, -28.5 dBFS, 3.63s wall (RTF 0.73), phys 8.72 GB
+  [MEM] edit-replace: phys peak during the run 9.82 GB (5 ms sampler)
+  [RUN] edit-replace: 7.00s audio, -34.6 dBFS, 4.78s wall (RTF 0.68), phys 8.83 GB
+  [MEM] edit-speed: phys peak during the run 9.88 GB (5 ms sampler)
+  [RUN] edit-speed: 7.34s audio, -18.7 dBFS, 6.06s wall (RTF 0.83), phys 8.80 GB
+  [MEM] edit-pitch: phys peak during the run 9.75 GB (5 ms sampler)
+  [RUN] edit-pitch: 5.50s audio, -31.3 dBFS, 3.83s wall (RTF 0.70), phys 8.87 GB
+  [MEM] edit-nonverbal: phys peak during the run 10.02 GB (5 ms sampler)
+  [RUN] edit-nonverbal: 22.00s audio, -33.5 dBFS, 15.38s wall (RTF 0.70), phys 8.60 GB
+  [REQ] undeclared emotion refused: unsupportedRequestFeature("edit(.emotion(\"furious\")) — not one of the emotion labels this surface 
+  [REQ] off-grid speed refused: unsupportedRequestFeature("edit(.speed(1.1)) — not one of the factors this surface declares (SpeechE
+  [VAL] after evict 5.81 GB; malloc pressure relief released 0.00 GB → 5.81 GB
+[Prewarm] auk: paged 3 file(s) / 5.9 GB into cache in 0.2s
+  [VAL] second cycle: phys after re-prepare 7.97 GB (first 7.98), after second evict 5.14 GB
+  [VAL] base int4: resident 7.97 GB, peak phys 8.97 GB (activation 1.00 GB), after evict 5.81 GB (MLX active 0.00, cache 0.00 GB)
+  [MEM] base int4 resident: process phys_footprint lifetime peak 10.04 GB (kernel ledger)
+
+===== validate-base-int4-staged.log
+  [VAL] residency staged
+[License] tencent/AuK: weight license LicenseRef-Qwen-Research is outside permissiveOnly — declared and allowed to load (advisory enforcement).
+  [LIC] .permissiveOnly registered with 1 advisories — advisory only
+[Prewarm] auk: paged 3 file(s) / 5.9 GB into cache in 0.2s
+  [MEM] prepare (load + warm-up): phys peak 5.07 GB (5 ms sampler)
+  [VAL] base int4 prepared in 2.4s (warm-up incl.); phys 0.01 → 2.82 GB (resident +2.82)
+  [MEM] tts-clone: phys peak during the run 6.50 GB (5 ms sampler)
+  [RUN] tts-clone: 5.50s audio, -25.5 dBFS, 5.71s wall (RTF 1.04), phys 3.19 GB
+  [MEM] tts-design: phys peak during the run 5.41 GB (5 ms sampler)
+  [RUN] tts-design: 2.36s audio, -24.3 dBFS, 1.94s wall (RTF 0.82), phys 2.51 GB
+  [MEM] edit-happy: phys peak during the run 6.27 GB (5 ms sampler)
+  [RUN] edit-happy: 6.32s audio, -26.1 dBFS, 4.63s wall (RTF 0.73), phys 3.12 GB
+  [MEM] edit-whisper: phys peak during the run 6.29 GB (5 ms sampler)
+  [RUN] edit-whisper: 6.32s audio, -25.1 dBFS, 4.68s wall (RTF 0.74), phys 3.24 GB
+  [MEM] edit-denoise: phys peak during the run 5.96 GB (5 ms sampler)
+  [RUN] edit-denoise: 4.98s audio, -28.5 dBFS, 3.95s wall (RTF 0.79), phys 3.17 GB
+  [MEM] edit-replace: phys peak during the run 6.28 GB (5 ms sampler)
+  [RUN] edit-replace: 7.00s audio, -34.6 dBFS, 5.11s wall (RTF 0.73), phys 3.21 GB
+  [MEM] edit-speed: phys peak during the run 6.68 GB (5 ms sampler)
+  [RUN] edit-speed: 7.34s audio, -18.7 dBFS, 6.38s wall (RTF 0.87), phys 3.27 GB
+  [MEM] edit-pitch: phys peak during the run 6.11 GB (5 ms sampler)
+  [RUN] edit-pitch: 5.50s audio, -31.3 dBFS, 4.16s wall (RTF 0.76), phys 3.19 GB
+  [MEM] edit-nonverbal: phys peak during the run 7.32 GB (5 ms sampler)
+  [RUN] edit-nonverbal: 22.00s audio, -33.5 dBFS, 15.72s wall (RTF 0.71), phys 3.08 GB
+  [REQ] undeclared emotion refused: unsupportedRequestFeature("edit(.emotion(\"furious\")) — not one of the emotion labels this surface 
+  [REQ] off-grid speed refused: unsupportedRequestFeature("edit(.speed(1.1)) — not one of the factors this surface declares (SpeechE
+  [VAL] after evict 2.61 GB; malloc pressure relief released 0.00 GB → 2.61 GB
+[Prewarm] auk: paged 3 file(s) / 5.9 GB into cache in 0.2s
+  [VAL] second cycle: phys after re-prepare 2.36 GB (first 2.82), after second evict 1.83 GB
+  [VAL] base int4: resident 2.82 GB, peak phys 3.27 GB (activation 0.44 GB), after evict 2.61 GB (MLX active 0.00, cache 0.00 GB)
+  [MEM] base int4 staged: process phys_footprint lifetime peak 7.34 GB (kernel ledger)
+
+===== validate-base-int8-resident.log
+  [VAL] residency resident
+[License] tencent/AuK: weight license LicenseRef-Qwen-Research is outside permissiveOnly — declared and allowed to load (advisory enforcement).
+  [LIC] .permissiveOnly registered with 1 advisories — advisory only
+[Prewarm] auk: paged 3 file(s) / 7.6 GB into cache in 0.4s
+  [MEM] prepare (load + warm-up): phys peak 9.73 GB (5 ms sampler)
+  [VAL] base int8 prepared in 3.2s (warm-up incl.); phys 0.01 → 9.19 GB (resident +9.19)
+  [MEM] tts-clone: phys peak during the run 11.39 GB (5 ms sampler)
+  [RUN] tts-clone: 5.50s audio, -25.6 dBFS, 6.06s wall (RTF 1.10), phys 10.59 GB
+  [MEM] tts-design: phys peak during the run 11.13 GB (5 ms sampler)
+  [RUN] tts-design: 2.36s audio, -24.6 dBFS, 1.70s wall (RTF 0.72), phys 10.58 GB
+  [MEM] edit-happy: phys peak during the run 11.48 GB (5 ms sampler)
+  [RUN] edit-happy: 6.32s audio, -25.9 dBFS, 4.36s wall (RTF 0.69), phys 10.67 GB
+  [MEM] edit-whisper: phys peak during the run 11.49 GB (5 ms sampler)
+  [RUN] edit-whisper: 6.32s audio, -25.0 dBFS, 4.40s wall (RTF 0.70), phys 10.36 GB
+  [MEM] edit-denoise: phys peak during the run 11.26 GB (5 ms sampler)
+  [RUN] edit-denoise: 4.98s audio, -28.5 dBFS, 3.76s wall (RTF 0.75), phys 10.39 GB
+  [MEM] edit-replace: phys peak during the run 11.46 GB (5 ms sampler)
+  [RUN] edit-replace: 7.00s audio, -34.6 dBFS, 4.81s wall (RTF 0.69), phys 10.56 GB
+  [MEM] edit-speed: phys peak during the run 11.56 GB (5 ms sampler)
+  [RUN] edit-speed: 7.34s audio, -18.7 dBFS, 6.11s wall (RTF 0.83), phys 10.60 GB
+  [MEM] edit-pitch: phys peak during the run 11.46 GB (5 ms sampler)
+  [RUN] edit-pitch: 5.50s audio, -31.4 dBFS, 3.86s wall (RTF 0.70), phys 10.71 GB
+  [MEM] edit-nonverbal: phys peak during the run 11.68 GB (5 ms sampler)
+  [RUN] edit-nonverbal: 22.00s audio, -33.5 dBFS, 15.49s wall (RTF 0.70), phys 10.44 GB
+  [REQ] undeclared emotion refused: unsupportedRequestFeature("edit(.emotion(\"furious\")) — not one of the emotion labels this surface 
+  [REQ] off-grid speed refused: unsupportedRequestFeature("edit(.speed(1.1)) — not one of the factors this surface declares (SpeechE
+  [VAL] after evict 6.73 GB; malloc pressure relief released 0.00 GB → 6.73 GB
+[Prewarm] auk: paged 3 file(s) / 7.6 GB into cache in 0.2s
+  [VAL] second cycle: phys after re-prepare 9.63 GB (first 9.19), after second evict 6.92 GB
+  [VAL] base int8: resident 9.19 GB, peak phys 10.71 GB (activation 1.52 GB), after evict 6.73 GB (MLX active 0.00, cache 0.00 GB)
+  [MEM] base int8 resident: process phys_footprint lifetime peak 11.75 GB (kernel ledger)
+
+===== validate-base-int8-staged.log
+  [VAL] residency staged
+[License] tencent/AuK: weight license LicenseRef-Qwen-Research is outside permissiveOnly — declared and allowed to load (advisory enforcement).
+  [LIC] .permissiveOnly registered with 1 advisories — advisory only
+[Prewarm] auk: paged 3 file(s) / 7.6 GB into cache in 0.2s
+  [MEM] prepare (load + warm-up): phys peak 5.07 GB (5 ms sampler)
+  [VAL] base int8 prepared in 2.5s (warm-up incl.); phys 0.01 → 2.56 GB (resident +2.56)
+  [MEM] tts-clone: phys peak during the run 6.50 GB (5 ms sampler)
+  [RUN] tts-clone: 5.50s audio, -25.6 dBFS, 5.77s wall (RTF 1.05), phys 3.00 GB
+  [MEM] tts-design: phys peak during the run 7.01 GB (5 ms sampler)
+  [RUN] tts-design: 2.36s audio, -24.6 dBFS, 1.98s wall (RTF 0.84), phys 2.54 GB
+  [MEM] edit-happy: phys peak during the run 7.17 GB (5 ms sampler)
+  [RUN] edit-happy: 6.32s audio, -25.9 dBFS, 4.68s wall (RTF 0.74), phys 3.21 GB
+  [MEM] edit-whisper: phys peak during the run 7.19 GB (5 ms sampler)
+  [RUN] edit-whisper: 6.32s audio, -25.0 dBFS, 4.73s wall (RTF 0.75), phys 3.20 GB
+  [MEM] edit-denoise: phys peak during the run 7.19 GB (5 ms sampler)
+  [RUN] edit-denoise: 4.98s audio, -28.5 dBFS, 3.99s wall (RTF 0.80), phys 3.10 GB
+  [MEM] edit-replace: phys peak during the run 7.25 GB (5 ms sampler)
+  [RUN] edit-replace: 7.00s audio, -34.6 dBFS, 5.15s wall (RTF 0.74), phys 3.20 GB
+  [MEM] edit-speed: phys peak during the run 7.34 GB (5 ms sampler)
+  [RUN] edit-speed: 7.34s audio, -18.7 dBFS, 6.42s wall (RTF 0.88), phys 3.12 GB
+  [MEM] edit-pitch: phys peak during the run 7.24 GB (5 ms sampler)
+  [RUN] edit-pitch: 5.50s audio, -31.4 dBFS, 4.20s wall (RTF 0.76), phys 3.18 GB
+  [MEM] edit-nonverbal: phys peak during the run 7.66 GB (5 ms sampler)
+  [RUN] edit-nonverbal: 22.00s audio, -33.5 dBFS, 15.74s wall (RTF 0.72), phys 3.14 GB
+  [REQ] undeclared emotion refused: unsupportedRequestFeature("edit(.emotion(\"furious\")) — not one of the emotion labels this surface 
+  [REQ] off-grid speed refused: unsupportedRequestFeature("edit(.speed(1.1)) — not one of the factors this surface declares (SpeechE
+  [VAL] after evict 2.56 GB; malloc pressure relief released 0.00 GB → 2.56 GB
+[Prewarm] auk: paged 3 file(s) / 7.6 GB into cache in 0.2s
+  [VAL] second cycle: phys after re-prepare 2.51 GB (first 2.56), after second evict 1.85 GB
+  [VAL] base int8: resident 2.56 GB, peak phys 3.21 GB (activation 0.65 GB), after evict 2.56 GB (MLX active 0.00, cache 0.00 GB)
+  [MEM] base int8 staged: process phys_footprint lifetime peak 7.68 GB (kernel ledger)
+
+===== validate-flash-bf16-resident.log
+  [VAL] residency resident
+[License] tencent/AuK-Flash: weight license LicenseRef-Qwen-Research is outside permissiveOnly — declared and allowed to load (advisory enforcement).
+  [LIC] .permissiveOnly registered with 1 advisories — advisory only
+[Prewarm] auk-flash: paged 3 file(s) / 10.8 GB into cache in 0.3s
+  [MEM] prepare (load + warm-up): phys peak 12.86 GB (5 ms sampler)
+  [VAL] flash bf16 prepared in 1.6s (warm-up incl.); phys 0.01 → 12.77 GB (resident +12.76)
+  [MEM] tts-clone: phys peak during the run 14.20 GB (5 ms sampler)
+  [RUN] tts-clone: 5.50s audio, -24.7 dBFS, 0.70s wall (RTF 0.13), phys 13.55 GB
+  [MEM] tts-design: phys peak during the run 14.21 GB (5 ms sampler)
+  [RUN] tts-design: 2.36s audio, -23.3 dBFS, 0.29s wall (RTF 0.12), phys 13.64 GB
+  [MEM] edit-happy: phys peak during the run 14.37 GB (5 ms sampler)
+  [RUN] edit-happy: 6.32s audio, -25.2 dBFS, 0.63s wall (RTF 0.10), phys 13.67 GB
+  [MEM] edit-whisper: phys peak during the run 14.45 GB (5 ms sampler)
+  [RUN] edit-whisper: 6.32s audio, -25.7 dBFS, 0.64s wall (RTF 0.10), phys 13.71 GB
+  [MEM] edit-denoise: phys peak during the run 14.40 GB (5 ms sampler)
+  [RUN] edit-denoise: 4.98s audio, -28.4 dBFS, 0.54s wall (RTF 0.11), phys 13.61 GB
+  [MEM] edit-replace: phys peak during the run 14.39 GB (5 ms sampler)
+  [RUN] edit-replace: 7.00s audio, -34.1 dBFS, 0.69s wall (RTF 0.10), phys 13.71 GB
+  [MEM] edit-speed: phys peak during the run 14.45 GB (5 ms sampler)
+  [RUN] edit-speed: 7.34s audio, -18.4 dBFS, 0.79s wall (RTF 0.11), phys 13.78 GB
+  [MEM] edit-pitch: phys peak during the run 14.34 GB (5 ms sampler)
+  [RUN] edit-pitch: 5.50s audio, -30.9 dBFS, 0.57s wall (RTF 0.10), phys 13.71 GB
+  [MEM] edit-nonverbal: phys peak during the run 14.87 GB (5 ms sampler)
+  [RUN] edit-nonverbal: 22.00s audio, -34.3 dBFS, 2.33s wall (RTF 0.11), phys 13.51 GB
+  [REQ] undeclared emotion refused: unsupportedRequestFeature("edit(.emotion(\"furious\")) — not one of the emotion labels this surface 
+  [REQ] off-grid speed refused: unsupportedRequestFeature("edit(.speed(1.1)) — not one of the factors this surface declares (SpeechE
+  [VAL] after evict 10.00 GB; malloc pressure relief released 0.00 GB → 10.00 GB
+[Prewarm] auk-flash: paged 3 file(s) / 10.8 GB into cache in 0.3s
+  [VAL] second cycle: phys after re-prepare 12.77 GB (first 12.77), after second evict 9.83 GB
+  [VAL] flash bf16: resident 12.76 GB, peak phys 13.78 GB (activation 1.02 GB), after evict 10.00 GB (MLX active 0.00, cache 0.00 GB)
+  [MEM] flash bf16 resident: process phys_footprint lifetime peak 14.89 GB (kernel ledger)
+
+===== validate-flash-bf16-staged.log
+  [VAL] residency staged
+[License] tencent/AuK-Flash: weight license LicenseRef-Qwen-Research is outside permissiveOnly — declared and allowed to load (advisory enforcement).
+  [LIC] .permissiveOnly registered with 1 advisories — advisory only
+[Prewarm] auk-flash: paged 3 file(s) / 10.8 GB into cache in 0.3s
+  [MEM] prepare (load + warm-up): phys peak 8.00 GB (5 ms sampler)
+  [VAL] flash bf16 prepared in 1.7s (warm-up incl.); phys 0.01 → 2.36 GB (resident +2.35)
+  [MEM] tts-clone: phys peak during the run 8.96 GB (5 ms sampler)
+  [RUN] tts-clone: 5.50s audio, -24.7 dBFS, 1.03s wall (RTF 0.19), phys 3.27 GB
+  [MEM] tts-design: phys peak during the run 10.14 GB (5 ms sampler)
+  [RUN] tts-design: 2.36s audio, -23.3 dBFS, 0.63s wall (RTF 0.27), phys 2.56 GB
+  [MEM] edit-happy: phys peak during the run 10.46 GB (5 ms sampler)
+  [RUN] edit-happy: 6.32s audio, -25.2 dBFS, 0.97s wall (RTF 0.15), phys 3.13 GB
+  [MEM] edit-whisper: phys peak during the run 10.42 GB (5 ms sampler)
+  [RUN] edit-whisper: 6.32s audio, -25.7 dBFS, 0.98s wall (RTF 0.15), phys 3.19 GB
+  [MEM] edit-denoise: phys peak during the run 10.37 GB (5 ms sampler)
+  [RUN] edit-denoise: 4.98s audio, -28.4 dBFS, 0.88s wall (RTF 0.18), phys 2.98 GB
+  [MEM] edit-replace: phys peak during the run 10.46 GB (5 ms sampler)
+  [RUN] edit-replace: 7.00s audio, -34.1 dBFS, 1.03s wall (RTF 0.15), phys 3.21 GB
+  [MEM] edit-speed: phys peak during the run 10.56 GB (5 ms sampler)
+  [RUN] edit-speed: 7.34s audio, -18.4 dBFS, 1.13s wall (RTF 0.15), phys 3.22 GB
+  [MEM] edit-pitch: phys peak during the run 10.40 GB (5 ms sampler)
+  [RUN] edit-pitch: 5.50s audio, -30.9 dBFS, 0.91s wall (RTF 0.16), phys 3.16 GB
+  [MEM] edit-nonverbal: phys peak during the run 10.72 GB (5 ms sampler)
+  [RUN] edit-nonverbal: 22.00s audio, -34.3 dBFS, 2.36s wall (RTF 0.11), phys 2.73 GB
+  [REQ] undeclared emotion refused: unsupportedRequestFeature("edit(.emotion(\"furious\")) — not one of the emotion labels this surface 
+  [REQ] off-grid speed refused: unsupportedRequestFeature("edit(.speed(1.1)) — not one of the factors this surface declares (SpeechE
+  [VAL] after evict 2.33 GB; malloc pressure relief released 0.00 GB → 2.33 GB
+[Prewarm] auk-flash: paged 3 file(s) / 10.8 GB into cache in 0.3s
+  [VAL] second cycle: phys after re-prepare 2.67 GB (first 2.36), after second evict 1.82 GB
+  [VAL] flash bf16: resident 2.35 GB, peak phys 3.27 GB (activation 0.91 GB), after evict 2.33 GB (MLX active 0.00, cache 0.00 GB)
+  [MEM] flash bf16 staged: process phys_footprint lifetime peak 10.75 GB (kernel ledger)
+
+===== validate-flash-int4-resident.log
+  [VAL] residency resident
+[License] tencent/AuK-Flash: weight license LicenseRef-Qwen-Research is outside permissiveOnly — declared and allowed to load (advisory enforcement).
+  [LIC] .permissiveOnly registered with 1 advisories — advisory only
+[Prewarm] auk-flash: paged 3 file(s) / 5.9 GB into cache in 0.2s
+  [MEM] prepare (load + warm-up): phys peak 7.98 GB (5 ms sampler)
+  [VAL] flash int4 prepared in 1.3s (warm-up incl.); phys 0.01 → 7.92 GB (resident +7.91)
+  [MEM] tts-clone: phys peak during the run 9.31 GB (5 ms sampler)
+  [RUN] tts-clone: 5.50s audio, -25.0 dBFS, 0.71s wall (RTF 0.13), phys 8.74 GB
+  [MEM] tts-design: phys peak during the run 9.34 GB (5 ms sampler)
+  [RUN] tts-design: 2.36s audio, -23.6 dBFS, 0.29s wall (RTF 0.12), phys 8.77 GB
+  [MEM] edit-happy: phys peak during the run 9.50 GB (5 ms sampler)
+  [RUN] edit-happy: 6.32s audio, -25.5 dBFS, 0.65s wall (RTF 0.10), phys 8.90 GB
+  [MEM] edit-whisper: phys peak during the run 9.49 GB (5 ms sampler)
+  [RUN] edit-whisper: 6.32s audio, -25.8 dBFS, 0.65s wall (RTF 0.10), phys 8.97 GB
+  [MEM] edit-denoise: phys peak during the run 9.46 GB (5 ms sampler)
+  [RUN] edit-denoise: 4.98s audio, -28.4 dBFS, 0.54s wall (RTF 0.11), phys 8.82 GB
+  [MEM] edit-replace: phys peak during the run 9.52 GB (5 ms sampler)
+  [RUN] edit-replace: 7.00s audio, -34.2 dBFS, 0.69s wall (RTF 0.10), phys 8.87 GB
+  [MEM] edit-speed: phys peak during the run 9.58 GB (5 ms sampler)
+  [RUN] edit-speed: 7.34s audio, -18.4 dBFS, 0.79s wall (RTF 0.11), phys 8.90 GB
+  [MEM] edit-pitch: phys peak during the run 9.49 GB (5 ms sampler)
+  [RUN] edit-pitch: 5.50s audio, -30.9 dBFS, 0.57s wall (RTF 0.10), phys 8.80 GB
+  [MEM] edit-nonverbal: phys peak during the run 9.80 GB (5 ms sampler)
+  [RUN] edit-nonverbal: 22.00s audio, -34.3 dBFS, 2.01s wall (RTF 0.09), phys 8.66 GB
+  [REQ] undeclared emotion refused: unsupportedRequestFeature("edit(.emotion(\"furious\")) — not one of the emotion labels this surface 
+  [REQ] off-grid speed refused: unsupportedRequestFeature("edit(.speed(1.1)) — not one of the factors this surface declares (SpeechE
+  [VAL] after evict 5.66 GB; malloc pressure relief released 0.00 GB → 5.66 GB
+[Prewarm] auk-flash: paged 3 file(s) / 5.9 GB into cache in 0.2s
+  [VAL] second cycle: phys after re-prepare 7.90 GB (first 7.92), after second evict 5.80 GB
+  [VAL] flash int4: resident 7.91 GB, peak phys 8.97 GB (activation 1.06 GB), after evict 5.66 GB (MLX active 0.00, cache 0.00 GB)
+  [MEM] flash int4 resident: process phys_footprint lifetime peak 9.83 GB (kernel ledger)
+
+===== validate-flash-int4-staged.log
+  [VAL] residency staged
+[License] tencent/AuK-Flash: weight license LicenseRef-Qwen-Research is outside permissiveOnly — declared and allowed to load (advisory enforcement).
+  [LIC] .permissiveOnly registered with 1 advisories — advisory only
+[Prewarm] auk-flash: paged 3 file(s) / 5.9 GB into cache in 0.2s
+  [MEM] prepare (load + warm-up): phys peak 4.97 GB (5 ms sampler)
+  [VAL] flash int4 prepared in 1.3s (warm-up incl.); phys 0.01 → 2.28 GB (resident +2.28)
+  [MEM] tts-clone: phys peak during the run 5.84 GB (5 ms sampler)
+  [RUN] tts-clone: 5.50s audio, -25.0 dBFS, 0.97s wall (RTF 0.18), phys 3.18 GB
+  [MEM] tts-design: phys peak during the run 5.26 GB (5 ms sampler)
+  [RUN] tts-design: 2.36s audio, -23.6 dBFS, 0.57s wall (RTF 0.24), phys 2.47 GB
+  [MEM] edit-happy: phys peak during the run 5.56 GB (5 ms sampler)
+  [RUN] edit-happy: 6.32s audio, -25.5 dBFS, 0.93s wall (RTF 0.15), phys 3.07 GB
+  [MEM] edit-whisper: phys peak during the run 5.59 GB (5 ms sampler)
+  [RUN] edit-whisper: 6.32s audio, -25.8 dBFS, 0.94s wall (RTF 0.15), phys 3.14 GB
+  [MEM] edit-denoise: phys peak during the run 5.49 GB (5 ms sampler)
+  [RUN] edit-denoise: 4.98s audio, -28.4 dBFS, 0.83s wall (RTF 0.17), phys 3.02 GB
+  [MEM] edit-replace: phys peak during the run 5.71 GB (5 ms sampler)
+  [RUN] edit-replace: 7.00s audio, -34.2 dBFS, 0.98s wall (RTF 0.14), phys 3.16 GB
+  [MEM] edit-speed: phys peak during the run 5.86 GB (5 ms sampler)
+  [RUN] edit-speed: 7.34s audio, -18.4 dBFS, 1.07s wall (RTF 0.15), phys 3.18 GB
+  [MEM] edit-pitch: phys peak during the run 5.50 GB (5 ms sampler)
+  [RUN] edit-pitch: 5.50s audio, -30.9 dBFS, 0.86s wall (RTF 0.16), phys 3.15 GB
+  [MEM] edit-nonverbal: phys peak during the run 6.39 GB (5 ms sampler)
+  [RUN] edit-nonverbal: 22.00s audio, -34.3 dBFS, 2.30s wall (RTF 0.10), phys 3.03 GB
+  [REQ] undeclared emotion refused: unsupportedRequestFeature("edit(.emotion(\"furious\")) — not one of the emotion labels this surface 
+  [REQ] off-grid speed refused: unsupportedRequestFeature("edit(.speed(1.1)) — not one of the factors this surface declares (SpeechE
+  [VAL] after evict 2.53 GB; malloc pressure relief released 0.00 GB → 2.53 GB
+[Prewarm] auk-flash: paged 3 file(s) / 5.9 GB into cache in 0.2s
+  [VAL] second cycle: phys after re-prepare 2.04 GB (first 2.28), after second evict 1.96 GB
+  [VAL] flash int4: resident 2.28 GB, peak phys 3.18 GB (activation 0.90 GB), after evict 2.53 GB (MLX active 0.00, cache 0.00 GB)
+  [MEM] flash int4 staged: process phys_footprint lifetime peak 6.39 GB (kernel ledger)
+
+===== validate-flash-int8-resident.log
+  [VAL] residency resident
+[License] tencent/AuK-Flash: weight license LicenseRef-Qwen-Research is outside permissiveOnly — declared and allowed to load (advisory enforcement).
+  [LIC] .permissiveOnly registered with 1 advisories — advisory only
+[Prewarm] auk-flash: paged 3 file(s) / 7.6 GB into cache in 0.3s
+  [MEM] prepare (load + warm-up): phys peak 9.68 GB (5 ms sampler)
+  [VAL] flash int8 prepared in 1.6s (warm-up incl.); phys 0.01 → 9.46 GB (resident +9.45)
+  [MEM] tts-clone: phys peak during the run 11.04 GB (5 ms sampler)
+  [RUN] tts-clone: 5.50s audio, -24.6 dBFS, 0.73s wall (RTF 0.13), phys 10.37 GB
+  [MEM] tts-design: phys peak during the run 11.04 GB (5 ms sampler)
+  [RUN] tts-design: 2.36s audio, -23.7 dBFS, 0.29s wall (RTF 0.12), phys 10.46 GB
+  [MEM] edit-happy: phys peak during the run 11.14 GB (5 ms sampler)
+  [RUN] edit-happy: 6.32s audio, -25.2 dBFS, 0.65s wall (RTF 0.10), phys 10.58 GB
+  [MEM] edit-whisper: phys peak during the run 11.16 GB (5 ms sampler)
+  [RUN] edit-whisper: 6.32s audio, -25.7 dBFS, 0.65s wall (RTF 0.10), phys 10.53 GB
+  [MEM] edit-denoise: phys peak during the run 11.20 GB (5 ms sampler)
+  [RUN] edit-denoise: 4.98s audio, -28.4 dBFS, 0.55s wall (RTF 0.11), phys 10.45 GB
+  [MEM] edit-replace: phys peak during the run 11.26 GB (5 ms sampler)
+  [RUN] edit-replace: 7.00s audio, -34.1 dBFS, 0.70s wall (RTF 0.10), phys 10.57 GB
+  [MEM] edit-speed: phys peak during the run 11.31 GB (5 ms sampler)
+  [RUN] edit-speed: 7.34s audio, -18.4 dBFS, 0.79s wall (RTF 0.11), phys 10.55 GB
+  [MEM] edit-pitch: phys peak during the run 11.09 GB (5 ms sampler)
+  [RUN] edit-pitch: 5.50s audio, -30.9 dBFS, 0.58s wall (RTF 0.11), phys 10.42 GB
+  [MEM] edit-nonverbal: phys peak during the run 11.53 GB (5 ms sampler)
+  [RUN] edit-nonverbal: 22.00s audio, -34.3 dBFS, 2.03s wall (RTF 0.09), phys 10.09 GB
+  [REQ] undeclared emotion refused: unsupportedRequestFeature("edit(.emotion(\"furious\")) — not one of the emotion labels this surface 
+  [REQ] off-grid speed refused: unsupportedRequestFeature("edit(.speed(1.1)) — not one of the factors this surface declares (SpeechE
+  [VAL] after evict 7.18 GB; malloc pressure relief released 0.00 GB → 7.18 GB
+[Prewarm] auk-flash: paged 3 file(s) / 7.6 GB into cache in 0.2s
+  [VAL] second cycle: phys after re-prepare 9.60 GB (first 9.46), after second evict 6.93 GB
+  [VAL] flash int8: resident 9.45 GB, peak phys 10.58 GB (activation 1.12 GB), after evict 7.18 GB (MLX active 0.00, cache 0.00 GB)
+  [MEM] flash int8 resident: process phys_footprint lifetime peak 11.61 GB (kernel ledger)
+
+===== validate-flash-int8-staged.log
+  [VAL] residency staged
+[License] tencent/AuK-Flash: weight license LicenseRef-Qwen-Research is outside permissiveOnly — declared and allowed to load (advisory enforcement).
+  [LIC] .permissiveOnly registered with 1 advisories — advisory only
+[Prewarm] auk-flash: paged 3 file(s) / 7.6 GB into cache in 0.2s
+  [MEM] prepare (load + warm-up): phys peak 4.97 GB (5 ms sampler)
+  [VAL] flash int8 prepared in 1.5s (warm-up incl.); phys 0.01 → 2.37 GB (resident +2.37)
+  [MEM] tts-clone: phys peak during the run 5.84 GB (5 ms sampler)
+  [RUN] tts-clone: 5.50s audio, -24.6 dBFS, 1.01s wall (RTF 0.18), phys 3.30 GB
+  [MEM] tts-design: phys peak during the run 7.01 GB (5 ms sampler)
+  [RUN] tts-design: 2.36s audio, -23.7 dBFS, 0.61s wall (RTF 0.26), phys 2.56 GB
+  [MEM] edit-happy: phys peak during the run 7.17 GB (5 ms sampler)
+  [RUN] edit-happy: 6.32s audio, -25.2 dBFS, 0.97s wall (RTF 0.15), phys 2.99 GB
+  [MEM] edit-whisper: phys peak during the run 7.19 GB (5 ms sampler)
+  [RUN] edit-whisper: 6.32s audio, -25.7 dBFS, 0.98s wall (RTF 0.15), phys 3.28 GB
+  [MEM] edit-denoise: phys peak during the run 7.20 GB (5 ms sampler)
+  [RUN] edit-denoise: 4.98s audio, -28.4 dBFS, 0.87s wall (RTF 0.17), phys 2.92 GB
+  [MEM] edit-replace: phys peak during the run 7.25 GB (5 ms sampler)
+  [RUN] edit-replace: 7.00s audio, -34.1 dBFS, 1.01s wall (RTF 0.14), phys 3.18 GB
+  [MEM] edit-speed: phys peak during the run 7.36 GB (5 ms sampler)
+  [RUN] edit-speed: 7.34s audio, -18.4 dBFS, 1.12s wall (RTF 0.15), phys 3.26 GB
+  [MEM] edit-pitch: phys peak during the run 7.24 GB (5 ms sampler)
+  [RUN] edit-pitch: 5.50s audio, -30.9 dBFS, 0.90s wall (RTF 0.16), phys 3.00 GB
+  [MEM] edit-nonverbal: phys peak during the run 7.66 GB (5 ms sampler)
+  [RUN] edit-nonverbal: 22.00s audio, -34.3 dBFS, 2.35s wall (RTF 0.11), phys 3.02 GB
+  [REQ] undeclared emotion refused: unsupportedRequestFeature("edit(.emotion(\"furious\")) — not one of the emotion labels this surface 
+  [REQ] off-grid speed refused: unsupportedRequestFeature("edit(.speed(1.1)) — not one of the factors this surface declares (SpeechE
+  [VAL] after evict 2.35 GB; malloc pressure relief released 0.00 GB → 2.35 GB
+[Prewarm] auk-flash: paged 3 file(s) / 7.6 GB into cache in 0.2s
+  [VAL] second cycle: phys after re-prepare 1.47 GB (first 2.37), after second evict 2.15 GB
+  [VAL] flash int8: resident 2.37 GB, peak phys 3.30 GB (activation 0.93 GB), after evict 2.35 GB (MLX active 0.00, cache 0.00 GB)
+  [MEM] flash int8 staged: process phys_footprint lifetime peak 7.66 GB (kernel ledger)
+
+===== coldprobe (msync MS_INVALIDATE eviction check)
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/weights/Qwen2.5-Omni-3B-Thinker-fp32/encoder.safetensors
+  before: resident 0%
+  read 1: 13.18 GB/s (1.13 s)
+  after read: resident 100%
+  read 2 (cached): 26.95 GB/s (0.55 s)
+  after evict: resident 0%
+  read 3 (evicted): 13.12 GB/s (1.14 s)
+/Volumes/Satechi/Development/mlxengine-audio/WIP/auk-port/weights/AuK-fp32/vae.safetensors
+  before: resident 0%
+  read 1: 13.15 GB/s (0.04 s)
+  after read: resident 100%
+  read 2 (cached): 25.75 GB/s (0.02 s)
+  after evict: resident 0%
+  read 3 (evicted): 13.23 GB/s (0.04 s)

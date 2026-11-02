@@ -179,3 +179,90 @@ own inputs, plus an off-grid refusal:
   - the pitch shift itself, in cents.
 
   The cookbook verifier in AB-T-0416 is for those.
+
+## Staged residency (2026-11-01, AB-T-0414)
+
+`AuKConfiguration.residency = .staged` (default `.resident`). This is upstream's `--sequential`
+(Tencent-Hunyuan/AuK `feat/mlx-apple-silicon` @ 6943a1e), reimplemented. Between requests, only the VAE (0.29 GB), the
+two fusion tensors (`layer_weights`, `layer_scale`) and the tokenizer stay loaded. Each request:
+1. computes the VAE reference latents, as before;
+2. reads the Qwen2.5-Omni Thinker, conditions, then frees it and clears the MLX cache;
+3. reads the DiT, samples, then frees it and clears the cache;
+4. decodes with the VAE.
+
+`AukStage` holds a model for the pipeline's lifetime or builds it for one `use`. `generate`'s signature is unchanged.
+The raw outputs are in `receipts/staged-residency.txt`. The runner is `Tools/run_staged.sh bit|mem`. Measured on an M5
+Max with mlx-swift 0.32.3, under the AuK GPU lock.
+
+**Bit identity: PASS on every lane** (`auk-gates staged`):
+- Lanes: 2 variants × 3 tiers (bf16, int8, int4 encoder bundles).
+- Requests per lane: 6 V2 golden tasks × 2 paths.
+  - The production path: own noise and resampling, seed 0.
+  - The oracle-noise path: the e2e lane's injected y0, VAE noise and features. This covers the other conditioning
+    branch.
+- Every staged sample equals the resident sample bit for bit (max|Δ| 0): 96 staged renders against 72 resident.
+- bf16 adds a cold-page-cache staged pass (24 of the 96), and it is also identical.
+
+**Peak phys_footprint through the engine** (`auk-gates validate`, one process per run):
+- Each run: MLXServeEngine register → prepare (warm-up included) → 9 requests → evict → a second cycle.
+- "Peak" is the kernel's lifetime `ledger_phys_footprint_peak` for the process. A 5 ms sampler inside each request
+  agrees with it to within 0.08 GB.
+- "Idle" is phys after prepare, which is what stays charged between requests.
+- Staged's idle is ~0.4 GB of MLX arrays plus ~2 GB of process memory left by the warm-up.
+
+| | resident idle | resident peak | staged idle | staged peak | peak saved |
+|---|---|---|---|---|---|
+| flash bf16 | 12.76 GB | 14.89 | 2.35 | **10.75** | −4.14 |
+| flash int8 | 9.45 | 11.61 | 2.37 | **7.66** | −3.95 |
+| flash int4 | 7.91 | 9.83 | 2.28 | **6.39** | −3.44 |
+| base bf16 | 12.51 | 14.92 | 2.72 | **10.79** | −4.13 |
+| base int8 | 9.19 | 11.75 | 2.56 | **7.68** | −4.07 |
+| base int4 | 7.97 | 10.04 | 2.82 | **7.34** | −2.70 |
+
+- **Which stage sets the peak** (MLX peak per request, `auk-gates staged`):
+  - bf16: the encoder stage, at 8.25 GB.
+  - int8 and int4: the DiT stage, at 5.15 GB (Flash) and 5.27 GB (Base, with CFG's doubled batch).
+  - Per-request staged peaks vary with input length: bf16 8.96–10.77 GB, int8 5.84–7.66, int4 5.26–7.32. The 22 s
+    nonverbal edit is the largest.
+- **On a 16 GB Mac:** int8 and int4 staged peak below 8 GB, and bf16 staged peaks at 10.8 GB. Upstream reports 8-bit
+  9.1 → 6.1 GB, with their DiT also 8-bit; ours keeps the DiT bf16.
+- **Finding on the resident declaration.** The 5 ms sampler shows the resident in-request peak is 1.9–2.5 GB over
+  idle. V3's after-request readings showed 0.80–1.03 GB. So the declared `peakActivationBytes` of 1.5 GB is short by
+  up to ~0.75 GB in total: base int4 measures 10.04 GB against 7.8 + 1.5 = 9.3 GB, and base bf16 14.92 against 14.4. This is not changed here; it is a follow-up.
+
+**Per-request latency added by the reloads** (`auk-gates staged`, 12 requests per pass, means):
+- The load columns time the encoder and DiT safetensors reads, cast and key check.
+- "Added" is staged wall minus resident wall for the same request. It includes the loads, plus ~0.1–0.15 s of fresh
+  buffer allocation after each `clearCache`.
+
+| | resident wall | staged warm: added (encoder + DiT load) | staged cold: added (encoder + DiT load) |
+|---|---|---|---|
+| flash bf16 | 0.59 s | +0.44 s (0.20 + 0.09) | +1.03 s (0.59 + 0.25) |
+| flash int8 | 0.60 | +0.35 (0.16 + 0.10) | — |
+| flash int4 | 0.59 | +0.30 (0.12 + 0.10) | — |
+| base bf16 | 4.25 | +0.41 (0.19 + 0.09) | +0.97 (0.59 + 0.25) |
+| base int8 | 4.26 | +0.33 (0.16 + 0.09) | — |
+| base int4 | 4.34 | +0.20 (0.12 + 0.10) | — |
+
+- **Through the engine** (the validate runs above), staged adds a mean +0.23 to +0.34 s per request on every tier, with
+  the page cache warm.
+- **On wall clock:** for Flash, staged makes each request ~1.5–1.8× longer. For Base, it adds 5–10 %.
+- **Cold page cache.** Before every staged request, `encoder.safetensors` and `dit.safetensors` were evicted
+  (msync `MS_INVALIDATE`), and mincore confirmed 0 % resident.
+  - The eviction is real: after it, the file reads at 13.1 GB/s, the same as a file never read, against 26–27 GB/s
+    cached (`coldprobe` in the receipt).
+  - This volume is a 13 GB/s external PCIe SSD. Cold cost scales with read speed: a staged bf16 request reads 10.5 GB
+    (int8 7.3, int4 5.6), so at 3 GB/s expect about +3.5 s.
+- **Gate phys excluded.** The gate's own phys readings are not used. Its process has no MLX cache limit, so the
+  resident pass climbs 17 → 37 GB of buffer cache while the MLX peak stays flat. The engine caps the pool, and the
+  validate runs show no such growth.
+
+**Declaration.** The ask is AB-A-0246 to mlx-engine, still open at commit time. The proposal is the existing
+`FootprintConfigured` hints with no contract change:
+- `residentBytesHint` = the staged idle (~3.0 GB);
+- `peakActivationBytesHint` = staged peak − idle (bf16 8.0, int8 5.0, int4 4.6 GB);
+- `expectedWeightReadBytesPerRunHint` = encoder + DiT bytes.
+
+Until mlx-engine answers, staged ships as **package configuration only**, without `FootprintConfigured`. The engine
+keeps charging the resident footprints (12.9 / 9.6 / 7.8–8.0 GB + 1.5 GB). This over-reserves a staged registration,
+which is safe. It also means the engine does not yet admit staged AuK on a budget that only the staged numbers fit.

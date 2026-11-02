@@ -5,9 +5,11 @@
 //   auk-gates encoder <golden> <model> <encoder>  token ids, mel features, audio tower, hidden states, fused condition
 //   auk-gates e2e     <golden> <model> <encoder> [out.wav]   whole request with the oracle's noise
 //   auk-gates render  <model> <encoder> "<instruction>" <in.wav|-> <seconds|-> <out.wav> [seed]
+//   auk-gates staged  <golden-variant> <assets> <model> <encoder> <out-dir>   resident vs staged: bit identity, reload cost
 //
 // Options (before the subcommand): --cpu (fp32 reference lane on the CPU stream), --dtype float32|bfloat16,
-// --enc-dtype float32|bfloat16|… (encoder only).
+// --enc-dtype float32|bfloat16|… (encoder only), --residency resident|staged (render / matrix / validate),
+// --cold (staged: evict the encoder and DiT files from the page cache before every staged call).
 
 import AuKCore
 import Darwin
@@ -27,6 +29,8 @@ var encDType: DType? = nil
 var ditBits: Int? = nil
 var encBits: Int? = nil
 var seeds: [UInt64] = [0, 1, 2]
+var residency: AukResidency = .resident
+var coldCache = false
 func parseDType(_ s: String) -> DType {
     switch s { case "bfloat16", "bf16": return .bfloat16; case "float16", "fp16": return .float16; default: return .float32 }
 }
@@ -39,6 +43,8 @@ while let a = args.first, a.hasPrefix("--") {
     case "--dit-bits": ditBits = Int(args.removeFirst())
     case "--enc-bits": encBits = Int(args.removeFirst())
     case "--seeds": seeds = args.removeFirst().split(separator: ",").compactMap { UInt64($0) }
+    case "--residency": residency = AukResidency(rawValue: args.removeFirst()) ?? .resident
+    case "--cold": coldCache = true
     default: fatalError("unknown option \(a)")
     }
 }
@@ -205,7 +211,8 @@ func e2eGate(_ golden: URL, _ modelDir: URL, _ encDir: URL, _ out: URL?) async t
 
 func render(_ modelDir: URL, _ encDir: URL, _ instruction: String, _ input: String, _ seconds: String, _ out: URL,
             seed: UInt64) async throws {
-    let pipe = try await AukPipeline.load(modelDir: modelDir, encoderDir: encDir, dtype: dtype, encoderDType: encDType)
+    let pipe = try await AukPipeline.load(modelDir: modelDir, encoderDir: encDir, dtype: dtype, encoderDType: encDType,
+                                          residency: residency)
     var audio: [Float]? = nil
     var rate = 24000
     if input != "-" { (audio, rate) = try WAV.read(URL(fileURLWithPath: input)) }
@@ -223,7 +230,7 @@ func render(_ modelDir: URL, _ encDir: URL, _ instruction: String, _ input: Stri
 func matrix(_ goldenVariant: URL, _ assets: URL, _ modelDir: URL, _ encDir: URL, _ outDir: URL) async throws {
     let q = AukQuantization(ditBits: ditBits, encoderBits: encBits)
     let pipe = try await AukPipeline.load(modelDir: modelDir, encoderDir: encDir, dtype: dtype, encoderDType: encDType,
-                                          quantization: q)
+                                          quantization: q, residency: residency)
     try FileManager.default.createDirectory(at: outDir, withIntermediateDirectories: true)
     let log = outDir.appendingPathComponent("renders.jsonl")
     if !FileManager.default.fileExists(atPath: log.path) { FileManager.default.createFile(atPath: log.path, contents: nil) }
@@ -293,13 +300,170 @@ func physFootprintGB() -> Double {
     return kr == KERN_SUCCESS ? Double(info.phys_footprint) / 1e9 : .nan
 }
 
+/// The kernel's lifetime phys_footprint high-water mark for this process.
+func physFootprintLedgerPeakGB() -> Double {
+    var info = task_vm_info_data_t()
+    var count = mach_msg_type_number_t(MemoryLayout<task_vm_info_data_t>.size / MemoryLayout<natural_t>.size)
+    let kr = withUnsafeMutablePointer(to: &info) {
+        $0.withMemoryRebound(to: integer_t.self, capacity: Int(count)) { task_info(mach_task_self_, task_flavor_t(TASK_VM_INFO), $0, &count) }
+    }
+    return kr == KERN_SUCCESS ? Double(info.ledger_phys_footprint_peak) / 1e9 : .nan
+}
+
+/// phys_footprint polled every 5 ms on its own thread: the peak inside a call, which a reading after the call misses
+/// (a staged call's peak is its encoder or DiT stage, both freed before it returns).
+final class PhysSampler: @unchecked Sendable {
+    private let lock = NSLock()
+    private var high = 0.0
+    private var stopped = false
+
+    init() {
+        high = physFootprintGB()
+        Thread.detachNewThread { [self] in
+            while true {
+                let p = physFootprintGB()
+                lock.lock(); high = max(high, p); let done = stopped; lock.unlock()
+                if done { return }
+                usleep(5000)
+            }
+        }
+    }
+
+    /// The peak since the last reset, then starts a new window at the current reading.
+    func reset() -> Double {
+        let now = physFootprintGB()
+        lock.lock(); defer { lock.unlock() }
+        let p = max(high, now); high = now
+        return p
+    }
+
+    func stop() { lock.lock(); stopped = true; lock.unlock() }
+}
+
+/// Drops a file's pages from the unified buffer cache (msync MS_INVALIDATE on a shared mapping, vmtouch's macOS
+/// eviction) and returns the fraction still resident afterwards (mincore) — the cold-cache lane's proof.
+func evictFromPageCache(_ url: URL) -> Double {
+    let fd = open(url.path, O_RDONLY)
+    guard fd >= 0 else { return .nan }
+    defer { close(fd) }
+    var st = stat()
+    guard fstat(fd, &st) == 0, st.st_size > 0 else { return .nan }
+    let len = Int(st.st_size)
+    guard let p = mmap(nil, len, PROT_READ, MAP_SHARED, fd, 0), p != MAP_FAILED else { return .nan }
+    defer { munmap(p, len) }
+    _ = msync(p, len, MS_INVALIDATE)
+    let page = Int(getpagesize())
+    var vec = [CChar](repeating: 0, count: (len + page - 1) / page)
+    guard mincore(p, len, &vec) == 0 else { return .nan }
+    return Double(vec.filter { $0 & 1 != 0 }.count) / Double(vec.count)
+}
+
+/// AB-T-0414: the same requests through a resident and a staged pipeline. Per golden task, two requests: the
+/// production path (own noise and resampling, seed 0) and the oracle-noise path (the e2e lane's injected y0, VAE noise
+/// and features — the other conditioning branch). Each mode warms up on the first request (Metal compile, page
+/// cache), then runs every request once; staged output must equal resident output bit for bit. With --cold, a third
+/// pass evicts encoder.safetensors and dit.safetensors from the page cache before every staged call.
+func stagedGate(_ goldenVariant: URL, _ assets: URL, _ modelDir: URL, _ encDir: URL, _ outDir: URL) async throws {
+    let fm = FileManager.default
+    try fm.createDirectory(at: outDir, withIntermediateDirectories: true)
+    let tasks = try fm.contentsOfDirectory(atPath: goldenVariant.path).filter {
+        fm.fileExists(atPath: goldenVariant.appendingPathComponent("\($0)/meta.json").path)
+    }.sorted()
+    var requests = [(name: String, req: AukRequest, inject: AukInjectedNoise?)]()
+    for task in tasks {
+        let dir = goldenVariant.appendingPathComponent(task)
+        let meta = try loadMeta(dir)
+        let instruction = meta.instruction.replacingOccurrences(of: "|<no_prompt_audio>|", with: "")
+        var audio: [Float]? = nil, rate = 24000
+        if let a = meta.audio { (audio, rate) = try WAV.read(assets.appendingPathComponent(a)) }
+        requests.append(("\(task)-prod", AukRequest(instruction: instruction, audio: audio, sampleRate: rate,
+                                                    genSeconds: meta.gen_seconds, seed: 0), nil))
+        var refAudio: [Float]? = nil, vaeNoise: MLXArray? = nil, feats: MLXArray? = nil
+        if meta.audio != nil {
+            refAudio = try npy(dir, "ref24k").reshaped(-1).asArray(Float.self)
+            vaeNoise = cl(try npy(dir, "enc_noise"))
+            let nValid = try npy(dir, "feature_attention_mask").sum().item(Int.self)
+            feats = try npy(dir, "input_features")[0, 0..., ..<nValid].transposed(1, 0)
+        }
+        requests.append(("\(task)-oracle", AukRequest(instruction: instruction, audio: refAudio, sampleRate: 24000,
+                                                      genSeconds: meta.gen_seconds),
+                         AukInjectedNoise(y0: try npy(dir, "y0").expandedDimensions(axis: 0), vaeNoise: vaeNoise, features: feats)))
+    }
+    let files = [encDir.appendingPathComponent("encoder.safetensors"), modelDir.appendingPathComponent("dit.safetensors")]
+    let log = outDir.appendingPathComponent("staged.jsonl")
+    if !fm.fileExists(atPath: log.path) { fm.createFile(atPath: log.path, contents: nil) }
+    let fh = try FileHandle(forWritingTo: log); fh.seekToEndOfFile()
+    defer { try? fh.close() }
+    let sampler = PhysSampler()
+    defer { sampler.stop() }
+
+    func pass(_ pipe: AukPipeline, label: String, cold: Bool) throws -> [[Float]] {
+        var waves = [[Float]]()
+        for (name, req, inject) in requests {
+            let residentFraction = cold ? files.map(evictFromPageCache).max() ?? .nan : .nan
+            Memory.peakMemory = 0
+            _ = sampler.reset()
+            let t0 = Date()
+            let wave = try pipe.generate(req, inject: inject)
+            let wall = Date().timeIntervalSince(t0)
+            let phys = sampler.reset()
+            let (encLoad, ditLoad) = pipe.lastStageLoadSeconds
+            waves.append(wave)
+            let rec: [String: Any] = ["pass": label, "request": name, "wall_s": wall, "encoder_load_s": encLoad,
+                                      "dit_load_s": ditLoad, "audio_s": Double(wave.count) / 24000,
+                                      "mlx_peak_gb": Double(Memory.peakMemory) / 1e9, "phys_peak_gb": phys,
+                                      "cache_resident_before": cold ? residentFraction : -1]
+            fh.write(try JSONSerialization.data(withJSONObject: rec, options: [.sortedKeys])); fh.write("\n".data(using: .utf8)!)
+            print(String(format: "  [%@] %-16@ wall %6.2f s  (encoder load %5.2f, DiT load %5.2f)  MLX peak %5.2f GB  phys peak %5.2f GB%@",
+                         label as NSString, name as NSString, wall, encLoad, ditLoad, Double(Memory.peakMemory) / 1e9, phys,
+                         cold ? String(format: "  page cache before %.0f%%", residentFraction * 100) as NSString : "" as NSString))
+        }
+        return waves
+    }
+
+    func warm(_ pipe: AukPipeline) throws { _ = try pipe.generate(requests[0].req, inject: requests[0].inject) }
+
+    var reference = [[Float]]()
+    do {
+        let t = Date()
+        let pipe = try await AukPipeline.load(modelDir: modelDir, encoderDir: encDir, dtype: dtype, encoderDType: encDType)
+        print(String(format: "  resident load %.2f s, phys %.2f GB", Date().timeIntervalSince(t), physFootprintGB()))
+        try warm(pipe)
+        reference = try pass(pipe, label: "resident", cold: false)
+    }
+    Memory.clearCache()
+    let t = Date()
+    let staged = try await AukPipeline.load(modelDir: modelDir, encoderDir: encDir, dtype: dtype, encoderDType: encDType,
+                                            residency: .staged)
+    print(String(format: "  staged load %.2f s, phys %.2f GB (MLX active %.2f GB)", Date().timeIntervalSince(t), physFootprintGB(),
+                 Double(Memory.activeMemory) / 1e9))
+    try warm(staged)
+    var passes = [("staged-warm", try pass(staged, label: "staged-warm", cold: false))]
+    if coldCache { passes.append(("staged-cold", try pass(staged, label: "staged-cold", cold: true))) }
+    var identical = true
+    for (label, waves) in passes {
+        for (i, (a, b)) in zip(waves, reference).enumerated() {
+            let same = a.count == b.count && zip(a, b).allSatisfy { $0.bitPattern == $1.bitPattern }
+            let maxAbs = a.count == b.count ? zip(a, b).map { abs($0 - $1) }.max() ?? 0 : .infinity
+            identical = identical && same
+            print(String(format: "  [BIT] %@ %-16@ %@ (%d samples, max|Δ| %.3e)", label as NSString, requests[i].name as NSString,
+                         same ? "IDENTICAL" : "DIFFER", a.count, maxAbs))
+        }
+    }
+    print("  [BIT] staged vs resident: \(identical ? "PASS — every sample bit-identical" : "FAIL")")
+    if !identical { exit(1) }
+}
+
 /// The consumer path: MLXServeEngine register → prepare → run → evict, phys_footprint at each step (the manifest's
 /// C-memory numbers). The default .permissiveOnly engine must REFUSE the package; the .any engine (the operator's
 /// --allow-research acceptance) admits it.
 func validate(variant: String, quant q: String, _ modelDir: URL, _ encDir: URL, _ assets: URL, _ outDir: URL) async throws {
     let quant: Quant = q == "int8" ? .int8 : q == "int4" ? .int4 : .bf16
     let v: AuKVariant = variant == "base" ? .base : .flash
-    let config = AuKConfiguration(variant: v, quant: quant, modelDirectory: modelDir, encoderDirectory: encDir)
+    let config = AuKConfiguration(variant: v, quant: quant, modelDirectory: modelDir, encoderDirectory: encDir, residency: residency)
+    let sampler = PhysSampler()
+    defer { sampler.stop() }
+    print("  [VAL] residency \(residency.rawValue)")
     let registration: PackageRegistration = v == .base ? AuKPackage.registration : AuKFlashPackage.registration
     try FileManager.default.createDirectory(at: outDir, withIntermediateDirectories: true)
 
@@ -318,6 +482,7 @@ func validate(variant: String, quant q: String, _ modelDir: URL, _ encDir: URL, 
     let t0 = Date()
     try await engine.prepare(.tts, package: id)
     let afterLoad = physFootprintGB()
+    print(String(format: "  [MEM] prepare (load + warm-up): phys peak %.2f GB (5 ms sampler)", sampler.reset()))
     print(String(format: "  [VAL] %@ %@ prepared in %.1fs (warm-up incl.); phys %.2f → %.2f GB (resident +%.2f)",
                  variant, q, Date().timeIntervalSince(t0), before, afterLoad, afterLoad - before))
     var peak = afterLoad
@@ -361,6 +526,7 @@ func validate(variant: String, quant q: String, _ modelDir: URL, _ encDir: URL, 
         let rms = 20 * log10(max(sqrt(samples.map { $0 * $0 }.reduce(0, +) / Float(max(samples.count, 1))), 1e-9))
         let foot = physFootprintGB(); peak = max(peak, foot)
         let wall = Date().timeIntervalSince(t)
+        print(String(format: "  [MEM] %@: phys peak during the run %.2f GB (5 ms sampler)", name, sampler.reset()))
         try audio.data.write(to: outDir.appendingPathComponent("\(variant)-\(q)-\(name).wav"))
         print(String(format: "  [RUN] %@: %.2fs audio, %.1f dBFS, %.2fs wall (RTF %.2f), phys %.2f GB", name, secs, rms, wall, wall / max(secs, 0.01), foot))
     }
@@ -391,6 +557,8 @@ func validate(variant: String, quant q: String, _ modelDir: URL, _ encDir: URL, 
     print(String(format: "  [VAL] %@ %@: resident %.2f GB, peak phys %.2f GB (activation %.2f GB), after evict %.2f GB (MLX active %.2f, cache %.2f GB)",
                  variant, q, afterLoad - before, peak, peak - afterLoad, afterEvict,
                  Double(Memory.activeMemory) / 1e9, Double(Memory.cacheMemory) / 1e9))
+    print(String(format: "  [MEM] %@ %@ %@: process phys_footprint lifetime peak %.2f GB (kernel ledger)", variant, q,
+                 residency.rawValue, physFootprintLedgerPeakGB()))
 }
 
 // MARK: - dispatch
@@ -412,6 +580,9 @@ func run() async throws {
     case "validate":
         try await validate(variant: rest[0], quant: rest[1], URL(fileURLWithPath: rest[2]), URL(fileURLWithPath: rest[3]),
                            URL(fileURLWithPath: rest[4]), URL(fileURLWithPath: rest[5]))
+    case "staged":
+        try await stagedGate(URL(fileURLWithPath: rest[0]), URL(fileURLWithPath: rest[1]), URL(fileURLWithPath: rest[2]),
+                             URL(fileURLWithPath: rest[3]), URL(fileURLWithPath: rest[4]))
     case "matrix":
         try await matrix(URL(fileURLWithPath: rest[0]), URL(fileURLWithPath: rest[1]), URL(fileURLWithPath: rest[2]),
                          URL(fileURLWithPath: rest[3]), URL(fileURLWithPath: rest[4]))

@@ -50,7 +50,8 @@ public final class AuKSession {
         guard let modelDir = r.modelDirectory, let encDir = r.encoderDirectory else {
             throw AuKPackageError.missingWeights("unresolved bundle directories (no store root)")
         }
-        pipeline = try await AukPipeline.load(modelDir: modelDir, encoderDir: encDir, dtype: configuration.dtype)
+        pipeline = try await AukPipeline.load(modelDir: modelDir, encoderDir: encDir, dtype: configuration.dtype,
+                                              residency: configuration.residency)
         if configuration.warmUp {
             do {
                 _ = try pipeline?.generate(AukRequest(instruction: AukInstruction.instructTTS(
