@@ -13,7 +13,7 @@ Noise is made reproducible, not injected: the sampler seeds torch.manual_seed(se
 VAE reference noise is drawn after torch.manual_seed(VAE_SEED). Both are saved, so a port loads them.
 
     python dump_goldens.py --variant base|flash --assets <AuK clone>/assets/demo-input-audio --out <goldens>
-                           [--tasks zs,itts,content,speed,emotion,se]
+                           [--tasks zs,itts,content,speed,emotion,se | zhzs,zhzsn,deaccent]
 """
 
 from __future__ import annotations
@@ -70,6 +70,31 @@ TASKS = {
         seconds=None,
     ),
 }
+V2B_TASKS = list(TASKS)  # the 2026-10-18 V2b six, the default
+
+# AB-T-0413 zh content probe (2026-11-01): Mandarin content through each encoder tier. `target` is the text the render
+# should say; the scorer reports CER against it as a diagnostic next to the protocol's oracle-transcript CER.
+ZH_TASKS = {
+    "zhzs": dict(  # cookbook 1.1 template and voice prompt (English speaker), Mandarin text
+        audio="zero-shot-tts/ref.wav",
+        instruction="Say the following with the same voice: '我的导师说，这篇论文的结论还需要更多实验数据来支持。'",
+        seconds=6.5,
+        target="我的导师说，这篇论文的结论还需要更多实验数据来支持。",
+    ),
+    "zhzsn": dict(  # same template, native Mandarin voice prompt
+        audio="nv/zh-a-input.wav",
+        instruction="Say the following with the same voice: '今天下午三点，请大家准时到会议室讨论新产品的发布计划。'",
+        seconds=6.5,
+        target="今天下午三点，请大家准时到会议室讨论新产品的发布计划。",
+    ),
+    "deaccent": dict(  # cookbook 4.3 verbatim; upstream's 4-bit failure case (論文…導師 → 任務…倒死)
+        audio="accent/accent-sichuan-input.wav",
+        instruction="请把方言腔改成标准普通话发音,音色维持一致。",
+        seconds=None,
+        target="终于把论文定稿发给导师了，现在就等着他的反馈，心里有点小紧张。",  # hand transcript of the source
+    ),
+}
+TASKS.update(ZH_TASKS)
 
 HIDDEN_KEEP = (0, 1, 18, 35, 36)
 
@@ -207,7 +232,7 @@ def instrument(engine: AukInfer, cap: dict) -> None:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--variant", choices=("base", "flash"), required=True)
-    ap.add_argument("--tasks", default=",".join(TASKS))
+    ap.add_argument("--tasks", default=",".join(V2B_TASKS), help=f"any of {','.join(TASKS)}")
     ap.add_argument("--threads", type=int, default=0)
     ap.add_argument("--assets", required=True, help="the upstream clone's assets/demo-input-audio")
     ap.add_argument("--out", required=True, help="goldens root; writes <out>/<variant>/<task>/")
@@ -268,6 +293,7 @@ def main():
             instruction=messages[0]["content"][0]["text"],  # includes |<no_prompt_audio>| when appended
             audio=spec["audio"],
             gen_seconds=spec["seconds"],
+            target=spec.get("target"),
             gen_latent_len=gen_len,
             seed=SEED,
             vae_seed=VAE_SEED,

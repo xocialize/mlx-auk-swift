@@ -13,3 +13,6 @@ The raw outputs behind `MEASUREMENTS.md`, from an M5 Max with mlx-swift 0.32.3, 
 | `stage-profile.log` | AB-T-0415: per-stage wall clock (ref / encoder / ODE / decode), warm, 5 runs per task, Flash and Base × bf16 and 8-bit encoder (2026-11-01) | `Tools/run_profile.sh` → `auk-gates profile` |
 | `staged-residency.txt` | AB-T-0414: staged vs resident — bit identity (2 variants × 3 tiers × 12 requests, bf16 also cold page cache), per-request reload cost, and engine-lane phys_footprint peaks (5 ms sampler + kernel ledger), 12 processes; plus the page-cache eviction probe (2026-11-01) | `Tools/run_staged.sh bit\|mem` |
 | `hf-upload.log` | V4: the Hugging Face commit for each published repo | `hf upload` |
+| `v2b-zh-render.log` | AB-T-0413 zh content probe: oracle wall times, then per-render wall time and MLX peak, tiers R/A/B/C × 3 zh tasks (2026-11-01) | `dump_goldens.py --tasks zhzs,zhzsn,deaccent`, `TIERS='R A B C' Tools/run_v2b.sh` |
+| `v2b-zh-scores.csv` | AB-T-0413: per render, the ASR transcript, CER against the oracle transcript (`err`) and against the target text (`err_tgt`), CAM++ SIM, DNSMOS | `Tools/asr/score_v2b.py` |
+| `v2b-zh-score.log` | AB-T-0413: the oracle transcripts, the §6 verdict on the zh probe alone and merged with `v2b-scores.csv` | `Tools/asr/score_v2b.py` |

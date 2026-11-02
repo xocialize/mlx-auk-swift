@@ -1,0 +1,88 @@
+# auk-gates sha256 e54606a27f8c3cce556781d0c6d8e5c06f951a02b34ee4e3038714ad3408ee2a (built from 01a88e2); TIERS='R A B C' Tools/run_v2b.sh <v2b-zh/goldens> <weights> <assets> <v2b-zh/v2b>
+# oracle (fp32 CPU, Tools/oracle-capture/dump_goldens.py --tasks zhzs,zhzsn,deaccent):
+#   [flash/zhzs] 15.2s  gen_latent=325
+#   [flash/zhzsn] 15.8s  gen_latent=325
+#   [flash/deaccent] 15.4s  gen_latent=410
+#   [base/zhzs] 106.2s  gen_latent=325
+#   [base/zhzsn] 132.9s  gen_latent=325
+#   [base/deaccent] 103.1s  gen_latent=410
+== R flash
+  deaccent s0  4.74 s (RTF 0.578) peak 23.62 GB
+  deaccent s1  1.32 s (RTF 0.161) peak 23.66 GB
+  deaccent s2  1.38 s (RTF 0.168) peak 23.66 GB
+  zhzs s0  1.44 s (RTF 0.222) peak 23.70 GB
+  zhzs s1  1.32 s (RTF 0.203) peak 23.67 GB
+  zhzs s2  1.33 s (RTF 0.204) peak 23.67 GB
+  zhzsn s0  1.61 s (RTF 0.248) peak 23.67 GB
+  zhzsn s1  1.57 s (RTF 0.242) peak 23.67 GB
+  zhzsn s2  1.56 s (RTF 0.240) peak 23.67 GB
+== A flash
+  deaccent s0  5.43 s (RTF 0.662) peak 12.50 GB
+  deaccent s1  0.84 s (RTF 0.103) peak 12.50 GB
+  deaccent s2  0.77 s (RTF 0.094) peak 12.50 GB
+  zhzs s0  0.75 s (RTF 0.115) peak 12.54 GB
+  zhzs s1  0.74 s (RTF 0.113) peak 12.54 GB
+  zhzs s2  0.74 s (RTF 0.114) peak 12.54 GB
+  zhzsn s0  0.80 s (RTF 0.124) peak 12.36 GB
+  zhzsn s1  0.79 s (RTF 0.122) peak 12.36 GB
+  zhzsn s2  0.79 s (RTF 0.122) peak 12.36 GB
+== B flash
+  deaccent s0  1.19 s (RTF 0.146) peak 9.31 GB
+  deaccent s1  0.79 s (RTF 0.096) peak 9.31 GB
+  deaccent s2  0.78 s (RTF 0.095) peak 9.31 GB
+  zhzs s0  0.74 s (RTF 0.114) peak 9.36 GB
+  zhzs s1  0.73 s (RTF 0.112) peak 9.36 GB
+  zhzs s2  0.73 s (RTF 0.112) peak 9.36 GB
+  zhzsn s0  0.87 s (RTF 0.133) peak 9.17 GB
+  zhzsn s1  0.79 s (RTF 0.121) peak 9.17 GB
+  zhzsn s2  0.78 s (RTF 0.120) peak 9.17 GB
+== C flash
+  deaccent s0  1.11 s (RTF 0.135) peak 7.61 GB
+  deaccent s1  0.76 s (RTF 0.093) peak 7.61 GB
+  deaccent s2  0.76 s (RTF 0.092) peak 7.61 GB
+  zhzs s0  0.73 s (RTF 0.112) peak 7.66 GB
+  zhzs s1  0.72 s (RTF 0.111) peak 7.66 GB
+  zhzs s2  0.72 s (RTF 0.111) peak 7.66 GB
+  zhzsn s0  0.78 s (RTF 0.120) peak 7.47 GB
+  zhzsn s1  0.78 s (RTF 0.119) peak 7.47 GB
+  zhzsn s2  0.77 s (RTF 0.119) peak 7.47 GB
+== R base
+  deaccent s0  10.40 s (RTF 1.268) peak 23.62 GB
+  deaccent s1  10.35 s (RTF 1.263) peak 23.66 GB
+  deaccent s2  10.35 s (RTF 1.262) peak 23.66 GB
+  zhzs s0  10.79 s (RTF 1.659) peak 23.67 GB
+  zhzs s1  10.78 s (RTF 1.659) peak 23.64 GB
+  zhzs s2  10.77 s (RTF 1.657) peak 23.64 GB
+  zhzsn s0  13.12 s (RTF 2.019) peak 23.65 GB
+  zhzsn s1  13.00 s (RTF 2.000) peak 23.65 GB
+  zhzsn s2  13.03 s (RTF 2.005) peak 23.65 GB
+== A base
+  deaccent s0  5.38 s (RTF 0.656) peak 12.47 GB
+  deaccent s1  5.35 s (RTF 0.652) peak 12.47 GB
+  deaccent s2  5.34 s (RTF 0.652) peak 12.47 GB
+  zhzs s0  5.52 s (RTF 0.850) peak 12.56 GB
+  zhzs s1  5.52 s (RTF 0.850) peak 12.56 GB
+  zhzs s2  5.55 s (RTF 0.853) peak 12.56 GB
+  zhzsn s0  6.46 s (RTF 0.993) peak 12.40 GB
+  zhzsn s1  6.46 s (RTF 0.993) peak 12.40 GB
+  zhzsn s2  6.44 s (RTF 0.991) peak 12.40 GB
+== B base
+  deaccent s0  5.38 s (RTF 0.656) peak 9.28 GB
+  deaccent s1  5.36 s (RTF 0.653) peak 9.28 GB
+  deaccent s2  5.36 s (RTF 0.654) peak 9.28 GB
+  zhzs s0  5.53 s (RTF 0.851) peak 9.38 GB
+  zhzs s1  5.52 s (RTF 0.850) peak 9.38 GB
+  zhzs s2  5.52 s (RTF 0.850) peak 9.38 GB
+  zhzsn s0  6.50 s (RTF 1.000) peak 9.21 GB
+  zhzsn s1  6.79 s (RTF 1.045) peak 9.21 GB
+  zhzsn s2  6.69 s (RTF 1.030) peak 9.21 GB
+== C base
+  deaccent s0  5.55 s (RTF 0.677) peak 7.58 GB
+  deaccent s1  5.51 s (RTF 0.672) peak 7.58 GB
+  deaccent s2  5.63 s (RTF 0.686) peak 7.58 GB
+  zhzs s0  5.81 s (RTF 0.893) peak 7.68 GB
+  zhzs s1  5.76 s (RTF 0.887) peak 7.68 GB
+  zhzs s2  5.74 s (RTF 0.883) peak 7.68 GB
+  zhzsn s0  6.69 s (RTF 1.029) peak 7.51 GB
+  zhzsn s1  6.67 s (RTF 1.026) peak 7.51 GB
+  zhzsn s2  6.63 s (RTF 1.020) peak 7.51 GB
