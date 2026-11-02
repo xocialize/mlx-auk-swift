@@ -5,12 +5,12 @@ and the publish staging. Nothing here assumes a directory layout: every location
 
 | path | what |
 |---|---|
-| `oracle-capture/dump_goldens.py` | **V0 oracle.** Runs upstream AuK (`Tencent-Hunyuan/AuK@9481474`) in fp32 on the CPU and dumps per-stage goldens for 6 cookbook tasks. Fixed seeds, so the output is bit-reproducible. `--variant base\|flash --assets <clone>/assets/demo-input-audio --out <goldens> [--tasks …]` |
+| `oracle-capture/dump_goldens.py` | **V0 oracle.** Runs upstream AuK (`Tencent-Hunyuan/AuK@9481474`) in fp32 on the CPU and dumps per-stage goldens for 6 cookbook tasks (default) or the 3 zh content-probe tasks `zhzs,zhzsn,deaccent` (AB-T-0413). Fixed seeds, so the output is bit-reproducible. `--variant base\|flash --assets <clone>/assets/demo-input-audio --out <goldens> [--tasks …]` |
 | `convert/convert.py` | **V1 converter.** `tencent/AuK`, `tencent/AuK-Flash` and `Qwen/Qwen2.5-Omni-3B` (read from the HF cache) → MLX-layout bundles: weight-norm folded, convs transposed, flow / vision / talker dropped. `--out <weights> [--dtype float32\|bfloat16] [--parts base,flash,encoder]` |
 | `convert/gate_v1.py` | **V1 gate.** The converted tensors must equal upstream's own `remove_weight_norm` output. `gate_v1.py <weights>/AuK-fp32` |
 | `run_e2e_matrix.sh` | **V2 matrix.** Every golden through `auk-gates e2e` on the GPU, fp32 with `MLX_ENABLE_TF32=0`. `run_e2e_matrix.sh <goldens> <weights> [out]` |
-| `run_v2b.sh` | **V2b matrix.** Tiers R / A / B / C / D × 6 tasks × 3 seeds through the production path. `run_v2b.sh <goldens> <weights> <assets> [out]` |
-| `asr/score_v2b.py` | **V2b scorer.** mlx-whisper WER/CER, CAM++ SIM and DNSMOS, plus the pre-registered pass rule. `AUK_FUNASR_DETACH_ROOT=<Step-Audio-EditX clone> score_v2b.py <v2b> <goldens> <assets> <out.csv>` |
+| `run_v2b.sh` | **V2b matrix.** Tiers R / A / B / C / D × every golden task × 3 seeds through the production path. `[TIERS="R A B C"] [AUK_GATES=<bin>] run_v2b.sh <goldens> <weights> <assets> [out]` |
+| `asr/score_v2b.py` | **V2b scorer.** mlx-whisper WER/CER, CAM++ SIM and DNSMOS, plus the pre-registered pass rule; an earlier CSV as a 5th argument adds a merged verdict. `AUK_FUNASR_DETACH_ROOT=<Step-Audio-EditX clone> score_v2b.py <v2b> <goldens> <assets> <out.csv> [earlier.csv]` |
 | `asr/transcribe.py` | Quick content check with mlx-whisper large-v3-turbo. |
 | `publish/stage.sh` | **V4.** Stages each bundle's LICENSE, NOTICE and model card (sources in `publish/auk`, `publish/qwen-thinker`) before `hf upload`. |
 

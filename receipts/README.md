@@ -11,3 +11,6 @@ The raw outputs behind `MEASUREMENTS.md`, from an M5 Max with mlx-swift 0.32.3, 
 | `validate.log` | V3: MLXServeEngine register → prepare → run → evict, phys_footprint per tier × variant | `auk-gates validate` |
 | `validate-1.59.log` | contract 1.59.0: the same engine lane plus replace, speed, pitch and remove-nonverbal edits and an off-grid refusal, bf16 × variant (2026-11-01) | `auk-gates validate` |
 | `hf-upload.log` | V4: the Hugging Face commit for each published repo | `hf upload` |
+| `v2b-zh-render.log` | AB-T-0413 zh content probe: oracle wall times, then per-render wall time and MLX peak, tiers R/A/B/C × 3 zh tasks (2026-11-01) | `dump_goldens.py --tasks zhzs,zhzsn,deaccent`, `TIERS='R A B C' Tools/run_v2b.sh` |
+| `v2b-zh-scores.csv` | AB-T-0413: per render, the ASR transcript, CER against the oracle transcript (`err`) and against the target text (`err_tgt`), CAM++ SIM, DNSMOS | `Tools/asr/score_v2b.py` |
+| `v2b-zh-score.log` | AB-T-0413: the oracle transcripts, the §6 verdict on the zh probe alone and merged with `v2b-scores.csv` | `Tools/asr/score_v2b.py` |

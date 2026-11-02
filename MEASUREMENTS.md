@@ -179,3 +179,75 @@ own inputs, plus an off-grid refusal:
   - the pitch shift itself, in cents.
 
   The cookbook verifier in AB-T-0416 is for those.
+
+## V2b zh content probe — tier C on Mandarin (2026-11-01, AB-T-0413)
+
+**Why.** Upstream's MLX branch (`feat/mlx-apple-silicon` @ 6943a1e, `docs/MLX.md` § Quantization) found 4-bit
+English-safe but Mandarin-degrading: the cookbook de-accent turned 論文…導師 into 任務…倒死. Their 4-bit covers DiT +
+Thinker; our tier C quantises only the encoder. The 2026-10-18 matrix had one zh clip, an enhancement with no content to
+get wrong.
+
+**Setup.** The same pre-registered protocol (PORTING-SPEC §6), on three Mandarin content tasks:
+
+| task | request | source / voice prompt | seconds |
+|---|---|---|---|
+| `zhzs` | cookbook 1.1 template, "我的导师说，这篇论文的结论还需要更多实验数据来支持。" | `zero-shot-tts/ref.wav` (the cookbook's English voice) | 6.5 |
+| `zhzsn` | same template, "今天下午三点，请大家准时到会议室讨论新产品的发布计划。" | `nv/zh-a-input.wav` (native Mandarin) | 6.5 |
+| `deaccent` | cookbook 4.3 verbatim, "请把方言腔改成标准普通话发音,音色维持一致。" | `accent/accent-sichuan-input.wav` | same length |
+
+- **Reference.** The fp32 CPU oracle (`dump_goldens.py --tasks zhzs,zhzsn,deaccent`) on both variants. CER is
+  scored against the oracle's own transcript, as §6 says.
+- **Matrix.** Tiers R / A / B / C × {Base, Flash} × seeds {0, 1, 2}: 72 renders.
+  - Binary: `auk-gates` built from 01a88e2.
+  - Scorer: `score_v2b.py` in the speech-edit-eval EditX venv.
+  - Diagnostic only: CER against the target text (`err_tgt`).
+- Raw: `receipts/v2b-zh-{render.log,scores.csv,score.log}`.
+
+**Result: tier C fails §6 on Mandarin content.**
+
+| tier | CER | worst cell | SIM to source | DNSMOS | Base RTF | Flash RTF | MLX peak | §6, zh probe alone |
+|---|---|---|---|---|---|---|---|---|
+| R fp32 (TF32 off) | 9.01 % | — | 0.797 | 3.507 | 1.61 | 0.26 | 23.7 GB | reference |
+| A bf16 | 8.97 % (−0.04) | +1.4 | 0.757 (−0.040) | 3.476 | 0.82 | 0.18 | 12.5 GB | CER pass, SIM fail |
+| B bf16 + 8-bit encoder | 8.53 % (−0.48) | +1.4 | 0.754 (−0.043) | 3.484 | 0.83 | 0.12 | 9.3 GB | CER pass, SIM fail |
+| C bf16 + 4-bit encoder | 12.70 % (**+3.68**) | **+14.3** (Base de-accent) | 0.764 (−0.033) | 3.463 | 0.85 | 0.11 | 7.6 GB | **FAIL** (CER and SIM) |
+
+CER per cell (mean of 3 seeds):
+
+| variant / task | R | A | B | C |
+|---|---|---|---|---|
+| Base de-accent | 3.6 % | 3.6 | 3.6 | **17.9** |
+| Flash de-accent | 14.3 | 15.5 | 14.3 | **25.0** |
+| Base zhzs | 10.1 | 11.6 | 11.6 | 11.6 |
+| Flash zhzs | 26.1 | 23.2 | 21.7 | 21.7 |
+| Base / Flash zhzsn | 0 / 0 | 0 / 0 | 0 / 0 | 0 / 0 |
+
+**Reading.**
+- **Tier C reproduces upstream's failure, on the same words.** All 6 tier-C de-accent renders lose both
+  content words:
+  - 论文 becomes 论悟 / 论物 / 论务 / 嫩文;
+  - 导师 becomes 盗死 / 刀死 / 叨死 / 到实.
+
+  R, A and B keep 论文 in 18 / 18 renders. They keep 导师 in 12 / 18; the rest are the same seed-matched near-misses
+  (导视 / 倒视) in every one of those tiers, R included. Within a seed, R, A and B transcripts are near-identical; C
+  diverges at exactly these words. Flash de-accent is +10.7, just past the cell bound.
+- **Zero-shot zh TTS is unaffected at C.** zhzsn is clean at every tier. zhzs is within ±4.4 points of R, and C
+  is better than R on Flash.
+  - zhzs is noisy in every tier, oracle included: the oracle itself reads 导师 as 道士, and 论文 as 文文.
+  - That comes from the English voice prompt; it is model behaviour, not quantisation.
+- **Hypothesis (not measured):** the 4-bit thinker damages *reading* accented content from audio (the edit path),
+  not *following* text (the TTS path). The six original tasks are all English or text-led, which is why the
+  2026-10-18 matrix missed it.
+- **Bound.** AB-T-0413 names a "+1.5-point cell bound". That is tier C's measured worst cell from 2026-10-18; §6's
+  pre-registered cell bound is +10 and the pooled bound +2.0. Tier C misses all three.
+  - Resolution: one character on the 28-character de-accent sentence is 3.6 points.
+  - C's Base de-accent misses five characters in every seed.
+- **SIM, a second finding.** De-accent SIM to source drops 0.08–0.10 in *every* reduced-precision tier: Base
+  0.699 → 0.62–0.65, Flash 0.815 → 0.72–0.74. A bf16 drops as much as C, so this is the bf16 DiT/VAE path, not the
+  4-bit encoder.
+  - It takes A, B and C past the −0.03 SIM bound on the probe alone.
+  - Merged with the 2026-10-18 six tasks, A passes (−0.030) and B misses by 0.002 (−0.032). C still fails on its
+    +14.3 cell.
+  - The merged matrix is not the pre-registered one, so this is reported, not a re-verdict of A or B.
+- **Not changed here.** The package manifest, the model cards and the shipped tier list are untouched. A zh caveat
+  on C, or withdrawing C, is the operator's call.

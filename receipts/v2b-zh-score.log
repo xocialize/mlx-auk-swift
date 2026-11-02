@@ -1,0 +1,157 @@
+[gpu-lock] zh-probe-score acquired at 20:19:27
+2026-11-01 20:19:33,257 [INFO] new registry table has been added: preprocessor_classes
+oracle base/deaccent: 终于把论文停告发给导师了现在就等着他的反馈心里有点小紧张
+oracle base/zhzs: 我道士说,这篇文文的结论还需要更多实验数据来支持。
+oracle base/zhzsn: 今天下午3点请大家准时到会议室讨论新产品的发布计划
+oracle flash/deaccent: 终于把论文庭稿发给导师了现在就等着他的反馈心里有点消精张
+oracle flash/zhzs: 而道士说,这篇论文的结论还需要更多试言数据来织取。
+oracle flash/zhzsn: 今天下午3点,请大家准时到会议室讨论新产品的发布计划。
+A base/deaccent s0: err 0.071 sim 0.650 dnsmos 3.50 | 终于把论文庭告发给导视了现在就等着他的反馈心里有点小紧张
+A base/deaccent s1: err 0.036 sim 0.628 dnsmos 3.38 | 终于把论文警告发给导师了现在就等着他的反馈心里有点小紧张
+A base/deaccent s2: err 0.000 sim 0.582 dnsmos 3.30 | 终于把论文停告发给导师了现在就等着他的反馈心里有点小紧张
+A base/zhzs s0: err 0.130 sim 0.634 dnsmos 3.49 | 我的道士说,这篇文文的结论还需要更多试言数据来支持。
+A base/zhzs s1: err 0.087 sim 0.755 dnsmos 3.51 | 我的道士说,这篇论文的结论还需要更多实验数据来支持。
+A base/zhzs s2: err 0.130 sim 0.675 dnsmos 3.48 | 我的导师说,这篇文文的结论还需要更多实验数据来支持。
+A base/zhzsn s0: err 0.000 sim 0.899 dnsmos 3.48 | 今天下午3点请大家准时到会议室讨论新产品的发布计划
+A base/zhzsn s1: err 0.000 sim 0.916 dnsmos 3.48 | 今天下午3点请大家准时到会议室讨论新产品的发布计划
+A base/zhzsn s2: err 0.000 sim 0.891 dnsmos 3.43 | 今天下午3点请大家准时到会议室讨论新产品的发布计划
+A flash/deaccent s0: err 0.179 sim 0.736 dnsmos 3.44 | 终于把论文庭告发给倒视了现在就等着他的反馈心里有点小紧张
+A flash/deaccent s1: err 0.143 sim 0.739 dnsmos 3.43 | 终于把论文顶告发给导师了现在就等着他的反馈行李有点消精张
+A flash/deaccent s2: err 0.143 sim 0.680 dnsmos 3.24 | 终于把论文停杠发给导师了现在就等着他的反馈心里有点小紧张
+A flash/zhzs s0: err 0.087 sim 0.679 dnsmos 3.61 | 我道士说,这篇论文的节论还需要更多试言数据来织取。
+A flash/zhzs s1: err 0.261 sim 0.746 dnsmos 3.56 | 我的道士说,这篇文文的结论还需要更多讯言数据来支持。
+A flash/zhzs s2: err 0.348 sim 0.698 dnsmos 3.50 | 我的道士说,这边旅民的结论需要更多十元数据来织取。
+A flash/zhzsn s0: err 0.000 sim 0.902 dnsmos 3.56 | 今天下午3点请大家准时到会议室讨论新产品的发布计划
+A flash/zhzsn s1: err 0.000 sim 0.902 dnsmos 3.58 | 今天下午3点,请大家准时到会议室讨论新产品的发布计划。
+A flash/zhzsn s2: err 0.000 sim 0.911 dnsmos 3.60 | 今天下午3点,请大家准时到会议室讨论新产品的发布计划。
+B base/deaccent s0: err 0.071 sim 0.635 dnsmos 3.50 | 终于把论文庭告发给导视了现在就等着他的反馈心里有点小紧张
+B base/deaccent s1: err 0.036 sim 0.623 dnsmos 3.39 | 终于把论文顶告发给导师了现在就等着他的反馈心里有点小紧张
+B base/deaccent s2: err 0.000 sim 0.597 dnsmos 3.32 | 终于把论文停告发给导师了现在就等着他的反馈心里有点小紧张
+B base/zhzs s0: err 0.130 sim 0.631 dnsmos 3.54 | 我的道士说,这篇认文的结论还需要更多试验数据来支持。
+B base/zhzs s1: err 0.087 sim 0.754 dnsmos 3.50 | 我的道士说,这篇论文的结论还需要更多实验数据来支持。
+B base/zhzs s2: err 0.130 sim 0.664 dnsmos 3.51 | 我的导师说,这篇文文的结论还需要更多实验数据来支持。
+B base/zhzsn s0: err 0.000 sim 0.898 dnsmos 3.51 | 今天下午3点请大家准时到会议室讨论新产品的发布计划
+B base/zhzsn s1: err 0.000 sim 0.915 dnsmos 3.48 | 今天下午3点请大家准时到会议室讨论新产品的发布计划
+B base/zhzsn s2: err 0.000 sim 0.893 dnsmos 3.43 | 今天下午3点请大家准时到会议室讨论新产品的发布计划
+B flash/deaccent s0: err 0.143 sim 0.715 dnsmos 3.45 | 终于把论文庭告发给捣死了现在就等着他的反馈心里有点消惊张
+B flash/deaccent s1: err 0.143 sim 0.740 dnsmos 3.43 | 终于把论文顶告发给导师了现在就等着他的反馈行李有点消精张
+B flash/deaccent s2: err 0.143 sim 0.697 dnsmos 3.25 | 终于把论文停杠发给导师了现在就等着他的反馈心里有点小紧张
+B flash/zhzs s0: err 0.087 sim 0.670 dnsmos 3.59 | 我,的道士说,这篇论文的结论还需要更多试言数据来织取。
+B flash/zhzs s1: err 0.261 sim 0.740 dnsmos 3.58 | 我的道士说,这篇文文的结论还需要更多讯言数据来支持。
+B flash/zhzs s2: err 0.304 sim 0.687 dnsmos 3.49 | 我的道士说,这片轮面的结论还需要更多实验数据来织取。
+B flash/zhzsn s0: err 0.000 sim 0.903 dnsmos 3.55 | 今天下午3点请大家准时到会议室讨论新产品的发布计划
+B flash/zhzsn s1: err 0.000 sim 0.901 dnsmos 3.58 | 今天下午3点,请大家准时到会议室讨论新产品的发布计划。
+B flash/zhzsn s2: err 0.000 sim 0.914 dnsmos 3.61 | 今天下午3点,请大家准时到会议室讨论新产品的发布计划。
+C base/deaccent s0: err 0.179 sim 0.673 dnsmos 3.48 | 终于把论悟庭告花给盗死了现在就等着他的反馈心里有点小紧张
+C base/deaccent s1: err 0.179 sim 0.647 dnsmos 3.39 | 终于把论物警告法给到实了现在就等着他的反馈心里有点小紧张
+C base/deaccent s2: err 0.179 sim 0.642 dnsmos 3.31 | 终于把论务庭告华给盗死了现在就等着他的反馈心里有点小紧张
+C base/zhzs s0: err 0.130 sim 0.613 dnsmos 3.46 | 我道士说,这篇人们的结论还需要更多试验数据来支持。
+C base/zhzs s1: err 0.087 sim 0.743 dnsmos 3.52 | 或道士说,这篇论文的结论还需要更多实验数据来支持。
+C base/zhzs s2: err 0.130 sim 0.680 dnsmos 3.48 | 我的导师说,这篇文文的结论还需要更多实验数据来支持。
+C base/zhzsn s0: err 0.000 sim 0.915 dnsmos 3.54 | 今天下午3点请大家准时到会议室讨论新产品的发布计划
+C base/zhzsn s1: err 0.000 sim 0.917 dnsmos 3.48 | 今天下午3点请大家准时到会议室讨论新产品的发布计划
+C base/zhzsn s2: err 0.000 sim 0.900 dnsmos 3.44 | 今天下午3点请大家准时到会议室讨论新产品的发布计划
+C flash/deaccent s0: err 0.250 sim 0.764 dnsmos 3.44 | 终于把论悟亭告发给刀死了现在就等着他的反馈心里有点小紧张
+C flash/deaccent s1: err 0.214 sim 0.760 dnsmos 3.34 | 终于把嫩文顶告法给叨死了现在就等着他的反馈心里有点消精张
+C flash/deaccent s2: err 0.286 sim 0.710 dnsmos 3.15 | 终于把论物亭杠花给刀死了现在就等着他的反馈心里有点小紧张
+C flash/zhzs s0: err 0.087 sim 0.679 dnsmos 3.55 | 我,的道士说,这篇论文的结论还需要更多试言数据来织取。
+C flash/zhzs s1: err 0.217 sim 0.738 dnsmos 3.58 | 我道士说,这篇文文的结论还需要更多许言数据来支持。
+C flash/zhzs s2: err 0.348 sim 0.661 dnsmos 3.49 | 我的导师说,这篇论文的结论还需要更多实验数据来支持。
+C flash/zhzsn s0: err 0.000 sim 0.896 dnsmos 3.52 | 今天下午3点请大家准时到会议室讨论新产品的发布计划
+C flash/zhzsn s1: err 0.000 sim 0.894 dnsmos 3.58 | 今天下午3点,请大家准时到会议室讨论新产品的发布计划。
+C flash/zhzsn s2: err 0.000 sim 0.918 dnsmos 3.58 | 今天下午3点,请大家准时到会议室讨论新产品的发布计划。
+R base/deaccent s0: err 0.071 sim 0.723 dnsmos 3.48 | 终于把论文庭告发给导视了现在就等着他的反馈心里有点小紧张
+R base/deaccent s1: err 0.036 sim 0.716 dnsmos 3.37 | 终于把论文警告发给导师了现在就等着他的反馈心里有点小紧张
+R base/deaccent s2: err 0.000 sim 0.658 dnsmos 3.33 | 終於把論文停告發給導師了現在就等著他的反饋 心裡有點小緊張
+R base/zhzs s0: err 0.130 sim 0.691 dnsmos 3.48 | 我的道士说,这篇人文的结论还需要更多试验数据来支持。
+R base/zhzs s1: err 0.043 sim 0.799 dnsmos 3.51 | 我的道士说这篇文文的结论还需要更多实验数据来支持
+R base/zhzs s2: err 0.130 sim 0.685 dnsmos 3.48 | 我的导师说,这篇文文的结论还需要更多实验数据来支持。
+R base/zhzsn s0: err 0.000 sim 0.912 dnsmos 3.56 | 今天下午3点请大家准时到会议室讨论新产品的发布计划
+R base/zhzsn s1: err 0.000 sim 0.896 dnsmos 3.56 | 今天下午3点请大家准时到会议室讨论新产品的发布计划
+R base/zhzsn s2: err 0.000 sim 0.904 dnsmos 3.53 | 今天下午3点请大家准时到会议室讨论新产品的发布计划
+R flash/deaccent s0: err 0.143 sim 0.821 dnsmos 3.54 | 终于把论文庭告发给倒视了现在就等着他的反馈心里有点消惊张
+R flash/deaccent s1: err 0.143 sim 0.830 dnsmos 3.53 | 终于把论文顶告发给导师了现在就等着他的反馈行李有点消精张
+R flash/deaccent s2: err 0.143 sim 0.795 dnsmos 3.25 | 终于把论文停杠发给导师了现在就等着他的反馈心里有点小紧张
+R flash/zhzs s0: err 0.261 sim 0.710 dnsmos 3.59 | 我的道士说,这篇路面的结论还需要更多实验数据来织取。
+R flash/zhzs s1: err 0.261 sim 0.776 dnsmos 3.57 | 我的道士说,这篇文文的结论还需要更多讯言数据来支持。
+R flash/zhzs s2: err 0.261 sim 0.700 dnsmos 3.51 | 我的道士说,这篇论文的结论还需要更多实验数据来支持。
+R flash/zhzsn s0: err 0.000 sim 0.904 dnsmos 3.62 | 今天下午3点请大家准时到会议室讨论新产品的发布计划
+R flash/zhzsn s1: err 0.000 sim 0.912 dnsmos 3.62 | 今天下午3点,请大家准时到会议室讨论新产品的发布计划。
+R flash/zhzsn s2: err 0.000 sim 0.916 dnsmos 3.61 | 今天下午3点,请大家准时到会议室讨论新产品的发布计划。
+
+#### this matrix: deaccent, zhzs, zhzsn
+
+== pooled means
+          err  sim_src  dnsmos
+tier                         
+A     0.0897   0.7568  3.4764
+B     0.0853   0.7541  3.4840
+C     0.1270   0.7638  3.4630
+R     0.0901   0.7972  3.5068
+
+== error rate per (variant, task)
+ tier                  A      B      C      R
+variant task                                
+base    deaccent  0.036  0.036  0.179  0.036
+        zhzs      0.116  0.116  0.116  0.101
+        zhzsn     0.000  0.000  0.000  0.000
+flash   deaccent  0.155  0.143  0.250  0.143
+        zhzs      0.232  0.217  0.217  0.261
+        zhzsn     0.000  0.000  0.000  0.000
+tier A: Δerr -0.04 pts (worst cell +1.4), Δsim -0.0404, Δdnsmos -0.030 → FAIL
+tier B: Δerr -0.48 pts (worst cell +1.4), Δsim -0.0430, Δdnsmos -0.023 → FAIL
+tier C: Δerr +3.68 pts (worst cell +14.3), Δsim -0.0333, Δdnsmos -0.044 → FAIL
+
+== diagnostic: error rate against the target text per (variant, task)
+ tier                  A      B      C      R
+variant task                                
+base    deaccent  0.083  0.083  0.214  0.083
+        zhzs      0.111  0.097  0.153  0.111
+        zhzsn     0.040  0.040  0.040  0.040
+flash   deaccent  0.143  0.167  0.226  0.167
+        zhzs      0.319  0.250  0.167  0.181
+        zhzsn     0.040  0.040  0.040  0.040
+
+== oracle outputs against the target text
+  base/deaccent: 0.071
+  base/zhzs: 0.167
+  base/zhzsn: 0.040
+  flash/deaccent: 0.107
+  flash/zhzs: 0.333
+  flash/zhzsn: 0.040
+
+#### merged with v2b-scores.csv: content, deaccent, emotion, itts, se, speed, zhzs, zhzsn, zs
+
+== pooled means
+          err  sim_src  dnsmos
+tier                         
+A     0.0572   0.7622  3.2886
+B     0.0524   0.7596  3.2874
+C     0.0639   0.7658  3.2705
+R     0.0655   0.7918  3.3036
+
+== error rate per (variant, task)
+ tier                  A      B      C      R
+variant task                                
+base    content   0.000  0.000  0.000  0.000
+        deaccent  0.036  0.036  0.179  0.036
+        emotion   0.196  0.196  0.098  0.216
+        itts      0.000  0.000  0.000  0.000
+        se        0.067  0.022  0.089  0.111
+        speed     0.000  0.000  0.000  0.000
+        zhzs      0.116  0.116  0.116  0.101
+        zhzsn     0.000  0.000  0.000  0.000
+        zs        0.000  0.000  0.000  0.000
+flash   content   0.000  0.000  0.000  0.000
+        deaccent  0.155  0.143  0.250  0.143
+        emotion   0.020  0.020  0.000  0.059
+        itts      0.000  0.000  0.000  0.000
+        se        0.178  0.178  0.156  0.222
+        speed     0.030  0.015  0.045  0.030
+        zhzs      0.232  0.217  0.217  0.261
+        zhzsn     0.000  0.000  0.000  0.000
+        zs        0.000  0.000  0.000  0.000
+tier A: Δerr -0.84 pts (worst cell +1.4), Δsim -0.0296, Δdnsmos -0.015 → PASS
+tier B: Δerr -1.31 pts (worst cell +1.4), Δsim -0.0322, Δdnsmos -0.016 → FAIL
+tier C: Δerr -0.16 pts (worst cell +14.3), Δsim -0.0260, Δdnsmos -0.033 → FAIL
+[gpu-lock] zh-probe-score released at 20:20:03 (exit 0)

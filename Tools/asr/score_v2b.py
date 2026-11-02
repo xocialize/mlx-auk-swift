@@ -2,9 +2,13 @@
   error rate  WER (en) / CER (zh), mlx-whisper large-v3-turbo at temperature 0, against the oracle's own transcript
   sim_src     CAM++ (funasr campplus_cn_common) output vs the task's source / reference clip
   dnsmos      DNSMOS OVRL
+  err_tgt     diagnostic, not gated: error rate against the request's own target text, when the meta carries one
 Normalisers, CAM++ front end and DNSMOS call follow mlxengine-audio/WIP/speech-edit-eval/harness/score.py.
 
-    AUK_FUNASR_DETACH_ROOT=<Step-Audio-EditX clone> python score_v2b.py <v2b-dir> <goldens-dir> <assets-dir> <out.csv>
+    AUK_FUNASR_DETACH_ROOT=<Step-Audio-EditX clone> python score_v2b.py <v2b-dir> <goldens-dir> <assets-dir> <out.csv> \
+        [<earlier.csv>]
+The tasks are the ones the goldens hold. An earlier scores CSV (other tasks, same tiers) is merged for a second, pooled
+verdict.
 needs: mlx-whisper, jiwer, openai-whisper (normalisers), zhconv, speechmos, onnxruntime, funasr, pandas, librosa, torch
 """
 
@@ -36,7 +40,8 @@ from funasr_detach.models.campplus.model import CAMPPlus  # noqa: E402
 WHISPER = glob.glob(os.path.expanduser("~/.cache/huggingface/hub/models--mlx-community--whisper-large-v3-turbo/snapshots/*/"))[0]
 CAMPPLUS = glob.glob(os.path.expanduser("~/.cache/huggingface/hub/models--funasr--campplus/snapshots/*/campplus_cn_common.bin"))[0]
 
-LANG = {"zs": "en", "itts": "en", "content": "en", "speed": "en", "emotion": "en", "se": "zh"}
+LANG = {"zs": "en", "itts": "en", "content": "en", "speed": "en", "emotion": "en", "se": "zh",
+        "zhzs": "zh", "zhzsn": "zh", "deaccent": "zh"}  # the last three: the AB-T-0413 zh content probe
 
 _en, _basic = EnglishTextNormalizer(), BasicTextNormalizer()
 _zh_punct = re.compile(r"[\s，。！？、；：“”‘’（）《》〈〉【】…—\-,.!?;:'\"()\[\]]+")
@@ -99,44 +104,65 @@ def dnsmos(path):
     return float(r["ovrl_mos"])
 
 
+def verdict(df, title):
+    """The pre-registered pass rule (PORTING-SPEC §6) of every tier against R."""
+    print(f"\n#### {title}")
+    summ = df.groupby("tier")[["err", "sim_src", "dnsmos"]].mean()
+    print("\n== pooled means\n", summ.round(4))
+    per = df.groupby(["tier", "variant", "task"])["err"].mean().unstack("tier")
+    print("\n== error rate per (variant, task)\n", per.round(3))
+    if "R" not in summ.index:
+        return
+    r = summ.loc["R"]
+    for t in summ.index:
+        if t == "R":
+            continue
+        d_err = (summ.loc[t, "err"] - r["err"]) * 100
+        worst = ((per[t] - per["R"]) * 100).max() if t in per else float("nan")
+        d_sim = summ.loc[t, "sim_src"] - r["sim_src"]
+        d_dns = summ.loc[t, "dnsmos"] - r["dnsmos"]
+        ok = d_err <= 2.0 and worst <= 10.0 and d_sim >= -0.03 and d_dns >= -0.15
+        print(f"tier {t}: Δerr {d_err:+.2f} pts (worst cell {worst:+.1f}), Δsim {d_sim:+.4f}, Δdnsmos {d_dns:+.3f} → {'PASS' if ok else 'FAIL'}")
+
+
 def main():
     v2b, goldens, assets, out = sys.argv[1:5]
-    ref_text = {}
+    ref_text, metas = {}, {}
     for variant in ("base", "flash"):
-        for task in LANG:
-            ref_text[(variant, task)] = transcribe(os.path.join(goldens, variant, task, "out.wav"), LANG[task])
+        for task in sorted(os.listdir(os.path.join(goldens, variant))):
+            if task in LANG and os.path.exists(os.path.join(goldens, variant, task, "meta.json")):
+                metas[(variant, task)] = json.load(open(os.path.join(goldens, variant, task, "meta.json")))
+                ref_text[(variant, task)] = transcribe(os.path.join(goldens, variant, task, "out.wav"), LANG[task])
+                print(f"oracle {variant}/{task}: {ref_text[(variant, task)]}")
     rows = []
     for log in sorted(glob.glob(os.path.join(v2b, "*", "*", "renders.jsonl"))):
         tier, variant = log.split(os.sep)[-3], log.split(os.sep)[-2]
         for line in open(log):
             r = json.loads(line)
             task = r["task"]
-            meta = json.load(open(os.path.join(goldens, variant, task, "meta.json")))
+            meta = metas[(variant, task)]
             hyp = transcribe(r["path"], LANG[task])
             rec = dict(tier=tier, variant=variant, task=task, seed=r["seed"], hyp=hyp,
                        err=error_rate(ref_text[(variant, task)], hyp, LANG[task]),
                        sim_src=sim(r["path"], os.path.join(assets, meta["audio"])) if meta.get("audio") else float("nan"),
-                       dnsmos=dnsmos(r["path"]), wall_s=r["wall_s"], audio_s=r["audio_s"], peak_gb=r["peak_gb"])
+                       dnsmos=dnsmos(r["path"]), wall_s=r["wall_s"], audio_s=r["audio_s"], peak_gb=r["peak_gb"],
+                       err_tgt=error_rate(meta["target"], hyp, LANG[task]) if meta.get("target") else float("nan"))
             rows.append(rec)
             print(f"{tier} {variant}/{task} s{r['seed']}: err {rec['err']:.3f} sim {rec['sim_src']:.3f} dnsmos {rec['dnsmos']:.2f} | {hyp}")
     df = pd.DataFrame(rows)
     df.to_csv(out, index=False)
-    # the pre-registered pass rule against tier R
-    summ = df.groupby("tier")[["err", "sim_src", "dnsmos"]].mean()
-    print("\n== pooled means\n", summ.round(4))
-    per = df.groupby(["tier", "variant", "task"])["err"].mean().unstack("tier")
-    print("\n== error rate per (variant, task)\n", per.round(3))
-    if "R" in summ.index:
-        r = summ.loc["R"]
-        for t in summ.index:
-            if t == "R":
-                continue
-            d_err = (summ.loc[t, "err"] - r["err"]) * 100
-            worst = ((per[t] - per["R"]) * 100).max() if t in per else float("nan")
-            d_sim = summ.loc[t, "sim_src"] - r["sim_src"]
-            d_dns = summ.loc[t, "dnsmos"] - r["dnsmos"]
-            ok = d_err <= 2.0 and worst <= 10.0 and d_sim >= -0.03 and d_dns >= -0.15
-            print(f"tier {t}: Δerr {d_err:+.2f} pts (worst cell {worst:+.1f}), Δsim {d_sim:+.4f}, Δdnsmos {d_dns:+.3f} → {'PASS' if ok else 'FAIL'}")
+    verdict(df, f"this matrix: {', '.join(sorted(df.task.unique()))}")
+    if df["err_tgt"].notna().any():
+        print("\n== diagnostic: error rate against the target text per (variant, task)\n",
+              df.groupby(["tier", "variant", "task"])["err_tgt"].mean().unstack("tier").round(3))
+        print("\n== oracle outputs against the target text")
+        for (variant, task), m in sorted(metas.items()):
+            if m.get("target"):
+                print(f"  {variant}/{task}: {error_rate(m['target'], ref_text[(variant, task)], LANG[task]):.3f}")
+    if len(sys.argv) > 5:
+        prior = pd.read_csv(sys.argv[5])
+        both = pd.concat([prior[prior.tier.isin(df.tier.unique())], df], ignore_index=True)
+        verdict(both, f"merged with {os.path.basename(sys.argv[5])}: {', '.join(sorted(both.task.unique()))}")
 
 
 if __name__ == "__main__":
