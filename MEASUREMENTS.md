@@ -132,6 +132,8 @@ footprint (`receipts/validate.log`):
 - A 27 s edit (the declared ceiling is 30 s) leaves the MLX peak where the 6 s edits put it: Base 12.60 GB at RTF
   0.82, Flash 12.49 GB at RTF 0.11.
 - Declared footprints: bf16 12.9 GB, int8 9.6 GB, int4 7.8 (Base) / 8.0 (Flash) GB, activation 1.5 GB.
+  **Superseded 2026-11-01:** these readings were taken after each request and miss the in-request peak. See
+  "Staged residency": activation is now 2.8 GB and Base int4 is now 8.1 GB.
 - **After evict.** phys stays at 2.5–9.6 GB with MLX active = cache = 0, and `malloc_zone_pressure_relief` frees
   nothing. The second cycle re-peaks at the first cycle's level, so this is process memory the next load reuses, not a
   leak.
@@ -242,3 +244,107 @@ time for that stage:
 - Spread: within a task the slowest of 5 runs is at most 22 % over the fastest. The low end is reported.
 - The first call in a process is dominated by kernel compile (Flash content warm-up: ref 1.5 s, encoder 2.4 s, total
   6.1 s). That is the cost `AuKConfiguration.warmUp` exists to pay at load.
+
+## Staged residency (2026-11-01, AB-T-0414)
+
+`AuKConfiguration.residency = .staged` (default `.resident`). This is upstream's `--sequential`
+(Tencent-Hunyuan/AuK `feat/mlx-apple-silicon` @ 6943a1e), reimplemented. Between requests, only the VAE (0.29 GB), the
+two fusion tensors (`layer_weights`, `layer_scale`) and the tokenizer stay loaded. Each request:
+1. computes the VAE reference latents, as before;
+2. reads the Qwen2.5-Omni Thinker, conditions, then frees it and clears the MLX cache;
+3. reads the DiT, samples, then frees it and clears the cache;
+4. decodes with the VAE.
+
+`AukStage` holds a model for the pipeline's lifetime or builds it for one `use`. `generate`'s signature is unchanged.
+The raw outputs are in `receipts/staged-residency.txt`. The runner is `Tools/run_staged.sh bit|mem`. Measured on an M5
+Max with mlx-swift 0.32.3, under the AuK GPU lock.
+
+**Bit identity: PASS on every lane** (`auk-gates staged`):
+- Lanes: 2 variants × 3 tiers (bf16, int8, int4 encoder bundles).
+- Requests per lane: 6 V2 golden tasks × 2 paths.
+  - The production path: own noise and resampling, seed 0.
+  - The oracle-noise path: the e2e lane's injected y0, VAE noise and features. This covers the other conditioning
+    branch.
+- Every staged sample equals the resident sample bit for bit (max|Δ| 0): 96 staged renders against 72 resident.
+- bf16 adds a cold-page-cache staged pass (24 of the 96), and it is also identical.
+
+**Peak phys_footprint through the engine** (`auk-gates validate`, one process per run):
+- Each run: MLXServeEngine register → prepare (warm-up included) → 9 requests → evict → a second cycle.
+- "Peak" is the kernel's lifetime `ledger_phys_footprint_peak` for the process. A 5 ms sampler inside each request
+  agrees with it to within 0.08 GB.
+- "Idle" is phys after prepare, which is what stays charged between requests.
+- Staged's idle is ~0.4 GB of MLX arrays plus ~2 GB of process memory left by the warm-up.
+
+| | resident idle | resident peak | staged idle | staged peak | peak saved |
+|---|---|---|---|---|---|
+| flash bf16 | 12.76 GB | 14.89 | 2.35 | **10.75** | −4.14 |
+| flash int8 | 9.45 | 11.61 | 2.37 | **7.66** | −3.95 |
+| flash int4 | 7.91 | 9.83 | 2.28 | **6.39** | −3.44 |
+| base bf16 | 12.51 | 14.92 | 2.72 | **10.79** | −4.13 |
+| base int8 | 9.19 | 11.75 | 2.56 | **7.68** | −4.07 |
+| base int4 | 7.97 | 10.04 | 2.82 | **7.34** | −2.70 |
+
+- **Which stage sets the peak** (MLX peak per request, `auk-gates staged`):
+  - bf16: the encoder stage, at 8.25 GB.
+  - int8 and int4: the DiT stage, at 5.15 GB (Flash) and 5.27 GB (Base, with CFG's doubled batch).
+  - Per-request staged peaks vary with input length: bf16 8.96–10.77 GB, int8 5.84–7.66, int4 5.26–7.32. The 22 s
+    nonverbal edit is the largest.
+- **On a 16 GB Mac:** int8 and int4 staged peak below 8 GB, and bf16 staged peaks at 10.8 GB. Upstream reports 8-bit
+  9.1 → 6.1 GB, with their DiT also 8-bit; ours keeps the DiT bf16.
+- **Finding on the resident declaration.** The 5 ms sampler shows the resident in-request peak is 1.9–2.5 GB over
+  idle (2.56 GB at most, base int8). V3's after-request readings showed 0.80–1.03 GB. The declared 1.5 GB
+  `peakActivationBytes` left the totals short by up to ~0.75 GB: base int4 measured 10.04 GB against 7.8 + 1.5 =
+  9.3 GB, and base bf16 14.92 against 14.4. Base int4 idle also measured 7.97 GB against its declared 7.8.
+  **Fixed:** activation is now 2.8 GB on every tier, and Base int4 resident is now 8.1 GB. Every measured peak sits
+  ≥ 0.85 GB under resident + activation, and `testFootprintsAreTheMeasuredTiers` checks the peaks.
+
+**Per-request latency added by the reloads** (`auk-gates staged`, 12 requests per pass, means):
+- The load columns time the encoder and DiT safetensors reads, cast and key check.
+- "Added" is staged wall minus resident wall for the same request. It includes the loads, plus ~0.1–0.15 s of fresh
+  buffer allocation after each `clearCache`.
+
+| | resident wall | staged warm: added (encoder + DiT load) | staged cold: added (encoder + DiT load) |
+|---|---|---|---|
+| flash bf16 | 0.59 s | +0.44 s (0.20 + 0.09) | +1.03 s (0.59 + 0.25) |
+| flash int8 | 0.60 | +0.35 (0.16 + 0.10) | — |
+| flash int4 | 0.59 | +0.30 (0.12 + 0.10) | — |
+| base bf16 | 4.25 | +0.41 (0.19 + 0.09) | +0.97 (0.59 + 0.25) |
+| base int8 | 4.26 | +0.33 (0.16 + 0.09) | — |
+| base int4 | 4.34 | +0.20 (0.12 + 0.10) | — |
+
+- **Through the engine** (the validate runs above), staged adds a mean +0.23 to +0.34 s per request on every tier, with
+  the page cache warm.
+- **On wall clock:** for Flash, staged makes each request ~1.5–1.8× longer. For Base, it adds 5–10 %.
+- **Cold page cache.** Before every staged request, `encoder.safetensors` and `dit.safetensors` were evicted
+  (msync `MS_INVALIDATE`), and mincore confirmed 0 % resident.
+  - The eviction is real: after it, the file reads at 13.1 GB/s, the same as a file never read, against 26–27 GB/s
+    cached (`coldprobe` in the receipt).
+  - This volume is a 13 GB/s external PCIe SSD. Cold cost scales with read speed: a staged bf16 request reads 10.5 GB
+    (int8 7.3, int4 5.6), so at 3 GB/s expect about +3.5 s.
+- **Gate phys excluded.** The gate's own phys readings are not used. Its process has no MLX cache limit, so the
+  resident pass climbs 17 → 37 GB of buffer cache while the MLX peak stays flat. The engine caps the pool, and the
+  validate runs show no such growth.
+
+**Declaration** (decided with mlx-engine in AB-A-0246, option (A), no contract change). `AuKConfiguration` adopts
+`FootprintConfigured`. A `.resident` configuration returns no hints, so the engine charges the manifest's quant-keyed
+footprint. A `.staged` one returns:
+
+| | `residentBytesHint` (persistent) | `peakActivationBytesHint` (transient) | `expectedWeightReadBytesPerRunHint` |
+|---|---|---|---|
+| bf16 | 3.0 GB | 8.0 GB | 10.51 GB |
+| int8 | 3.0 GB | 5.0 GB | 7.32 GB |
+| int4 | 3.0 GB | 4.6 GB | 5.62 GB |
+
+- **Floor:** the measured idle (2.28–2.82 GB) rounded up.
+- **Transient:** the worst measured staged peak minus 3.0 GB, rounded up.
+- **Read:** encoder.safetensors plus dit.safetensors.
+- **At admission:** an idle staged AuK is charged 3.0 GB, so other models co-reside. Its transient joins the one
+  serialized reserve. The read hint drives the engine's projected-I/O advisory only, and never refuses.
+- **fp32** (parity only) is unmeasured, so it returns nil and falls through.
+- **Pool cap:** the floor and peaks were measured under the engine's default MLX pool cap: `.automatic`, min(2 GB, 5 %
+  of budget), so 2 GB here. A host with a larger pool would raise the idle floor.
+- **Tests:** `testStagedFootprintResolvesThroughHints` resolves each configuration with the engine's own `ResolvedLane`
+  and checks that the hints cover the measured idle and peaks. `testFootprintConformanceResidentAndStaged` runs the
+  FIT gate on every variant × tier × residency.
+- **mlx-engine side:** they rewrote the stale `residentBytesHint` doc comment to the persistent-half meaning
+  (mlx-engine-swift 404176e, doc only).

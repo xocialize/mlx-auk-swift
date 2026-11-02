@@ -190,7 +190,7 @@ The speed estimate is RTF ≈ 1 for Base and ≈ 0.1 for Flash on an M5 Max. Dec
 measurement.
 
 **Measured** (phys_footprint through the engine): bf16 12.75 GB, 8-bit 9.46 GB, 4-bit 7.63–7.90 GB resident;
-activation ≤ 1.03 GB; RTF Base ≈ 0.9, Flash ≈ 0.12. The estimate held for bf16 and was 1.1–1.5 GB low for the
+activation ≤ 1.03 GB after each request (1.9–2.6 GB inside one, re-measured 2026-11-01, AB-T-0414); RTF Base ≈ 0.9, Flash ≈ 0.12. The estimate held for bf16 and was 1.1–1.5 GB low for the
 quantised tiers: the embeddings and the audio-tower convs stay bf16.
 
 ## 6. V2b protocol (pre-registered 2026-10-18, before any tier was measured)

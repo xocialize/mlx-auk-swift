@@ -17,6 +17,11 @@ public enum AuKVariant: String, Codable, Sendable {
     public var modelRepoStem: String { self == .flash ? "mlx-community/AuK-Flash" : "mlx-community/AuK" }
 }
 
+/// `.resident` (the default) keeps the encoder, DiT and VAE loaded between requests. `.staged` keeps only the VAE and
+/// the tokenizer: each request reads the encoder, conditions and frees it, then reads the DiT, samples and frees it —
+/// bit-identical output, one large model in memory at a time, both re-read from disk on every request (AB-T-0414).
+public typealias AuKResidency = AukResidency
+
 public struct AuKConfiguration: PackageConfiguration, ModelStorable, QuantConfigured {
     public var variant: AuKVariant
     /// `.bf16` (DiT, VAE and encoder bf16), `.int8` / `.int4` (encoder 8- / 4-bit, group 64; DiT and VAE bf16 — all
@@ -31,13 +36,16 @@ public struct AuKConfiguration: PackageConfiguration, ModelStorable, QuantConfig
     public var modelsRootDirectory: URL?
     /// Run one short render at load so the first real request runs at the steady RTF (Metal kernel compile).
     public var warmUp: Bool
+    /// How the models stay loaded between requests (`AuKResidency`). Staged trades a per-request re-read of the encoder
+    /// and DiT for a much lower peak, and declares its own footprint (`FootprintConfigured`, below).
+    public var residency: AuKResidency
 
     public init(variant: AuKVariant = .flash, quant: Quant = .bf16, revision: String? = nil, encoderRevision: String? = nil,
                 modelDirectory: URL? = nil, encoderDirectory: URL? = nil, modelsRootDirectory: URL? = nil,
-                warmUp: Bool = true) {
+                warmUp: Bool = true, residency: AuKResidency = .resident) {
         self.variant = variant; self.quant = quant; self.revision = revision; self.encoderRevision = encoderRevision
         self.modelDirectory = modelDirectory; self.encoderDirectory = encoderDirectory
-        self.modelsRootDirectory = modelsRootDirectory; self.warmUp = warmUp
+        self.modelsRootDirectory = modelsRootDirectory; self.warmUp = warmUp; self.residency = residency
     }
 
     /// The DiT + VAE bundle: published bf16 only (the DiT is not quantised in any shipped tier).
@@ -49,7 +57,7 @@ public struct AuKConfiguration: PackageConfiguration, ModelStorable, QuantConfig
 
     var dtype: DType { quant == .fp32 ? .float32 : .bfloat16 }
 
-    private enum CodingKeys: String, CodingKey { case variant, quant, revision, encoderRevision, warmUp }
+    private enum CodingKeys: String, CodingKey { case variant, quant, revision, encoderRevision, warmUp, residency }
 
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -58,6 +66,7 @@ public struct AuKConfiguration: PackageConfiguration, ModelStorable, QuantConfig
         revision = try c.decodeIfPresent(String.self, forKey: .revision)
         encoderRevision = try c.decodeIfPresent(String.self, forKey: .encoderRevision)
         warmUp = try c.decodeIfPresent(Bool.self, forKey: .warmUp) ?? true
+        residency = try c.decodeIfPresent(AuKResidency.self, forKey: .residency) ?? .resident
     }
 }
 
@@ -96,6 +105,18 @@ extension AuKConfiguration: WeightSourcing {
         if cfg.encoderDirectory == nil { cfg.encoderDirectory = store.directory(for: encoderRepo) }
         return cfg
     }
+}
+
+// MARK: - Staged footprint (FootprintConfigured, AB-A-0246)
+
+/// `.resident` returns no hints, so the engine charges the manifest's quant-keyed `QuantFootprint`. `.staged` charges
+/// a small persistent floor and reserves a transient for the stage in flight, so an idle staged AuK leaves room for
+/// other models; the read hint feeds the engine's projected-I/O advisory (it never refuses).
+extension AuKConfiguration: FootprintConfigured {
+    var stagedFootprint: AuKFootprints.Staged? { residency == .staged ? AuKFootprints.staged(quant) : nil }
+    public var residentBytesHint: UInt64? { stagedFootprint?.idle }
+    public var peakActivationBytesHint: UInt64? { stagedFootprint?.peakTransient }
+    public var expectedWeightReadBytesPerRunHint: UInt64? { stagedFootprint?.readPerRequest }
 }
 
 extension AuKConfiguration: WeightPrewarming {

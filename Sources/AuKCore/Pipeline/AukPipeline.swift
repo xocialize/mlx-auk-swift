@@ -7,11 +7,17 @@
 //   • target length = ceil(gen_seconds · 24000 / 480) latents, or the reference's length when unset;
 //   • AuK-Flash ignores caller sampling knobs: 4-step t_grid, CFG off (re-adding CFG clips hard, per upstream);
 //   • the reference RMS is measured upstream but never applied, so it is not here either.
+//
+// Residency (AB-T-0414): `.resident` holds encoder + DiT + VAE for the pipeline's lifetime. `.staged` holds only the
+// VAE, the fusion head and the tokenizer; each call reads the encoder, conditions, frees it, then reads the DiT,
+// samples, frees it — one large model in memory at a time (upstream's `--sequential`, feat/mlx-apple-silicon). The
+// arithmetic is the same either way, so the output is bit-identical (`auk-gates staged`).
 
 import Foundation
 import MLX
 import MLXNN
 import MLXRandom
+import Tokenizers
 
 public struct AukModelConfig: Codable, Sendable {
     public var model_type: String
@@ -64,12 +70,20 @@ public struct AukQuantization: Sendable {
     /// DiT: the Linears inside the 30 transformer blocks (attention, AdaLN modulation, SwiGLU). Encoder: every Linear
     /// inside the 36 LLM layers and the 32 audio-tower layers. Embeddings, projections, norms and the VAE stay as loaded.
     public func apply(dit: CFMEdit, thinker: Qwen2_5OmniThinker) {
+        apply(dit: dit)
+        apply(thinker: thinker)
+    }
+
+    public func apply(dit: CFMEdit) {
         if let b = ditBits {
             quantize(model: dit.transformer, groupSize: groupSize, bits: b) { path, m in
                 m is Linear && (path.hasPrefix("transformer_blocks.") || path.hasPrefix("single_transformer_blocks."))
             }
             eval(dit.parameters())
         }
+    }
+
+    public func apply(thinker: Qwen2_5OmniThinker) {
         if let b = encoderBits, thinker.config.quantization == nil {
             thinker.quantizeLayers(groupSize: groupSize, bits: b)
             eval(thinker.parameters())
@@ -77,37 +91,118 @@ public struct AukQuantization: Sendable {
     }
 }
 
+/// How a pipeline holds its two large models (AB-T-0414).
+public enum AukResidency: String, Codable, Sendable {
+    /// Encoder, DiT and VAE stay loaded for the pipeline's lifetime: the fastest call, the largest footprint.
+    case resident
+    /// Only the VAE, the fusion head and the tokenizer stay loaded; the encoder and the DiT are read for each call and
+    /// freed after their stage. Bit-identical output; each call re-reads both from disk.
+    case staged
+}
+
+/// One of the pipeline's large models: held for the pipeline's lifetime, or built for one use and dropped after it.
+public final class AukStage<Value> {
+    private let build: (() throws -> Value)?
+    /// The held model, or nil for a staged one (it exists only inside `use`).
+    public let held: Value?
+    /// Seconds the last `use` spent building the model (0 when held).
+    public private(set) var lastBuildSeconds: Double = 0
+
+    public init(resident value: Value) { held = value; build = nil }
+    public init(staged build: @escaping () throws -> Value) { held = nil; self.build = build }
+
+    public func use<R>(_ body: (Value) throws -> R) throws -> R {
+        if let held { return try body(held) }
+        let result = try buildAndUse(body)
+        // the staged model's last reference went with buildAndUse's frame; hand its buffers back before the next stage
+        Memory.clearCache()
+        return result
+    }
+
+    private func buildAndUse<R>(_ body: (Value) throws -> R) throws -> R {
+        let t0 = Date()
+        let value = try build!()
+        lastBuildSeconds = Date().timeIntervalSince(t0)
+        return try body(value)
+    }
+}
+
 public final class AukPipeline {
     public let config: AukModelConfig
-    public let model: CFMEdit
     public let vae: BigVGANFlowVAE
-    public let encoder: AukConditionEncoder
+    public let fusion: AukFusion
     public let dtype: DType
+    public let residency: AukResidency
+    let dit: AukStage<CFMEdit>
+    let encoderStage: AukStage<AukConditionEncoder>
+
+    /// The resident DiT / encoder; nil in `.staged`, where each exists only during its stage of a call.
+    public var model: CFMEdit? { dit.held }
+    public var encoder: AukConditionEncoder? { encoderStage.held }
+    /// Seconds the last call spent reading the staged models from disk (both 0 when resident).
+    public var lastStageLoadSeconds: (encoder: Double, dit: Double) { (encoderStage.lastBuildSeconds, dit.lastBuildSeconds) }
 
     public init(config: AukModelConfig, model: CFMEdit, vae: BigVGANFlowVAE, encoder: AukConditionEncoder, dtype: DType) {
-        self.config = config; self.model = model; self.vae = vae; self.encoder = encoder; self.dtype = dtype
+        self.config = config; self.vae = vae; self.fusion = model.fusion; self.dtype = dtype; self.residency = .resident
+        self.dit = AukStage(resident: model); self.encoderStage = AukStage(resident: encoder)
+    }
+
+    init(config: AukModelConfig, vae: BigVGANFlowVAE, fusion: AukFusion, dtype: DType,
+         dit: AukStage<CFMEdit>, encoder: AukStage<AukConditionEncoder>) {
+        self.config = config; self.vae = vae; self.fusion = fusion; self.dtype = dtype; self.residency = .staged
+        self.dit = dit; self.encoderStage = encoder
     }
 
     public static func loadModel(_ dir: URL, dtype: DType, numEncoderLayers: Int = 36) throws -> (AukModelConfig, CFMEdit, BigVGANFlowVAE) {
         let config = try ConfigIO.load(AukModelConfig.self, from: dir.appendingPathComponent("config.json"))
+        let model = try loadDiT(dir, config: config, dtype: dtype, numEncoderLayers: numEncoderLayers)
+        let vae = try loadVAE(dir, config: config, dtype: dtype)
+        return (config, model, vae)
+    }
+
+    public static func loadDiT(_ dir: URL, config: AukModelConfig, dtype: DType, numEncoderLayers: Int = 36) throws -> CFMEdit {
         let model = CFMEdit(config.arch, numEncoderLayers: numEncoderLayers)
         let keep: (String) -> Bool = { $0.hasSuffix("layer_weights") || $0.hasSuffix("layer_scale") || $0.hasSuffix("inv_freq") }
         try WeightIO.apply(try WeightIO.load(dir.appendingPathComponent("dit.safetensors"), dtype: dtype, keepFP32: keep),
                            to: model, component: "dit")
+        return model
+    }
+
+    public static func loadVAE(_ dir: URL, config: AukModelConfig, dtype: DType) throws -> BigVGANFlowVAE {
         let vae = BigVGANFlowVAE(config.vae)
         // the VAE stays fp32 below bf16 DiT tiers only if asked; default follows `dtype`, statistics + taps fp32
         let keepVAE: (String) -> Bool = { $0.hasSuffix("global_mean") || $0.hasSuffix("global_log_std") || $0.hasSuffix("filter") }
         try WeightIO.apply(try WeightIO.load(dir.appendingPathComponent("vae.safetensors"), dtype: dtype, keepFP32: keepVAE),
                            to: vae, component: "vae")
-        return (config, model, vae)
+        return vae
     }
 
     public static func load(modelDir: URL, encoderDir: URL, dtype: DType, encoderDType: DType? = nil,
-                            quantization: AukQuantization = .none) async throws -> AukPipeline {
-        let (config, model, vae) = try loadModel(modelDir, dtype: dtype)
-        let encoder = try await QwenOmniConditionEncoder(directory: encoderDir, dtype: encoderDType ?? dtype)
-        quantization.apply(dit: model, thinker: encoder.thinker)
-        return AukPipeline(config: config, model: model, vae: vae, encoder: encoder, dtype: dtype)
+                            quantization: AukQuantization = .none,
+                            residency: AukResidency = .resident) async throws -> AukPipeline {
+        let encDType = encoderDType ?? dtype
+        guard residency == .staged else {
+            let (config, model, vae) = try loadModel(modelDir, dtype: dtype)
+            let encoder = try await QwenOmniConditionEncoder(directory: encoderDir, dtype: encDType)
+            quantization.apply(dit: model, thinker: encoder.thinker)
+            return AukPipeline(config: config, model: model, vae: vae, encoder: encoder, dtype: dtype)
+        }
+        let config = try ConfigIO.load(AukModelConfig.self, from: modelDir.appendingPathComponent("config.json"))
+        let vae = try loadVAE(modelDir, config: config, dtype: dtype)
+        let fusion = try AukFusion.load(modelDir.appendingPathComponent("dit.safetensors"))
+        let tokenizer = try await AutoTokenizer.from(modelFolder: encoderDir)
+        return AukPipeline(
+            config: config, vae: vae, fusion: fusion, dtype: dtype,
+            dit: AukStage(staged: {
+                let model = try loadDiT(modelDir, config: config, dtype: dtype)
+                quantization.apply(dit: model)
+                return model
+            }),
+            encoder: AukStage(staged: {
+                let encoder = try QwenOmniConditionEncoder(directory: encoderDir, dtype: encDType, tokenizer: tokenizer)
+                quantization.apply(thinker: encoder.thinker)
+                return encoder
+            }))
     }
 
     public var sampleRate: Int { config.vae.target_sample_rate }
@@ -146,20 +241,19 @@ public final class AukPipeline {
         }
 
         let prompt = AukPrompt(instruction: instruction, audio16k: audio16k)
-        let (textEmbeds, contextMask): (MLXArray, MLXArray)
-        if let enc = encoder as? QwenOmniConditionEncoder, let feats = inject?.features {
-            let w = softmax(model.layerWeights.asType(.float32), axis: 0)
-            var acc: MLXArray? = nil
-            let n = try enc.forEachHiddenState(prompt, featuresOverride: feats) { i, h in
-                guard i >= 1 else { return }
-                let term = MLXFast.layerNorm(h.asType(.float32), weight: nil, bias: nil, eps: 1e-5) * w[i - 1]
-                acc = acc.map { $0 + term } ?? term
-                eval(acc!)
+        let (textEmbeds, contextMask): (MLXArray, MLXArray) = try encoderStage.use { encoder in
+            if let enc = encoder as? QwenOmniConditionEncoder, let feats = inject?.features {
+                let w = softmax(fusion.layerWeights.asType(.float32), axis: 0)
+                var acc: MLXArray? = nil
+                let n = try enc.forEachHiddenState(prompt, featuresOverride: feats) { i, h in
+                    guard i >= 1 else { return }
+                    let term = MLXFast.layerNorm(h.asType(.float32), weight: nil, bias: nil, eps: 1e-5) * w[i - 1]
+                    acc = acc.map { $0 + term } ?? term
+                    eval(acc!)
+                }
+                return (acc! * fusion.layerScale.asType(.float32), MLXArray.ones([1, n]).asType(.bool))
             }
-            textEmbeds = acc! * model.layerScale.asType(.float32)
-            contextMask = MLXArray.ones([1, n]).asType(.bool)
-        } else {
-            (textEmbeds, contextMask) = try model.encodeText(prompt, encoder: encoder)
+            return try fusion.encodeText(prompt, encoder: encoder)
         }
         eval(textEmbeds)
         capture?("fused", textEmbeds)
@@ -167,8 +261,10 @@ public final class AukPipeline {
         let sampling = config.is_flash ? config.sampling : (req.sampling ?? config.sampling)
         let y0 = inject?.y0 ?? MLXRandom.normal([1, genLen, config.vae.latent_dim], key: MLXRandom.key(req.seed))
         precondition(y0.dim(1) == genLen, "injected y0 has \(y0.dim(1)) frames, request needs \(genLen)")
-        let gen = model.sample(cond: refLatents, refLen: refLatentLen, textEmbeds: textEmbeds, contextMask: contextMask, y0: y0,
-                               sampling: sampling, dtype: dtype, onStep: onStep, capture: capture)
+        let gen = try dit.use { model in
+            model.sample(cond: refLatents, refLen: refLatentLen, textEmbeds: textEmbeds, contextMask: contextMask, y0: y0,
+                         sampling: sampling, dtype: dtype, onStep: onStep, capture: capture)
+        }
         capture?("gen_latent", gen)
 
         let wave = vae.inferenceFromLatents(vae.denormalize(gen).asType(dtype))

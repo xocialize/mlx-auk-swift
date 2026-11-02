@@ -11,12 +11,13 @@ and the publish staging. Nothing here assumes a directory layout: every location
 | `run_e2e_matrix.sh` | **V2 matrix.** Every golden through `auk-gates e2e` on the GPU, fp32 with `MLX_ENABLE_TF32=0`. `run_e2e_matrix.sh <goldens> <weights> [out]` |
 | `run_v2b.sh` | **V2b matrix.** Tiers R / A / B / C / D × 6 tasks × 3 seeds through the production path. `run_v2b.sh <goldens> <weights> <assets> [out]` |
 | `run_profile.sh` | **Stage profile** (AB-T-0415). `auk-gates profile` over the 6 goldens for Flash and Base × bf16 and 8-bit encoder: 1 warm-up + 5 timed runs per task, wall clock per stage (ref / encoder / ODE / decode). Run it with the GPU to itself. `run_profile.sh <goldens> <weights> <assets> [out] [runs]` |
+| `run_staged.sh` | **Staged residency (AB-T-0414).** `bit`: `auk-gates staged` per variant × tier, staged must equal resident bit for bit (bf16 also cold page cache). `mem`: `auk-gates validate --residency resident\|staged` per variant × tier. `run_staged.sh bit\|mem <goldens> <weights> <assets> [out]` |
 | `asr/score_v2b.py` | **V2b scorer.** mlx-whisper WER/CER, CAM++ SIM and DNSMOS, plus the pre-registered pass rule. `AUK_FUNASR_DETACH_ROOT=<Step-Audio-EditX clone> score_v2b.py <v2b> <goldens> <assets> <out.csv>` |
 | `asr/transcribe.py` | Quick content check with mlx-whisper large-v3-turbo. |
 | `publish/stage.sh` | **V4.** Stages each bundle's LICENSE, NOTICE and model card (sources in `publish/auk`, `publish/qwen-thinker`) before `hf upload`. |
 
 Swift-side lanes are `auk-gates` subcommands: `vae`, `dit`, `encoder`, `e2e`, `matrix`, `validate`,
-`quantize-encoder`, `render` and `profile` (header of `Sources/auk-gates/main.swift`).
+`quantize-encoder`, `render`, `profile` and `staged` (header of `Sources/auk-gates/main.swift`).
 
 **Environment.** The oracle was validated with torch 2.7.1, torchaudio 2.7.1, transformers 4.57.1, x_transformers
 2.31.8, qwen-omni-utils (+ audioread, av), omegaconf, torchdiffeq and accelerate, plus `pip install -e <AuK clone>

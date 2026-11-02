@@ -30,12 +30,14 @@ public enum AuKError: Error, CustomStringConvertible {
 
 public enum WeightIO {
     /// Loads a safetensors file on the CPU stream. Floating tensors are cast to `dtype` unless their key matches
-    /// `keepFP32` (norm statistics, filter taps, fusion logits stay fp32 as the converter wrote them).
-    public static func load(_ url: URL, dtype: DType?, keepFP32: (String) -> Bool = { _ in false }) throws -> [String: MLXArray] {
+    /// `keepFP32` (norm statistics, filter taps, fusion logits stay fp32 as the converter wrote them). `only` keeps the
+    /// matching keys and drops the rest before anything is read (the load is lazy until the eval).
+    public static func load(_ url: URL, dtype: DType?, keepFP32: (String) -> Bool = { _ in false },
+                            only: ((String) -> Bool)? = nil) throws -> [String: MLXArray] {
         guard FileManager.default.fileExists(atPath: url.path) else { throw AuKError.missingFile(url.path) }
         return try Device.withDefaultDevice(.cpu) { () throws -> [String: MLXArray] in
             var out = [String: MLXArray]()
-            for (k, v) in try loadArrays(url: url) {
+            for (k, v) in try loadArrays(url: url) where only?(k) ?? true {
                 let floating = [DType.float16, .bfloat16, .float32].contains(v.dtype)
                 if floating, let d = dtype, !keepFP32(k), v.dtype != d {
                     out[k] = v.asType(d)
